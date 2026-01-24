@@ -24,7 +24,7 @@ import Contact from './pages/public/Contact'
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-cream flex flex-col">
+      <div data-theme="flowmotor" className="min-h-screen bg-base-100 text-base-content flex flex-col">
         {/* Barre de progression du scroll */}
         <ScrollProgress />
         
@@ -66,12 +66,12 @@ function App() {
  */
 function PlaceholderPage({ title, isAdmin }) {
   return (
-    <div className={`min-h-[60vh] flex items-center justify-center ${isAdmin ? 'bg-black-tech' : 'bg-cream'}`}>
+    <div className={`min-h-[60vh] flex items-center justify-center ${isAdmin ? 'bg-neutral text-neutral-content' : 'bg-base-100'}`}>
       <div className="text-center px-6">
-        <h1 className={`font-playfair text-3xl md:text-4xl font-bold mb-4 ${isAdmin ? 'text-cream' : 'text-aubergine'}`}>
+        <h1 className={`font-display text-3xl md:text-4xl font-bold mb-4 ${isAdmin ? 'text-neutral-content' : 'text-base-content'}`}>
           {title}
         </h1>
-        <p className={`font-roboto ${isAdmin ? 'text-cream/60' : 'text-aubergine/60'}`}>
+        <p className={`${isAdmin ? 'text-neutral-content/70' : 'text-base-content/70'}`}>
           Cette page sera bientôt disponible.
         </p>
       </div>

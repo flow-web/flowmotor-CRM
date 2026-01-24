@@ -61,7 +61,7 @@ function ImageWithPreload({
       
       {/* Overlay pendant le chargement */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-cream/20 to-aubergine/10 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-base-100/70 to-base-300/40 animate-pulse" />
       )}
     </div>
   )
