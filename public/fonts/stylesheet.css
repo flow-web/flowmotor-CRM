@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'MTM Palma 67';
+    src: url('MTMPalma67-Regular.eot');
+    src: local('MTM Palma 67 Regular'), local('MTMPalma67-Regular'),
+        url('MTMPalma67-Regular.eot?#iefix') format('embedded-opentype'),
+        url('MTMPalma67-Regular.woff2') format('woff2'),
+        url('MTMPalma67-Regular.woff') format('woff'),
+        url('MTMPalma67-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'MTM Palma 67 Estrecha';
+    src: url('MTMPalma67-Estrecha.eot');
+    src: local('MTM Palma 67 Estrecha'), local('MTMPalma67-Estrecha'),
+        url('MTMPalma67-Estrecha.eot?#iefix') format('embedded-opentype'),
+        url('MTMPalma67-Estrecha.woff2') format('woff2'),
+        url('MTMPalma67-Estrecha.woff') format('woff'),
+        url('MTMPalma67-Estrecha.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'MTM Palma 67 Ancha';
+    src: url('MTMPalma67-Ancha.eot');
+    src: local('MTM Palma 67 Ancha'), local('MTMPalma67-Ancha'),
+        url('MTMPalma67-Ancha.eot?#iefix') format('embedded-opentype'),
+        url('MTMPalma67-Ancha.woff2') format('woff2'),
+        url('MTMPalma67-Ancha.woff') format('woff'),
+        url('MTMPalma67-Ancha.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
