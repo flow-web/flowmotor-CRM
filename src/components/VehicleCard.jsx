@@ -14,7 +14,7 @@ function VehicleCard({ vehicle }) {
   return (
     <Link
       to={`/vehicule/${vehicle.slug}`}
-      className="card bg-base-100 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+      className="card card-premium group"
     >
       <figure className="relative">
         <ImageWithPreload

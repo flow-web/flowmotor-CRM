@@ -62,6 +62,7 @@ function Services() {
 
   return (
     <main className="bg-base-100">
+      {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img
@@ -69,156 +70,184 @@ function Services() {
             alt="Intérieur luxe automobile"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-neutral/90 via-neutral/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral/95 via-neutral/75 to-transparent" />
         </div>
 
-        <div className="container relative mx-auto px-6 py-20 text-center text-neutral-content lg:py-24">
-          <div className="badge badge-accent">Financement & Garantie</div>
-          <h1 className="mt-5 text-4xl font-semibold md:text-5xl">
+        <div className="container relative mx-auto px-6 py-24 text-center text-neutral-content lg:py-32">
+          <span className="text-xs uppercase tracking-[0.3em] text-accent">Financement & Garantie</span>
+          <h1 className="mt-5 text-4xl font-semibold font-display md:text-5xl">
             Roulez l&apos;esprit libre.
           </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-lg text-neutral-content/80">
+          <p className="mx-auto mt-5 max-w-3xl text-lg text-neutral-content/70 leading-relaxed">
             Des solutions sur-mesure et des garanties extensibles jusqu&apos;à 60 mois.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <Shield size={18} />
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm">
+            <div className="flex items-center gap-2 text-neutral-content/80">
+              <Shield size={18} className="text-accent" />
               Garantie jusqu&apos;à 5 ans
             </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp size={18} />
+            <div className="flex items-center gap-2 text-neutral-content/80">
+              <TrendingUp size={18} className="text-accent" />
               Taux avantageux
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={18} />
+            <div className="flex items-center gap-2 text-neutral-content/80">
+              <CheckCircle2 size={18} className="text-accent" />
               Réponse en 24h
             </div>
           </div>
         </div>
       </section>
 
-      <section className="container mx-auto px-6 py-16 lg:py-20">
-        <div className="text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-primary">Financement</p>
-          <h2 className="mt-3 text-3xl font-semibold md:text-4xl">Simulez votre mensualité</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base-content/70">
-            Ajustez durée et apport pour estimer votre mensualité.
-          </p>
-        </div>
+      {/* Financing Calculator */}
+      <section className="section-spacing relative overflow-hidden">
+        {/* Watermark */}
+        <img
+          src="/assets/gears.svg"
+          alt=""
+          aria-hidden="true"
+          className="absolute -left-40 top-1/2 -translate-y-1/2 w-[600px] h-auto opacity-[0.025] pointer-events-none select-none"
+          style={{ filter: 'brightness(0)' }}
+        />
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[2fr_1fr]">
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body gap-6">
-              <div className="text-center">
-                <p className="text-sm uppercase tracking-[0.2em] text-base-content/60">Prix du véhicule</p>
-              <p className="mt-2 text-3xl font-semibold text-accent">
-                {basePrice.toLocaleString('fr-FR')} €
-              </p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Durée du financement</span>
-                  <span className="text-lg font-semibold text-primary">{duration} mois</span>
-                </div>
-                <input
-                  type="range"
-                  min="12"
-                  max="72"
-                  step="6"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  className="range range-primary mt-3"
-                />
-                <div className="mt-2 flex justify-between text-xs text-base-content/60">
-                  <span>12 mois</span>
-                  <span>72 mois</span>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Votre apport initial</span>
-                  <span className="text-lg font-semibold text-accent">{deposit.toLocaleString('fr-FR')} €</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="30000"
-                  step="1000"
-                  value={deposit}
-                  onChange={(e) => setDeposit(Number(e.target.value))}
-                  className="range range-primary mt-3"
-                />
-                <div className="mt-2 flex justify-between text-xs text-base-content/60">
-                  <span>0 €</span>
-                  <span>30 000 €</span>
-                </div>
-              </div>
-
-              <button className="btn btn-accent">
-                Faire une demande de financement
-                <ArrowRight size={18} />
-              </button>
-            </div>
+        <div className="container relative mx-auto px-6">
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-primary">Financement</p>
+            <h2 className="mt-4 text-3xl font-semibold font-display md:text-4xl">Simulez votre mensualité</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base-content/60 leading-relaxed">
+              Ajustez durée et apport pour estimer votre mensualité.
+            </p>
           </div>
 
-          <div className="card bg-gradient-to-br from-base-100 to-base-200 shadow-xl">
-            <div className="card-body text-center">
-              <p className="text-xs uppercase tracking-[0.2em] text-base-content/60">
-                Mensualité estimée
-              </p>
-              <p className="mt-2 text-4xl font-semibold text-accent">
-                {monthlyPayment.toLocaleString('fr-FR')} €
-              </p>
-              <p className="text-sm text-base-content/70">/ mois</p>
-              <p className="mt-4 text-xs text-base-content/60">
-                * Simulation indicative avec TAEG 5%. Offre soumise à conditions.
-              </p>
+          <div className="mt-12 grid gap-8 lg:grid-cols-[2fr_1fr]">
+            <div className="card card-premium p-8">
+              <div className="space-y-8">
+                <div className="text-center pb-6">
+                  <p className="text-xs uppercase tracking-[0.2em] text-base-content/50">Prix du véhicule</p>
+                  <p className="mt-2 text-4xl font-semibold font-display text-accent">
+                    {basePrice.toLocaleString('fr-FR')} €
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-medium">Durée du financement</span>
+                    <span className="text-lg font-semibold text-primary">{duration} mois</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="12"
+                    max="72"
+                    step="6"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                    className="range-slider w-full"
+                  />
+                  <div className="mt-3 flex justify-between text-xs text-base-content/50">
+                    <span>12 mois</span>
+                    <span>72 mois</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-medium">Votre apport initial</span>
+                    <span className="text-lg font-semibold text-accent">{deposit.toLocaleString('fr-FR')} €</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="30000"
+                    step="1000"
+                    value={deposit}
+                    onChange={(e) => setDeposit(Number(e.target.value))}
+                    className="range-slider w-full"
+                  />
+                  <div className="mt-3 flex justify-between text-xs text-base-content/50">
+                    <span>0 €</span>
+                    <span>30 000 €</span>
+                  </div>
+                </div>
+
+                <button className="btn bg-[#5C3A2E] border-0 text-white w-full py-4 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/20">
+                  Faire une demande de financement
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="card card-premium bg-primary text-primary-content p-8 flex flex-col justify-center">
+              <div className="text-center">
+                <p className="text-xs uppercase tracking-[0.2em] text-primary-content/60">
+                  Mensualité estimée
+                </p>
+                <p className="mt-3 text-5xl font-semibold font-display">
+                  {monthlyPayment.toLocaleString('fr-FR')} €
+                </p>
+                <p className="mt-2 text-primary-content/60">/ mois</p>
+                <p className="mt-6 text-xs text-primary-content/50 leading-relaxed">
+                  * Simulation indicative avec TAEG 5%. Offre soumise à conditions.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-base-200 via-base-100 to-accent/10 py-16 lg:py-20">
-        <div className="container mx-auto px-6">
+      {/* Guarantee Options */}
+      <section className="section-spacing relative overflow-hidden">
+        {/* Watermark */}
+        <img
+          src="/assets/gear-motion.svg"
+          alt=""
+          aria-hidden="true"
+          className="absolute -right-32 bottom-0 w-[450px] h-auto opacity-[0.02] pointer-events-none select-none -rotate-12"
+          style={{ filter: 'brightness(0)' }}
+        />
+
+        <div className="container relative mx-auto px-6">
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-primary">Protection mécanique</p>
-            <h2 className="mt-3 text-3xl font-semibold md:text-4xl">Garanties premium</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base-content/70">
+            <h2 className="mt-4 text-3xl font-semibold font-display md:text-4xl">Garanties premium</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base-content/60 leading-relaxed">
               Partenariat Opteven, leader européen de la garantie panne mécanique.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-14 grid gap-8 lg:grid-cols-3">
             {guaranteeOptions.map((option, index) => (
               <div
                 key={index}
-                className={`card bg-base-100 shadow-xl ${option.highlighted ? 'ring-2 ring-primary/30' : ''}`}
+                className={`card card-premium p-8 ${option.highlighted ? 'ring-2 ring-primary/20 scale-[1.02]' : ''}`}
               >
-                <div className="card-body">
+                <div className="space-y-4">
                   {option.badge && (
-                    <div className="badge badge-primary gap-1">
-                      <Sparkles size={14} />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full text-xs font-medium text-primary">
+                      <Sparkles size={12} />
                       {option.badge}
                     </div>
                   )}
-                  <h3 className="mt-2 text-2xl font-semibold">{option.name}</h3>
-                  <p className="text-sm text-base-content/60">{option.duration}</p>
-                  <p className="mt-2 text-3xl font-semibold text-accent">{option.price}</p>
+                  <h3 className="text-2xl font-semibold font-display">{option.name}</h3>
+                  <p className="text-sm text-base-content/50">{option.duration}</p>
+                  <p className="text-3xl font-semibold font-display text-accent">{option.price}</p>
 
-                  <ul className="mt-4 space-y-2 text-sm text-base-content/70">
+                  <ul className="pt-4 space-y-3 text-sm text-base-content/70">
                     {option.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 size={16} className="text-primary" />
+                      <li key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 size={16} className="text-primary mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="card-actions mt-4">
-                    <button className={`btn ${option.highlighted ? 'btn-accent' : 'btn-outline btn-accent'}`}>
+                  <div className="pt-6">
+                    <button
+                      className={`btn w-full py-3 h-auto rounded-xl ${
+                        option.highlighted
+                          ? 'bg-[#5C3A2E] border-0 text-white hover:bg-[#5C3A2E]/90'
+                          : 'btn-outline border-primary/20 text-primary hover:bg-primary hover:text-primary-content hover:border-primary'
+                      }`}
+                    >
                       Choisir cette garantie
                     </button>
                   </div>

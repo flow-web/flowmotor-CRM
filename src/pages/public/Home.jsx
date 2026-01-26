@@ -58,12 +58,18 @@ function Home() {
             <p className="mt-6 text-lg text-neutral-content/80">
               Véhicules rares, préparation atelier complète et accompagnement sur-mesure pour une expérience d&apos;achat premium.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/stock" className="btn btn-accent">
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                to="/stock"
+                className="btn bg-[#5C3A2E] border-0 text-white px-8 py-3 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/25"
+              >
                 Voir le stock
                 <ArrowRight size={18} />
               </Link>
-              <Link to="/contact" className="btn btn-outline btn-accent">
+              <Link
+                to="/contact"
+                className="btn btn-ghost text-neutral-content border border-neutral-content/20 px-8 py-3 h-auto rounded-xl hover:bg-white/10 hover:border-neutral-content/30"
+              >
                 Nous contacter
               </Link>
             </div>
@@ -86,20 +92,29 @@ function Home() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-6">
+      <section className="section-spacing relative overflow-hidden">
+        {/* Watermark - Mission 3 */}
+        <img
+          src="/assets/gears.svg"
+          alt=""
+          aria-hidden="true"
+          className="absolute -right-32 top-1/2 -translate-y-1/2 w-[500px] h-auto opacity-[0.03] pointer-events-none select-none"
+          style={{ filter: 'brightness(0)' }}
+        />
+
+        <div className="container relative mx-auto px-6">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-primary">Notre sélection</p>
-              <h2 className="mt-3 text-3xl font-semibold md:text-4xl">Derniers arrivages</h2>
+              <h2 className="mt-3 text-3xl font-semibold md:text-4xl font-display">Derniers arrivages</h2>
             </div>
-            <Link to="/stock" className="btn btn-ghost">
+            <Link to="/stock" className="btn btn-ghost text-primary hover:bg-primary/5">
               Voir tout le stock
               <ArrowRight size={18} />
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {featuredVehicles.map((vehicle) => (
               <VehicleCard key={vehicle.slug} vehicle={vehicle} />
             ))}
@@ -107,64 +122,74 @@ function Home() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-base-200 via-base-100 to-accent/10 py-16 lg:py-24">
-        <div className="absolute -left-10 top-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent/15 blur-3xl" />
+      <section className="relative overflow-hidden section-spacing">
+        {/* Watermark - Mission 3 */}
+        <img
+          src="/assets/gear-motion.svg"
+          alt=""
+          aria-hidden="true"
+          className="absolute -left-20 top-20 w-[400px] h-auto opacity-[0.025] pointer-events-none select-none rotate-12"
+          style={{ filter: 'brightness(0)' }}
+        />
 
-        <div className="container relative mx-auto grid gap-8 px-6 lg:grid-cols-2 lg:items-center">
-          <div className="card bg-neutral text-neutral-content shadow-xl">
-            <div className="card-body">
-              <div className="badge badge-outline">Atelier FLOW MOTOR</div>
-              <h3 className="mt-3 text-3xl font-semibold">Préparation & performance</h3>
-              <p className="text-neutral-content/70">
+        <div className="absolute -left-10 top-10 h-56 w-56 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-accent/8 blur-3xl" />
+
+        <div className="container relative mx-auto grid gap-10 px-6 lg:grid-cols-2 lg:items-center">
+          <div className="card card-premium bg-primary text-primary-content">
+            <div className="card-body p-8">
+              <span className="text-xs uppercase tracking-[0.3em] text-primary-content/70">Atelier FLOW MOTOR</span>
+              <h3 className="mt-4 text-3xl font-semibold font-display">Préparation & performance</h3>
+              <p className="mt-3 text-primary-content/80 leading-relaxed">
                 Diagnostic complet, detailing premium et optimisation mécanique. Votre véhicule est prêt, impeccablement.
               </p>
-              <div className="card-actions mt-6">
-                <Link to="/atelier" className="btn btn-accent">
+              <div className="card-actions mt-8">
+                <Link to="/atelier" className="btn bg-accent text-white border-0 hover:bg-accent/90">
                   Découvrir l&apos;atelier
+                  <ArrowRight size={18} />
                 </Link>
               </div>
             </div>
           </div>
 
           <div className="grid gap-6">
-            <div className="card bg-base-100 shadow-lg">
-              <div className="card-body">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-box bg-primary/10 p-3">
-                    <Shield size={22} className="text-primary" />
+            <div className="card card-premium">
+              <div className="card-body p-6">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-2xl bg-primary/8 p-4">
+                    <Shield size={24} className="text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">Garantie premium</h4>
-                    <p className="text-sm text-base-content/70">Extensions jusqu&apos;à 60 mois.</p>
+                    <h4 className="font-semibold text-lg">Garantie premium</h4>
+                    <p className="text-sm text-base-content/60 mt-1">Extensions jusqu&apos;à 60 mois.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="card bg-base-100 shadow-lg">
-              <div className="card-body">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-box bg-primary/10 p-3">
-                    <Truck size={22} className="text-primary" />
+            <div className="card card-premium">
+              <div className="card-body p-6">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-2xl bg-primary/8 p-4">
+                    <Truck size={24} className="text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">Logistique maîtrisée</h4>
-                    <p className="text-sm text-base-content/70">Transport sécurisé et suivi complet.</p>
+                    <h4 className="font-semibold text-lg">Logistique maîtrisée</h4>
+                    <p className="text-sm text-base-content/60 mt-1">Transport sécurisé et suivi complet.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="card bg-base-100 shadow-lg">
-              <div className="card-body">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-box bg-primary/10 p-3">
-                    <Award size={22} className="text-primary" />
+            <div className="card card-premium">
+              <div className="card-body p-6">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-2xl bg-primary/8 p-4">
+                    <Award size={24} className="text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">Expertise reconnue</h4>
-                    <p className="text-sm text-base-content/70">Sélection rigoureuse, passion automobile.</p>
+                    <h4 className="font-semibold text-lg">Expertise reconnue</h4>
+                    <p className="text-sm text-base-content/60 mt-1">Sélection rigoureuse, passion automobile.</p>
                   </div>
                 </div>
               </div>

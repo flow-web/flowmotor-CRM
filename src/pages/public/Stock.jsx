@@ -103,102 +103,100 @@ function Stock() {
 
   return (
     <main className="bg-base-100">
-      <section className="relative overflow-hidden py-16 lg:py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-base-200/70 to-transparent" />
+      <section className="relative overflow-hidden section-spacing">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent" />
         <div className="container relative mx-auto px-6">
           <p className="text-xs uppercase tracking-[0.3em] text-primary">Catalogue d&apos;exception</p>
-          <h1 className="mt-3 text-4xl font-semibold md:text-5xl">Notre stock</h1>
-          <p className="mt-4 max-w-2xl text-base-content/70">
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl font-display">Notre stock</h1>
+          <p className="mt-5 max-w-2xl text-base-content/60 text-lg leading-relaxed">
             Une sélection premium de véhicules importés, expertisés et préparés par notre atelier.
           </p>
         </div>
       </section>
 
-      <section className="container mx-auto px-6 pb-20">
-        <div className="mb-6 flex items-center justify-between gap-4">
+      <section className="container mx-auto px-6 pb-24">
+        <div className="mb-8 flex items-center justify-between gap-4">
           <button
-            className="btn btn-outline btn-accent md:hidden"
+            className="btn bg-white text-primary hover:bg-white/80 md:hidden shadow-[0_8px_30px_-12px_rgba(61,30,30,0.12)]"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter size={16} />
-            {showFilters ? 'Masquer les filtres' : 'Filtrer'}
+            {showFilters ? 'Masquer' : 'Filtrer'}
           </button>
-          <div className="badge badge-primary">
+          <div className="px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary">
             {filteredVehicles.length} véhicule{filteredVehicles.length > 1 ? 's' : ''}
           </div>
         </div>
 
-        <div className={`card bg-base-100 shadow-lg ${showFilters ? 'block' : 'hidden'} md:block`}>
-          <div className="card-body">
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="form-control">
-                <span className="label-text text-sm uppercase tracking-wide">Marque</span>
-                <select
-                  value={filters.make}
-                  onChange={(e) => setFilters({ ...filters, make: e.target.value })}
-                  className="select select-bordered w-full"
-                >
-                  <option value="">Toutes les marques</option>
-                  {uniqueMakes.map(make => (
-                    <option key={make} value={make}>{make}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="form-control">
-                <span className="label-text text-sm uppercase tracking-wide">Budget max</span>
-                <select
-                  value={filters.maxBudget}
-                  onChange={(e) => setFilters({ ...filters, maxBudget: e.target.value })}
-                  className="select select-bordered w-full"
-                >
-                  <option value="">Tous les budgets</option>
-                  <option value="50000">Jusqu&apos;à 50 000 €</option>
-                  <option value="100000">Jusqu&apos;à 100 000 €</option>
-                  <option value="150000">Jusqu&apos;à 150 000 €</option>
-                  <option value="200000">Jusqu&apos;à 200 000 €</option>
-                  <option value="300000">Jusqu&apos;à 300 000 €</option>
-                </select>
-              </label>
-
-              <label className="form-control">
-                <span className="label-text text-sm uppercase tracking-wide">Origine</span>
-                <select
-                  value={filters.origin}
-                  onChange={(e) => setFilters({ ...filters, origin: e.target.value })}
-                  className="select select-bordered w-full"
-                >
-                  <option value="">Toutes les origines</option>
-                  {uniqueOrigins.map(origin => (
-                    <option key={origin} value={origin}>{origin}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-4">
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => setFilters({ make: '', maxBudget: '', origin: '' })}
+        <div className={`card card-premium p-6 ${showFilters ? 'block' : 'hidden'} md:block`}>
+          <div className="grid gap-6 md:grid-cols-3">
+            <label className="form-control">
+              <span className="label-text text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2">Marque</span>
+              <select
+                value={filters.make}
+                onChange={(e) => setFilters({ ...filters, make: e.target.value })}
+                className="select bg-base-100 w-full py-4 h-auto focus:border-accent focus:ring-2 focus:ring-accent/20 border-transparent"
               >
-                Réinitialiser
-              </button>
-            </div>
+                <option value="">Toutes les marques</option>
+                {uniqueMakes.map(make => (
+                  <option key={make} value={make}>{make}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="form-control">
+              <span className="label-text text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2">Budget max</span>
+              <select
+                value={filters.maxBudget}
+                onChange={(e) => setFilters({ ...filters, maxBudget: e.target.value })}
+                className="select bg-base-100 w-full py-4 h-auto focus:border-accent focus:ring-2 focus:ring-accent/20 border-transparent"
+              >
+                <option value="">Tous les budgets</option>
+                <option value="50000">Jusqu&apos;à 50 000 €</option>
+                <option value="100000">Jusqu&apos;à 100 000 €</option>
+                <option value="150000">Jusqu&apos;à 150 000 €</option>
+                <option value="200000">Jusqu&apos;à 200 000 €</option>
+                <option value="300000">Jusqu&apos;à 300 000 €</option>
+              </select>
+            </label>
+
+            <label className="form-control">
+              <span className="label-text text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2">Origine</span>
+              <select
+                value={filters.origin}
+                onChange={(e) => setFilters({ ...filters, origin: e.target.value })}
+                className="select bg-base-100 w-full py-4 h-auto focus:border-accent focus:ring-2 focus:ring-accent/20 border-transparent"
+              >
+                <option value="">Toutes les origines</option>
+                {uniqueOrigins.map(origin => (
+                  <option key={origin} value={origin}>{origin}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <button
+              className="btn btn-ghost btn-sm text-base-content/50 hover:text-primary hover:bg-primary/5"
+              onClick={() => setFilters({ make: '', maxBudget: '', origin: '' })}
+            >
+              Réinitialiser les filtres
+            </button>
           </div>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-12">
           {filteredVehicles.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {filteredVehicles.map(vehicle => (
                 <VehicleCard key={vehicle.slug} vehicle={vehicle} />
               ))}
             </div>
           ) : (
-            <div className="alert alert-warning shadow-lg">
-              <span>Aucun véhicule ne correspond à vos critères.</span>
+            <div className="card card-premium p-8 text-center">
+              <p className="text-base-content/60 mb-4">Aucun véhicule ne correspond à vos critères.</p>
               <button
-                className="btn btn-sm btn-accent"
+                className="btn bg-accent text-white border-0 hover:bg-accent/90"
                 onClick={() => setFilters({ make: '', maxBudget: '', origin: '' })}
               >
                 Réinitialiser

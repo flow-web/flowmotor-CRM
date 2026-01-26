@@ -18,8 +18,8 @@ function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-primary/20 bg-primary/95 text-primary-content backdrop-blur">
-      <div className="navbar container mx-auto px-4 sm:px-6">
+    <nav className="sticky top-0 z-50 bg-primary text-primary-content">
+      <div className="navbar container mx-auto px-4 sm:px-6 py-2">
         <div className="navbar-start gap-2">
           <div className="dropdown">
             <button tabIndex={0} className="btn btn-ghost lg:hidden" aria-label="Menu">
@@ -27,17 +27,20 @@ function Navbar() {
             </button>
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content z-[1] mt-3 w-56 rounded-box bg-base-100 p-2 text-base-content shadow-lg"
+              className="menu menu-sm dropdown-content z-[1] mt-3 w-56 rounded-2xl bg-white p-3 text-base-content shadow-[0_20px_50px_-12px_rgba(61,30,30,0.2)]"
             >
               {navLinks.map((link) => (
                 <li key={link.path}>
-                  <Link className={isActive(link.path) ? 'active font-semibold' : ''} to={link.path}>
+                  <Link
+                    className={`rounded-xl ${isActive(link.path) ? 'bg-primary/10 font-semibold text-primary' : ''}`}
+                    to={link.path}
+                  >
                     {link.name}
                   </Link>
                 </li>
               ))}
-              <li className="mt-1">
-                <Link to="/login">Espace Pro</Link>
+              <li className="mt-2">
+                <Link to="/login" className="bg-accent text-white rounded-xl">Espace Pro</Link>
               </li>
             </ul>
           </div>
@@ -52,7 +55,7 @@ function Navbar() {
               <span className="block font-display text-lg font-semibold tracking-wide">
                 FLOW MOTOR
               </span>
-              <span className="text-[11px] uppercase tracking-[0.3em] text-primary-content/60">
+              <span className="text-[10px] uppercase tracking-[0.35em] text-primary-content/50">
                 Luxury Imports
               </span>
             </div>
@@ -65,7 +68,7 @@ function Navbar() {
               <li key={link.path}>
                 <Link
                   to={link.path}
-                  className={isActive(link.path) ? 'active font-semibold' : ''}
+                  className={`rounded-lg transition-colors ${isActive(link.path) ? 'bg-white/10 font-semibold' : 'hover:bg-white/5'}`}
                 >
                   {link.name}
                 </Link>
@@ -75,7 +78,7 @@ function Navbar() {
         </div>
 
         <div className="navbar-end">
-          <Link to="/login" className="btn btn-accent btn-sm hidden sm:inline-flex">
+          <Link to="/login" className="btn bg-accent border-0 text-white btn-sm hidden sm:inline-flex hover:bg-accent/90">
             Espace Pro
           </Link>
         </div>

@@ -1,18 +1,44 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Lock, User, ArrowRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Lock, User, ArrowRight, AlertCircle } from 'lucide-react'
+import { useAuth } from '../../admin/context/AuthContext'
 
 function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login, isAuthenticated } = useAuth()
+
   const [formData, setFormData] = useState({ username: '', password: '' })
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Redirige si déjà connecté
+  const from = location.state?.from?.pathname || '/admin/dashboard'
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, navigate, from])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+    setError('') // Clear error on input change
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    navigate('/admin')
+    setError('')
+    setIsLoading(true)
+
+    const result = await login(formData.username, formData.password)
+
+    if (result.success) {
+      navigate(from, { replace: true })
+    } else {
+      setError(result.error || 'Identifiants incorrects')
+    }
+
+    setIsLoading(false)
   }
 
   return (
@@ -40,6 +66,13 @@ function Login() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-error/10 text-error rounded-lg text-sm">
+                    <AlertCircle size={18} />
+                    <span>{error}</span>
+                  </div>
+                )}
+
                 <label className="form-control">
                   <span className="label-text">Identifiant</span>
                   <div className="input input-bordered flex items-center gap-2">
@@ -49,9 +82,10 @@ function Login() {
                       name="username"
                       value={formData.username}
                       onChange={handleChange}
-                      placeholder="votre.identifiant"
+                      placeholder="admin"
                       required
                       className="grow"
+                      disabled={isLoading}
                     />
                   </div>
                 </label>
@@ -68,13 +102,23 @@ function Login() {
                       placeholder="••••••••"
                       required
                       className="grow"
+                      disabled={isLoading}
                     />
                   </div>
                 </label>
 
-                <button className="btn btn-accent w-full">
-                  Accéder au cockpit
-                  <ArrowRight size={18} />
+                <button className="btn btn-accent w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Connexion...
+                    </>
+                  ) : (
+                    <>
+                      Accéder au cockpit
+                      <ArrowRight size={18} />
+                    </>
+                  )}
                 </button>
               </form>
 
