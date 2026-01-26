@@ -1,15 +1,57 @@
 -- =====================================================
--- FLOW MOTOR CRM - Schema Supabase
+-- FLOW MOTOR CRM - Schema Supabase (IDEMPOTENT)
 -- =====================================================
--- Exécuter ce script dans Supabase SQL Editor
+-- Ce script peut etre execute plusieurs fois sans erreur
 -- =====================================================
+
+-- ===================
+-- 0. NETTOYAGE (DROP)
+-- ===================
+
+-- Supprime les policies existantes
+DROP POLICY IF EXISTS "auth_all_vehicles" ON vehicles;
+DROP POLICY IF EXISTS "auth_all_costs" ON vehicle_costs;
+DROP POLICY IF EXISTS "auth_all_documents" ON vehicle_documents;
+DROP POLICY IF EXISTS "auth_all_images" ON vehicle_images;
+DROP POLICY IF EXISTS "auth_all_timeline" ON vehicle_timeline;
+DROP POLICY IF EXISTS "auth_all_api_keys" ON api_keys;
+DROP POLICY IF EXISTS "auth_own_settings" ON settings;
+DROP POLICY IF EXISTS "auth_own_profile" ON profiles;
+
+-- Supprime les triggers existants
+DROP TRIGGER IF EXISTS vehicles_updated_at ON vehicles;
+DROP TRIGGER IF EXISTS settings_updated_at ON settings;
+DROP TRIGGER IF EXISTS on_vehicle_sold ON vehicles;
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- Supprime les vues existantes
+DROP VIEW IF EXISTS view_recent_sales;
+DROP VIEW IF EXISTS view_kpi_activity;
+DROP VIEW IF EXISTS view_kpi_financials;
+
+-- Supprime les fonctions existantes
+DROP FUNCTION IF EXISTS get_kpis(TEXT);
+DROP FUNCTION IF EXISTS validate_api_key(TEXT);
+DROP FUNCTION IF EXISTS handle_new_user();
+DROP FUNCTION IF EXISTS notify_vehicle_sold();
+DROP FUNCTION IF EXISTS update_updated_at();
+
+-- Supprime les tables (ordre inverse des FK)
+DROP TABLE IF EXISTS settings CASCADE;
+DROP TABLE IF EXISTS api_keys CASCADE;
+DROP TABLE IF EXISTS vehicle_timeline CASCADE;
+DROP TABLE IF EXISTS vehicle_images CASCADE;
+DROP TABLE IF EXISTS vehicle_documents CASCADE;
+DROP TABLE IF EXISTS vehicle_costs CASCADE;
+DROP TABLE IF EXISTS vehicles CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
 
 -- ===================
 -- 1. TABLES PRINCIPALES
 -- ===================
 
 -- Profils utilisateurs (extension de auth.users)
-CREATE TABLE IF NOT EXISTS profiles (
+CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
   name TEXT,
@@ -17,8 +59,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Véhicules (table principale normalisée)
-CREATE TABLE IF NOT EXISTS vehicles (
+-- Vehicules (table principale normalisee)
+CREATE TABLE vehicles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vin TEXT,
   make TEXT NOT NULL,
@@ -45,15 +87,15 @@ CREATE TABLE IF NOT EXISTS vehicles (
 
   -- Workflow
   status TEXT DEFAULT 'SOURCING'
-    CHECK (status IN ('SOURCING','ACHETÉ','TRANSPORT','ATELIER','EN_VENTE','VENDU')),
+    CHECK (status IN ('SOURCING','ACHETE','TRANSPORT','ATELIER','EN_VENTE','VENDU')),
 
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Coûts (normalisé depuis costs[])
-CREATE TABLE IF NOT EXISTS vehicle_costs (
+-- Couts (normalise depuis costs[])
+CREATE TABLE vehicle_costs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
@@ -62,8 +104,8 @@ CREATE TABLE IF NOT EXISTS vehicle_costs (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Documents (normalisé depuis documents[])
-CREATE TABLE IF NOT EXISTS vehicle_documents (
+-- Documents (normalise depuis documents[])
+CREATE TABLE vehicle_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
@@ -73,8 +115,8 @@ CREATE TABLE IF NOT EXISTS vehicle_documents (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Images (normalisé depuis images[])
-CREATE TABLE IF NOT EXISTS vehicle_images (
+-- Images (normalise depuis images[])
+CREATE TABLE vehicle_images (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
   url TEXT NOT NULL,
@@ -83,7 +125,7 @@ CREATE TABLE IF NOT EXISTS vehicle_images (
 );
 
 -- Timeline workflow
-CREATE TABLE IF NOT EXISTS vehicle_timeline (
+CREATE TABLE vehicle_timeline (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID REFERENCES vehicles(id) ON DELETE CASCADE,
   step TEXT NOT NULL,
@@ -93,8 +135,8 @@ CREATE TABLE IF NOT EXISTS vehicle_timeline (
   UNIQUE(vehicle_id, step)
 );
 
--- Clés API pour Holding Dashboard
-CREATE TABLE IF NOT EXISTS api_keys (
+-- Cles API pour Holding Dashboard
+CREATE TABLE api_keys (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   key_hash TEXT NOT NULL UNIQUE,
@@ -107,7 +149,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
 );
 
 -- Settings utilisateur
-CREATE TABLE IF NOT EXISTS settings (
+CREATE TABLE settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE,
   default_margin NUMERIC(5,2) DEFAULT 15,
@@ -124,20 +166,20 @@ CREATE TABLE IF NOT EXISTS settings (
 -- 2. INDEX
 -- ===================
 
-CREATE INDEX IF NOT EXISTS idx_vehicles_status ON vehicles(status);
-CREATE INDEX IF NOT EXISTS idx_vehicles_created_at ON vehicles(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_vehicle_costs_vehicle_id ON vehicle_costs(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_vehicle_documents_vehicle_id ON vehicle_documents(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_vehicle_images_vehicle_id ON vehicle_images(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_vehicle_timeline_vehicle_id ON vehicle_timeline(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
+CREATE INDEX idx_vehicles_status ON vehicles(status);
+CREATE INDEX idx_vehicles_created_at ON vehicles(created_at DESC);
+CREATE INDEX idx_vehicle_costs_vehicle_id ON vehicle_costs(vehicle_id);
+CREATE INDEX idx_vehicle_documents_vehicle_id ON vehicle_documents(vehicle_id);
+CREATE INDEX idx_vehicle_images_vehicle_id ON vehicle_images(vehicle_id);
+CREATE INDEX idx_vehicle_timeline_vehicle_id ON vehicle_timeline(vehicle_id);
+CREATE INDEX idx_api_keys_key_hash ON api_keys(key_hash);
 
 -- ===================
 -- 3. TRIGGERS
 -- ===================
 
 -- Trigger pour updated_at automatique
-CREATE OR REPLACE FUNCTION update_updated_at()
+CREATE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -145,16 +187,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER vehicles_updated_at
+CREATE TRIGGER vehicles_updated_at
   BEFORE UPDATE ON vehicles
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
-CREATE OR REPLACE TRIGGER settings_updated_at
+CREATE TRIGGER settings_updated_at
   BEFORE UPDATE ON settings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- Trigger pour notification véhicule vendu
-CREATE OR REPLACE FUNCTION notify_vehicle_sold()
+-- Trigger pour notification vehicule vendu
+CREATE FUNCTION notify_vehicle_sold()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.status = 'VENDU' AND OLD.status != 'VENDU' THEN
@@ -171,12 +213,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER on_vehicle_sold
+CREATE TRIGGER on_vehicle_sold
   AFTER UPDATE OF status ON vehicles
   FOR EACH ROW EXECUTE FUNCTION notify_vehicle_sold();
 
--- Trigger pour créer un profil automatiquement
-CREATE OR REPLACE FUNCTION handle_new_user()
+-- Trigger pour creer un profil automatiquement
+CREATE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, email, name, role)
@@ -190,25 +232,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Vérifie si le trigger existe avant de le créer
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_trigger WHERE tgname = 'on_auth_user_created'
-  ) THEN
-    CREATE TRIGGER on_auth_user_created
-      AFTER INSERT ON auth.users
-      FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-  END IF;
-END
-$$;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- ===================
 -- 4. VUES REPORTING (API Holding)
 -- ===================
 
 -- Vue KPI Financiers
-CREATE OR REPLACE VIEW view_kpi_financials AS
+CREATE VIEW view_kpi_financials AS
 SELECT
   COALESCE(SUM(CASE WHEN status = 'VENDU' THEN selling_price END), 0) AS ca_total,
   COALESCE(SUM(CASE WHEN status = 'VENDU'
@@ -220,8 +253,8 @@ SELECT
   COUNT(*) AS total_vehicules
 FROM vehicles;
 
--- Vue KPI Activité par statut
-CREATE OR REPLACE VIEW view_kpi_activity AS
+-- Vue KPI Activite par statut
+CREATE VIEW view_kpi_activity AS
 SELECT
   status,
   COUNT(*) AS count,
@@ -230,8 +263,8 @@ SELECT
 FROM vehicles
 GROUP BY status;
 
--- Vue dernières ventes
-CREATE OR REPLACE VIEW view_recent_sales AS
+-- Vue dernieres ventes
+CREATE VIEW view_recent_sales AS
 SELECT
   v.id,
   v.make,
@@ -252,7 +285,7 @@ ORDER BY v.updated_at DESC
 LIMIT 10;
 
 -- ===================
--- 5. SÉCURITÉ RLS
+-- 5. SECURITE RLS
 -- ===================
 
 -- Active RLS sur toutes les tables
@@ -265,7 +298,7 @@ ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- Policies pour utilisateurs authentifiés (accès complet)
+-- Policies pour utilisateurs authentifies (acces complet)
 CREATE POLICY "auth_all_vehicles" ON vehicles
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
@@ -290,15 +323,12 @@ CREATE POLICY "auth_own_settings" ON settings
 CREATE POLICY "auth_own_profile" ON profiles
   FOR ALL TO authenticated USING (id = auth.uid()) WITH CHECK (id = auth.uid());
 
--- Policies pour accès API externe (lecture seule avec clé valide)
--- Note: L'accès API se fait via une Edge Function ou RPC avec vérification de la clé
-
 -- ===================
 -- 6. FONCTIONS RPC
 -- ===================
 
--- Fonction pour valider une clé API
-CREATE OR REPLACE FUNCTION validate_api_key(api_key_hash TEXT)
+-- Fonction pour valider une cle API
+CREATE FUNCTION validate_api_key(api_key_hash TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE
   key_valid BOOLEAN;
@@ -310,7 +340,7 @@ BEGIN
     AND (expires_at IS NULL OR expires_at > NOW())
   ) INTO key_valid;
 
-  -- Met à jour last_used_at si valide
+  -- Met a jour last_used_at si valide
   IF key_valid THEN
     UPDATE api_keys SET last_used_at = NOW() WHERE key_hash = api_key_hash;
   END IF;
@@ -319,13 +349,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Fonction pour obtenir les KPIs (accessible via clé API)
-CREATE OR REPLACE FUNCTION get_kpis(api_key_hash TEXT)
+-- Fonction pour obtenir les KPIs (accessible via cle API)
+CREATE FUNCTION get_kpis(api_key_hash TEXT)
 RETURNS JSON AS $$
 DECLARE
   result JSON;
 BEGIN
-  -- Valide la clé API
+  -- Valide la cle API
   IF NOT validate_api_key(api_key_hash) THEN
     RAISE EXCEPTION 'Invalid or expired API key';
   END IF;
@@ -342,14 +372,20 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ===================
--- 7. DONNÉES INITIALES (optionnel)
+-- 7. DONNEES INITIALES
 -- ===================
 
--- Insère des paramètres par défaut si la table est vide
+-- Insere des parametres par defaut
 INSERT INTO settings (user_id, default_margin, vat_rate, vat_on_margin)
-SELECT NULL, 15, 20, true
-WHERE NOT EXISTS (SELECT 1 FROM settings WHERE user_id IS NULL);
+VALUES (NULL, 15, 20, true);
+
+-- ===================
+-- 8. STORAGE BUCKET
+-- ===================
+-- A executer separement dans Storage > New bucket
+-- Nom: vehicles
+-- Public: true
 
 -- =====================================================
--- FIN DU SCRIPT
+-- FIN DU SCRIPT - Execution reussie = tout est pret
 -- =====================================================

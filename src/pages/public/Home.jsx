@@ -38,54 +38,69 @@ function Home() {
 
   return (
     <main className="bg-base-100">
-      <section className="relative overflow-hidden">
+      {/* HERO SECTION */}
+      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+        {/* Background Image */}
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=1920&q=80"
             alt="Véhicule de luxe"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-neutral/95 via-neutral/70 to-transparent" />
-          <div className="absolute -top-24 right-10 h-72 w-72 rounded-full bg-accent/25 blur-3xl animate-[slow-float_10s_ease-in-out_infinite]" />
+          {/* Overlay Dégradé - Noir vers transparent */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          {/* Accent glow */}
+          <div className="absolute -top-24 right-10 h-72 w-72 rounded-full bg-[#5C3A2E]/30 blur-3xl animate-[slow-float_10s_ease-in-out_infinite]" />
         </div>
 
         <div className="container relative mx-auto px-6 py-20 lg:py-28">
-          <div className="max-w-2xl text-neutral-content">
-            <div className="badge badge-accent uppercase tracking-[0.3em]">Import Suisse & Japon</div>
-            <h1 className="mt-6 text-4xl font-semibold leading-tight md:text-6xl text-balance animate-[soft-rise_0.6s_ease-out]">
+          <div className="max-w-2xl">
+            {/* Badge */}
+            <div className="inline-block px-4 py-2 rounded-full bg-[#5C3A2E] text-[#F4E8D8] text-xs uppercase tracking-[0.3em] font-medium">
+              Import Suisse & Japon
+            </div>
+
+            {/* Titre en Blanc/Crème */}
+            <h1 className="mt-6 text-4xl font-semibold leading-tight md:text-6xl text-balance animate-[soft-rise_0.6s_ease-out] text-white font-display">
               L&apos;excellence automobile, sélectionnée pour les passionnés exigeants.
             </h1>
-            <p className="mt-6 text-lg text-neutral-content/80">
+
+            {/* Sous-titre en Crème */}
+            <p className="mt-6 text-lg text-[#F4E8D8]/90 leading-relaxed">
               Véhicules rares, préparation atelier complète et accompagnement sur-mesure pour une expérience d&apos;achat premium.
             </p>
+
+            {/* Boutons */}
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
                 to="/stock"
-                className="btn bg-[#5C3A2E] border-0 text-white px-8 py-3 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/25"
+                className="btn bg-[#5C3A2E] border-0 text-white px-8 py-3 h-auto rounded-xl hover:bg-[#5C3A2E]/80 shadow-lg shadow-[#5C3A2E]/40 font-medium"
               >
                 Voir le stock
                 <ArrowRight size={18} />
               </Link>
               <Link
                 to="/contact"
-                className="btn btn-ghost text-neutral-content border border-neutral-content/20 px-8 py-3 h-auto rounded-xl hover:bg-white/10 hover:border-neutral-content/30"
+                className="btn bg-transparent text-white border-2 border-white/80 px-8 py-3 h-auto rounded-xl hover:bg-white/10 hover:border-white font-medium"
               >
                 Nous contacter
               </Link>
             </div>
 
-            <div className="stats stats-vertical mt-10 bg-neutral/40 text-neutral-content shadow sm:stats-horizontal">
-              <div className="stat">
-                <div className="stat-title text-neutral-content/70">Imports signés</div>
-                <div className="stat-value text-2xl">150+</div>
+            {/* Stats */}
+            <div className="mt-12 flex flex-wrap gap-8 sm:gap-12">
+              <div className="text-center sm:text-left">
+                <div className="text-3xl font-bold text-white">150+</div>
+                <div className="text-sm text-[#F4E8D8]/70 mt-1">Imports signés</div>
               </div>
-              <div className="stat">
-                <div className="stat-title text-neutral-content/70">Expertise</div>
-                <div className="stat-value text-2xl">48h</div>
+              <div className="text-center sm:text-left">
+                <div className="text-3xl font-bold text-white">48h</div>
+                <div className="text-sm text-[#F4E8D8]/70 mt-1">Expertise</div>
               </div>
-              <div className="stat">
-                <div className="stat-title text-neutral-content/70">Réseau VIP</div>
-                <div className="stat-value text-2xl">Europe</div>
+              <div className="text-center sm:text-left">
+                <div className="text-3xl font-bold text-white">Europe</div>
+                <div className="text-sm text-[#F4E8D8]/70 mt-1">Réseau VIP</div>
               </div>
             </div>
           </div>
