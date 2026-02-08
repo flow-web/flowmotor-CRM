@@ -26,17 +26,19 @@ import Dashboard from './admin/pages/Dashboard'
 import AdminStock from './admin/pages/Stock'
 import Sourcing from './admin/pages/Sourcing'
 import VehicleCockpit from './admin/pages/VehicleCockpit'
+import Clients from './admin/pages/Clients'
 import Settings from './admin/pages/Settings'
 
 /**
  * PublicLayout - Layout pour les pages publiques (avec Navbar/Footer)
+ * pt-20 pour compenser la navbar fixed de 80px
  */
 function PublicLayout() {
   return (
-    <div data-theme="flowmotor" className="min-h-screen bg-base-100 text-base-content flex flex-col">
+    <div data-theme="flowmotor" className="min-h-screen bg-[#F4E8D8] text-[#3D1E1E] flex flex-col">
       <ScrollProgress />
       <Navbar />
-      <div className="flex-grow">
+      <div className="flex-grow pt-20">
         <Outlet />
       </div>
       <Footer />
@@ -88,6 +90,7 @@ function App() {
             <Route path="/admin/sourcing" element={<Sourcing />} />
             <Route path="/admin/stock" element={<AdminStock />} />
             <Route path="/admin/vehicle/:id" element={<VehicleCockpit />} />
+            <Route path="/admin/clients" element={<Clients />} />
             <Route path="/admin/settings" element={<Settings />} />
           </Route>
         </Route>

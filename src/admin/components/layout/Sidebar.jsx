@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Search,
   Car,
+  Users,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -15,9 +16,14 @@ const navItems = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/admin/sourcing', label: 'Sourcing', icon: Search },
   { path: '/admin/stock', label: 'Stock', icon: Car },
+  { path: '/admin/clients', label: 'Clients', icon: Users },
   { path: '/admin/settings', label: 'Paramètres', icon: Settings }
 ]
 
+/**
+ * Sidebar - Navigation Admin CRM
+ * Couleur Aubergine #3D1E1E
+ */
 function Sidebar() {
   const location = useLocation()
   const { sidebarCollapsed, toggleSidebar } = useUI()
@@ -26,13 +32,9 @@ function Sidebar() {
   const isActive = (path) => location.pathname === path
 
   return (
-    <aside
-      className={`fixed left-0 top-0 h-screen bg-[#0A0707] border-r border-white/5 flex flex-col z-40 transition-all duration-300 ${
-        sidebarCollapsed ? 'w-16' : 'w-60'
-      }`}
-    >
+    <div className="h-full bg-[#3D1E1E] flex flex-col">
       {/* Logo */}
-      <div className="p-4 border-b border-white/5">
+      <div className="p-4 border-b border-white/10">
         <Link to="/admin/dashboard" className="flex items-center gap-3">
           <img
             src="/assets/engine-white.svg"
@@ -53,7 +55,7 @@ function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-2 space-y-1">
+      <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item.path)
@@ -65,7 +67,7 @@ function Sidebar() {
               className={`nav-admin-item ${active ? 'active' : ''}`}
               title={sidebarCollapsed ? item.label : undefined}
             >
-              <Icon size={20} className={active ? 'text-accent' : 'text-white/60'} />
+              <Icon size={20} className={active ? 'text-[#C4A484]' : 'text-white/60'} />
               {!sidebarCollapsed && (
                 <span className={active ? 'text-white font-medium' : 'text-white/60'}>
                   {item.label}
@@ -77,7 +79,7 @@ function Sidebar() {
       </nav>
 
       {/* User & Actions */}
-      <div className="p-3 border-t border-white/5 space-y-2">
+      <div className="p-3 border-t border-white/10 space-y-2">
         {/* User info */}
         {!sidebarCollapsed && user && (
           <div className="px-3 py-2">
@@ -88,7 +90,7 @@ function Sidebar() {
         {/* Logout */}
         <button
           onClick={logout}
-          className="nav-admin-item w-full text-white/40 hover:text-white/60"
+          className="nav-admin-item w-full text-white/40 hover:text-red-400"
           title={sidebarCollapsed ? 'Déconnexion' : undefined}
         >
           <LogOut size={20} />
@@ -98,14 +100,14 @@ function Sidebar() {
         {/* Toggle */}
         <button
           onClick={toggleSidebar}
-          className="nav-admin-item w-full text-white/40 hover:text-white/60"
+          className="nav-admin-item w-full text-white/40 hover:text-white"
           title={sidebarCollapsed ? 'Agrandir' : 'Réduire'}
         >
           {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           {!sidebarCollapsed && <span>Réduire</span>}
         </button>
       </div>
-    </aside>
+    </div>
   )
 }
 

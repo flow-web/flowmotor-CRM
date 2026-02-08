@@ -103,53 +103,47 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const login = async (emailOrUsername, password) => {
-    // Si c'est les credentials demo, utilise le mode demo
-    if (emailOrUsername === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      const authData = {
-        token: `demo_token_${Date.now()}`,
-        user: DEMO_USER
-      }
-
-      localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(authData))
-      setUser(DEMO_USER)
-      setAuthMode('demo')
-
-      return { success: true }
+  /**
+   * Login avec Supabase
+   * @param {string} email - Adresse email
+   * @param {string} password - Mot de passe
+   */
+  const login = async (email, password) => {
+    // Vérifie que Supabase est disponible
+    if (!supabase) {
+      console.error('Supabase non configuré')
+      return { success: false, error: 'Service d\'authentification non disponible' }
     }
 
-    // Sinon, essaie Supabase si disponible
-    if (!isDemoMode() && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: emailOrUsername,
-          password
+    try {
+      // Appel Supabase signInWithPassword
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) {
+        console.error('Erreur Supabase:', error.message)
+        return { success: false, error: error.message }
+      }
+
+      if (data.user) {
+        const profile = await fetchUserProfile(data.user.id)
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          name: profile?.name || data.user.email.split('@')[0],
+          role: profile?.role || 'admin'
         })
-
-        if (error) {
-          return { success: false, error: error.message }
-        }
-
-        if (data.user) {
-          const profile = await fetchUserProfile(data.user.id)
-          setUser({
-            id: data.user.id,
-            email: data.user.email,
-            name: profile?.name || data.user.email.split('@')[0],
-            role: profile?.role || 'user'
-          })
-          setAuthMode('supabase')
-          return { success: true }
-        }
-      } catch (err) {
-        console.error('Erreur login Supabase:', err)
-        return { success: false, error: 'Erreur de connexion' }
+        setAuthMode('supabase')
+        return { success: true }
       }
-    }
 
-    return { success: false, error: 'Identifiants incorrects' }
+      return { success: false, error: 'Aucun utilisateur trouvé' }
+    } catch (err) {
+      console.error('Erreur login:', err)
+      return { success: false, error: 'Erreur de connexion au serveur' }
+    }
   }
 
   const register = async (email, password, name) => {

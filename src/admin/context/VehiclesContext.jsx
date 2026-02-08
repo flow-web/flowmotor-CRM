@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { STORAGE_KEYS, VEHICLE_STATUS, WORKFLOW_ORDER } from '../utils/constants'
 import { calculatePRU, calculateStockStats } from '../utils/calculations'
 import { generateId } from '../utils/formatters'
@@ -16,6 +16,7 @@ import {
   deleteCost as supabaseDeleteCost,
   migrateFromLocalStorage
 } from '../../lib/supabase'
+import { supabase } from '../../lib/supabase/client'
 
 const VehiclesContext = createContext(null)
 
@@ -32,6 +33,7 @@ export function VehiclesProvider({ children }) {
   const [error, setError] = useState(null)
   const [dataMode, setDataMode] = useState(DATA_MODE.LOCAL)
   const [connectionStatus, setConnectionStatus] = useState({ connected: false, mode: 'checking' })
+  const hasLoadedOnce = useRef(false)
 
   // Vérifie la connexion Supabase au démarrage
   useEffect(() => {
@@ -53,37 +55,46 @@ export function VehiclesProvider({ children }) {
   }, [vehicles, isLoading, dataMode])
 
   const checkConnection = async () => {
-    if (isDemoMode()) {
-      setConnectionStatus({ connected: false, mode: 'demo' })
-      setDataMode(DATA_MODE.LOCAL)
-      return
-    }
+    try {
+      if (isDemoMode()) {
+        setConnectionStatus({ connected: false, mode: 'demo' })
+        setDataMode(DATA_MODE.LOCAL)
+        return
+      }
 
-    const status = await checkSupabaseConnection()
-    setConnectionStatus(status)
+      const status = await checkSupabaseConnection()
+      setConnectionStatus(status)
 
-    if (status.connected) {
-      setDataMode(DATA_MODE.SUPABASE)
-    } else {
+      if (status.connected) {
+        setDataMode(DATA_MODE.SUPABASE)
+      } else {
+        setDataMode(DATA_MODE.LOCAL)
+      }
+    } catch (err) {
+      console.error('[checkConnection] Erreur fatale:', err)
+      // Fallback garanti — ne jamais rester en 'checking'
+      setConnectionStatus({ connected: false, mode: 'offline' })
       setDataMode(DATA_MODE.LOCAL)
     }
   }
 
+  // Chargement complet (premier appel = skeleton, ensuite silencieux)
   const loadVehicles = async () => {
-    setIsLoading(true)
+    // Premier appel : montre le skeleton. Appels suivants : silencieux
+    if (!hasLoadedOnce.current) {
+      setIsLoading(true)
+    }
     setError(null)
 
     try {
       if (dataMode === DATA_MODE.SUPABASE) {
-        // Charge depuis Supabase
         const supabaseVehicles = await supabaseFetchVehicles()
         setVehicles(supabaseVehicles)
       } else {
-        // Charge depuis localStorage
         loadVehiclesFromLocalStorage()
       }
     } catch (err) {
-      console.error('Erreur chargement véhicules:', err)
+      console.error('[loadVehicles] Erreur:', err)
       setError('Erreur de chargement des données')
       // Fallback sur localStorage en cas d'erreur Supabase
       if (dataMode === DATA_MODE.SUPABASE) {
@@ -92,6 +103,7 @@ export function VehiclesProvider({ children }) {
       }
     } finally {
       setIsLoading(false)
+      hasLoadedOnce.current = true
     }
   }
 
@@ -358,52 +370,131 @@ export function VehiclesProvider({ children }) {
     }))
   }
 
-  // Images Management
-  const addImage = (vehicleId, image) => {
-    const newImage = {
-      id: generateId(),
-      ...image,
-      order: 999
+  // ============================================
+  // IMAGES MANAGEMENT — Appels directs Supabase
+  // ============================================
+
+  const addImages = async (vehicleId, newImagesList) => {
+    // Ajouter un ID unique à chaque image
+    const stamped = newImagesList.map(img => ({ id: generateId(), ...img }))
+
+    // 1. State local immédiat — utilise prev pour éviter la stale closure
+    setVehicles(prev => prev.map(v => {
+      if (v.id !== vehicleId) return v
+      return {
+        ...v,
+        images: [...(v.images || []), ...stamped],
+        updatedAt: new Date().toISOString()
+      }
+    }))
+
+    // 2. Persist Supabase — lire le DB actuel, merger, sauver (évite race condition)
+    if (dataMode === DATA_MODE.SUPABASE && supabase) {
+      try {
+        // Lire les images actuelles depuis la DB
+        const { data, error: readError } = await supabase
+          .from('vehicles')
+          .select('images')
+          .eq('id', vehicleId)
+          .single()
+
+        if (readError) {
+          console.error('[addImages] Read error:', readError.message)
+          return
+        }
+
+        const currentDbImages = Array.isArray(data?.images) ? data.images : []
+        const merged = [...currentDbImages, ...stamped]
+
+        const { error } = await supabase
+          .from('vehicles')
+          .update({ images: merged })
+          .eq('id', vehicleId)
+
+        if (error) {
+          console.error('[addImages] Supabase error:', error.message)
+        }
+      } catch (err) {
+        console.error('[addImages] Network error:', err)
+      }
+    }
+  }
+
+  const deleteImage = async (vehicleId, imagePath) => {
+    const vehicle = vehicles.find(v => v.id === vehicleId)
+    if (!vehicle) return
+
+    // 1. Storage : Supprimer le fichier du bucket
+    if (dataMode === DATA_MODE.SUPABASE && supabase && imagePath) {
+      try {
+        const { error: storageError } = await supabase.storage
+          .from('vehicles')
+          .remove([imagePath])
+        if (storageError) {
+          console.error('[deleteImage] Storage error:', storageError.message)
+        }
+      } catch (err) {
+        console.error('[deleteImage] Storage network error:', err)
+      }
     }
 
+    // 2. Database : Filtrer le tableau pour retirer cette image
+    const newImages = (vehicle.images || []).filter(i => i.path !== imagePath)
+
+    // 3. State local immédiat (UI réactive)
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
-      const images = [...v.images, newImage]
-      if (images.length === 1) {
-        images[0].isPrimary = true
-      }
-      return {
-        ...v,
-        images,
-        updatedAt: new Date().toISOString()
-      }
+      return { ...v, images: newImages, updatedAt: new Date().toISOString() }
     }))
+
+    // 4. Persist Supabase
+    if (dataMode === DATA_MODE.SUPABASE && supabase) {
+      try {
+        const { error } = await supabase
+          .from('vehicles')
+          .update({ images: newImages })
+          .eq('id', vehicleId)
+        if (error) {
+          console.error('[deleteImage] DB error:', error.message)
+        }
+      } catch (err) {
+        console.error('[deleteImage] DB network error:', err)
+      }
+    }
   }
 
-  const deleteImage = (vehicleId, imageId) => {
-    setVehicles(prev => prev.map(v => {
-      if (v.id !== vehicleId) return v
-      const images = v.images.filter(i => i.id !== imageId)
-      if (images.length > 0 && !images.some(i => i.isPrimary)) {
-        images[0].isPrimary = true
-      }
-      return {
-        ...v,
-        images,
-        updatedAt: new Date().toISOString()
-      }
-    }))
-  }
+  const setPrimaryImage = async (vehicleId, imagePath) => {
+    const vehicle = vehicles.find(v => v.id === vehicleId)
+    if (!vehicle) return
 
-  const setPrimaryImage = (vehicleId, imageId) => {
+    const currentImages = vehicle.images || []
+    const targetIndex = currentImages.findIndex(i => i.path === imagePath)
+    if (targetIndex < 0) return
+
+    // Déplacer l'image choisie à l'index 0 = image principale
+    const target = currentImages[targetIndex]
+    const newImages = [target, ...currentImages.filter((_, idx) => idx !== targetIndex)]
+
+    // 1. State local immédiat (UI réactive)
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
-      return {
-        ...v,
-        images: v.images.map(i => ({ ...i, isPrimary: i.id === imageId })),
-        updatedAt: new Date().toISOString()
-      }
+      return { ...v, images: newImages, updatedAt: new Date().toISOString() }
     }))
+
+    // 2. Persist Supabase
+    if (dataMode === DATA_MODE.SUPABASE && supabase) {
+      try {
+        const { error } = await supabase
+          .from('vehicles')
+          .update({ images: newImages })
+          .eq('id', vehicleId)
+        if (error) {
+          console.error('[setPrimaryImage] Supabase error:', error.message)
+        }
+      } catch (err) {
+        console.error('[setPrimaryImage] Network error:', err)
+      }
+    }
   }
 
   // Migration localStorage -> Supabase
@@ -475,7 +566,7 @@ export function VehiclesProvider({ children }) {
     deleteDocument,
 
     // Images
-    addImage,
+    addImages,
     deleteImage,
     setPrimaryImage,
 

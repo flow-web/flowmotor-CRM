@@ -6,23 +6,25 @@ import StatusBadge from '../components/shared/StatusBadge'
 import { useVehicles } from '../context/VehiclesContext'
 import { formatPrice, formatRelativeDate, formatVehicleName } from '../utils/formatters'
 import { calculatePRU, calculateMarginPercent } from '../utils/calculations'
-import { VEHICLE_STATUS } from '../utils/constants'
-
+/**
+ * Dashboard - Vue globale du CRM FLOW MOTOR
+ * Design: Fond sombre #1a1212, Accent #C4A484, Boutons #5C3A2E
+ */
 function Dashboard() {
   const { vehicles, stats, vehiclesByStatus } = useVehicles()
 
   // Derniers véhicules ajoutés
-  const recentVehicles = [...vehicles]
+  const recentVehicles = [...(vehicles || [])]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5)
 
-  // Véhicules en cours (pas vendus)
-  const activeCount = vehicles.filter(v => v.status !== VEHICLE_STATUS.VENDU).length
-  const inTransportCount = vehiclesByStatus[VEHICLE_STATUS.TRANSPORT]?.length || 0
-  const forSaleCount = vehiclesByStatus[VEHICLE_STATUS.EN_VENTE]?.length || 0
+  // KPI — schéma simplifié : SOURCING / STOCK / SOLD
+  const sourcingCount = vehiclesByStatus['SOURCING']?.length || 0
+  const inStockCount = vehiclesByStatus['STOCK']?.length || 0
+  const soldCount = vehiclesByStatus['SOLD']?.length || 0
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#1a1212]">
       <TopHeader
         title="Dashboard"
         subtitle="Vue d'ensemble de votre activité"
@@ -34,25 +36,12 @@ function Dashboard() {
           <AdminCard>
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-white/40 uppercase tracking-wider">Stock actif</p>
-                <p className="text-3xl font-semibold text-white mt-1">{activeCount}</p>
-                <p className="text-xs text-white/40 mt-1">véhicules</p>
-              </div>
-              <div className="p-3 bg-blue-500/20 rounded-xl">
-                <Car className="text-blue-400" size={24} />
-              </div>
-            </div>
-          </AdminCard>
-
-          <AdminCard>
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-white/40 uppercase tracking-wider">En vente</p>
-                <p className="text-3xl font-semibold text-white mt-1">{forSaleCount}</p>
+                <p className="text-xs text-white/40 uppercase tracking-wider">En stock</p>
+                <p className="text-3xl font-semibold text-white mt-1">{inStockCount}</p>
                 <p className="text-xs text-white/40 mt-1">disponibles</p>
               </div>
               <div className="p-3 bg-green-500/20 rounded-xl">
-                <TrendingUp className="text-green-400" size={24} />
+                <Car className="text-green-400" size={24} />
               </div>
             </div>
           </AdminCard>
@@ -60,12 +49,25 @@ function Dashboard() {
           <AdminCard>
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-white/40 uppercase tracking-wider">En transit</p>
-                <p className="text-3xl font-semibold text-white mt-1">{inTransportCount}</p>
-                <p className="text-xs text-white/40 mt-1">en transport</p>
+                <p className="text-xs text-white/40 uppercase tracking-wider">Sourcing</p>
+                <p className="text-3xl font-semibold text-white mt-1">{sourcingCount}</p>
+                <p className="text-xs text-white/40 mt-1">en recherche</p>
               </div>
               <div className="p-3 bg-yellow-500/20 rounded-xl">
-                <Truck className="text-yellow-400" size={24} />
+                <TrendingUp className="text-yellow-400" size={24} />
+              </div>
+            </div>
+          </AdminCard>
+
+          <AdminCard>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-white/40 uppercase tracking-wider">Vendus</p>
+                <p className="text-3xl font-semibold text-white mt-1">{soldCount}</p>
+                <p className="text-xs text-white/40 mt-1">véhicules</p>
+              </div>
+              <div className="p-3 bg-blue-500/20 rounded-xl">
+                <Truck className="text-blue-400" size={24} />
               </div>
             </div>
           </AdminCard>

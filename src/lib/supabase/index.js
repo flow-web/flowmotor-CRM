@@ -30,6 +30,15 @@ export {
   getTotalCosts
 } from './costs'
 
+// Clients API
+export {
+  fetchClients,
+  fetchClient,
+  createClient,
+  updateClient,
+  deleteClient
+} from './clients'
+
 // API Keys
 export {
   generateApiKey,

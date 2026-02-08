@@ -1,8 +1,14 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
+/**
+ * Navbar - Navigation principale du site public FLOW MOTOR
+ * Fixed top, hauteur h-20, fond Crème #F4E8D8
+ */
 function Navbar() {
   const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navLinks = [
     { name: 'Accueil', path: '/' },
@@ -18,71 +24,92 @@ function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-primary text-primary-content">
-      <div className="navbar container mx-auto px-4 sm:px-6 py-2">
-        <div className="navbar-start gap-2">
-          <div className="dropdown">
-            <button tabIndex={0} className="btn btn-ghost lg:hidden" aria-label="Menu">
-              <Menu size={22} />
-            </button>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content z-[1] mt-3 w-56 rounded-2xl bg-white p-3 text-base-content shadow-[0_20px_50px_-12px_rgba(61,30,30,0.2)]"
-            >
-              {navLinks.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    className={`rounded-xl ${isActive(link.path) ? 'bg-primary/10 font-semibold text-primary' : ''}`}
-                    to={link.path}
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-              <li className="mt-2">
-                <Link to="/login" className="bg-accent text-white rounded-xl">Espace Pro</Link>
-              </li>
-            </ul>
+    <nav className="fixed top-0 left-0 w-full h-20 bg-[#3D1E1E] z-50 shadow-lg">
+      <div className="flex justify-between items-center h-full max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/assets/engine-white.svg"
+            alt="Flow Motor"
+            className="h-9 w-auto"
+          />
+          <div className="leading-tight">
+            <span className="block font-display text-lg font-semibold tracking-wide text-white">
+              FLOW MOTOR
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.35em] text-white/50">
+              Luxury Imports
+            </span>
           </div>
+        </Link>
 
-          <Link to="/" className="flex items-center gap-3">
-            <img
-              src="/assets/engine-white.svg"
-              alt="Flow Motor"
-              className="h-9 w-auto"
-            />
-            <div className="leading-tight">
-              <span className="block font-display text-lg font-semibold tracking-wide">
-                FLOW MOTOR
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.35em] text-primary-content/50">
-                Luxury Imports
-              </span>
-            </div>
-          </Link>
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-8">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`text-sm font-medium transition-colors ${
+                isActive(link.path)
+                  ? 'text-[#C4A484]'
+                  : 'text-white/80 hover:text-white'
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
 
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal gap-1 px-1">
-            {navLinks.map((link) => (
-              <li key={link.path}>
-                <Link
-                  to={link.path}
-                  className={`rounded-lg transition-colors ${isActive(link.path) ? 'bg-white/10 font-semibold' : 'hover:bg-white/5'}`}
-                >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="navbar-end">
-          <Link to="/login" className="btn bg-accent border-0 text-white btn-sm hidden sm:inline-flex hover:bg-accent/90">
+        {/* CTA Button */}
+        <div className="hidden lg:block">
+          <Link
+            to="/login"
+            className="inline-flex items-center px-5 py-2.5 bg-[#5C3A2E] text-white text-sm font-medium rounded-lg hover:bg-[#5C3A2E]/80 transition-colors"
+          >
             Espace Pro
           </Link>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden p-2 text-white hover:text-[#C4A484] transition-colors"
+          aria-label="Menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden absolute top-20 left-0 w-full bg-[#3D1E1E] border-t border-white/10 shadow-xl">
+          <div className="flex flex-col py-4 px-6 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
+                  isActive(link.path)
+                    ? 'bg-white/10 text-[#C4A484]'
+                    : 'text-white/80 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+            <div className="pt-4 mt-2 border-t border-white/10">
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center py-3 px-4 bg-[#5C3A2E] text-white text-sm font-medium rounded-lg hover:bg-[#5C3A2E]/80 transition-colors"
+              >
+                Espace Pro
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

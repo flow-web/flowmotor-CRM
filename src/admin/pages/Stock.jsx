@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   useReactTable,
@@ -36,12 +36,6 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 function Stock() {
   const { vehicles, deleteVehicle, isLoading, refresh, isSupabaseMode } = useVehicles()
@@ -51,9 +45,14 @@ function Stock() {
   const [globalFilter, setGlobalFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // Filtered data
+  // Refresh silencieux au montage — données fraîches sans F5
+  useEffect(() => {
+    refresh()
+  }, [])
+
+  // Filtered data (safe si vehicles est vide ou null)
   const filteredData = useMemo(() => {
-    return vehicles.filter(vehicle => {
+    return (vehicles || []).filter(vehicle => {
       if (statusFilter && statusFilter !== 'all' && vehicle.status !== statusFilter) {
         return false
       }
@@ -63,7 +62,7 @@ function Stock() {
 
   // Unique statuses
   const uniqueStatuses = useMemo(() => {
-    return [...new Set(vehicles.map(v => v.status))]
+    return [...new Set((vehicles || []).map(v => v.status))]
   }, [vehicles])
 
   // Handle delete
@@ -94,7 +93,7 @@ function Stock() {
       enableSorting: false,
       cell: ({ row }) => {
         const vehicle = row.original
-        const primaryImage = vehicle.images?.find(i => i.isPrimary) || vehicle.images?.[0]
+        const primaryImage = vehicle.images?.[0]
         return (
           <div className="w-12 h-9 rounded-lg overflow-hidden bg-secondary/50 flex-shrink-0">
             {primaryImage?.url ? (
@@ -270,7 +269,7 @@ function Stock() {
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="min-h-screen dark">
+      <div className="min-h-screen bg-[#1a1212]">
         <TopHeader
           title="Stock"
           subtitle="Chargement..."
@@ -293,7 +292,7 @@ function Stock() {
   }
 
   return (
-    <div className="min-h-screen dark">
+    <div className="min-h-screen bg-[#1a1212]">
       <TopHeader
         title="Stock"
         subtitle={`${filteredData.length} véhicule${filteredData.length > 1 ? 's' : ''}`}
@@ -451,26 +450,26 @@ function Stock() {
         {/* Stats Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
           <StatCard
-            label="Total Stock"
-            value={vehicles.length}
+            label="Total"
+            value={(vehicles || []).length}
             suffix="véhicules"
           />
           <StatCard
-            label="En Vente"
-            value={vehicles.filter(v => v.status === 'EN_VENTE').length}
+            label="En Stock"
+            value={(vehicles || []).filter(v => v.status === 'STOCK').length}
             suffix="véhicules"
             highlight
           />
           <StatCard
             label="Valeur Stock"
-            value={formatPrice(vehicles.reduce((sum, v) => sum + (v.sellingPrice || 0), 0))}
+            value={formatPrice((vehicles || []).filter(v => v.status !== 'SOLD').reduce((sum, v) => sum + (v.sellingPrice || 0), 0))}
           />
           <StatCard
             label="Marge Moyenne"
-            value={`${(vehicles.reduce((sum, v) => {
+            value={`${((vehicles || []).reduce((sum, v) => {
               const pru = calculatePRU(v)
               return sum + calculateMarginPercent(pru, v.sellingPrice)
-            }, 0) / (vehicles.length || 1)).toFixed(1)}%`}
+            }, 0) / ((vehicles || []).length || 1)).toFixed(1)}%`}
           />
         </div>
       </div>

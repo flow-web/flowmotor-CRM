@@ -1,41 +1,29 @@
-// Statuts du workflow véhicule
+// Statuts du workflow véhicule (simplifié pour CRM)
 export const VEHICLE_STATUS = {
-  SOURCING: 'SOURCING',
-  ACHETE: 'ACHETÉ',
-  TRANSPORT: 'TRANSPORT',
-  ATELIER: 'ATELIER',
-  EN_VENTE: 'EN_VENTE',
-  VENDU: 'VENDU'
+  SOURCING: 'SOURCING',  // En recherche / négociation
+  STOCK: 'STOCK',        // En stock, prêt à vendre
+  SOLD: 'SOLD'           // Vendu
 }
 
 // Labels français pour les statuts
 export const VEHICLE_STATUS_LABELS = {
   SOURCING: 'Sourcing',
-  ACHETE: 'Acheté',
-  TRANSPORT: 'Transport',
-  ATELIER: 'Atelier',
-  EN_VENTE: 'En vente',
-  VENDU: 'Vendu'
+  STOCK: 'En Stock',
+  SOLD: 'Vendu'
 }
 
-// Couleurs des badges par statut
+// Couleurs des badges par statut (Brand Board)
 export const VEHICLE_STATUS_COLORS = {
-  SOURCING: 'badge-status-sourcing',
-  ACHETE: 'badge-status-achete',
-  TRANSPORT: 'badge-status-transport',
-  ATELIER: 'badge-status-atelier',
-  EN_VENTE: 'badge-status-en-vente',
-  VENDU: 'badge-status-vendu'
+  SOURCING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  STOCK: 'bg-green-500/20 text-green-400 border-green-500/30',
+  SOLD: 'bg-[#5C3A2E]/30 text-[#C4A484] border-[#5C3A2E]/50'
 }
 
-// Ordre du workflow
+// Ordre du workflow (simplifié)
 export const WORKFLOW_ORDER = [
   VEHICLE_STATUS.SOURCING,
-  VEHICLE_STATUS.ACHETE,
-  VEHICLE_STATUS.TRANSPORT,
-  VEHICLE_STATUS.ATELIER,
-  VEHICLE_STATUS.EN_VENTE,
-  VEHICLE_STATUS.VENDU
+  VEHICLE_STATUS.STOCK,
+  VEHICLE_STATUS.SOLD
 ]
 
 // Types de coûts
