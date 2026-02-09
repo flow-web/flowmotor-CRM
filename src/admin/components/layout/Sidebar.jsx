@@ -4,6 +4,8 @@ import {
   Search,
   Car,
   Users,
+  Kanban,
+  Book,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -17,6 +19,8 @@ const navItems = [
   { path: '/admin/sourcing', label: 'Sourcing', icon: Search },
   { path: '/admin/stock', label: 'Stock', icon: Car },
   { path: '/admin/clients', label: 'Clients', icon: Users },
+  { path: '/admin/leads', label: 'Leads', icon: Kanban },
+  { path: '/admin/police', label: 'Livre de Police', icon: Book },
   { path: '/admin/settings', label: 'Paramètres', icon: Settings }
 ]
 

@@ -26,7 +26,7 @@ export default function Showroom() {
       try {
         const { data, error } = await supabase
           .from('vehicles')
-          .select('*')
+          .select('id, brand, model, trim, year, mileage, color, status, selling_price, images, import_country')
           .in('status', ['STOCK', 'SOURCING'])
           .order('created_at', { ascending: false })
 

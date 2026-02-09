@@ -10,18 +10,21 @@
 -- ===================
 -- Supprime TOUT pour repartir de zéro (résout les erreurs "Policy already exists")
 
+DROP TABLE IF EXISTS leads CASCADE;
 DROP TABLE IF EXISTS vehicles CASCADE;
 DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS settings CASCADE;
 
 -- Supprime les types ENUM s'ils existent
 DROP TYPE IF EXISTS vehicle_status CASCADE;
+DROP TYPE IF EXISTS lead_status CASCADE;
 
 -- ===================
 -- 1. TYPES ENUM
 -- ===================
 
 CREATE TYPE vehicle_status AS ENUM ('SOURCING', 'STOCK', 'SOLD');
+CREATE TYPE lead_status AS ENUM ('NEW', 'CONTACTED', 'NEGOTIATION', 'CONVERTED', 'LOST');
 
 -- ===================
 -- 2. TABLE VEHICLES
@@ -105,13 +108,44 @@ CREATE TABLE settings (
 );
 
 -- ===================
--- 5. INDEX PERFORMANCE
+-- 5. TABLE LEADS (Prospects depuis le site vitrine)
+-- ===================
+
+CREATE TABLE leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- Contact
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+
+  -- Demande
+  subject TEXT NOT NULL,             -- 'achat', 'reprise', 'recherche', 'autre'
+  message TEXT,
+
+  -- Contexte (véhicule consulté au moment du contact)
+  vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
+  vehicle_label TEXT,                -- "BMW M3 2022" snapshot au moment du lead
+  source TEXT DEFAULT 'contact_form', -- 'contact_form', 'showroom', 'whatsapp'
+
+  -- Suivi CRM
+  status lead_status DEFAULT 'NEW',
+  notes TEXT,                        -- Notes internes du commercial
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ===================
+-- 6. INDEX PERFORMANCE
 -- ===================
 
 CREATE INDEX idx_vehicles_status ON vehicles(status);
 CREATE INDEX idx_vehicles_brand ON vehicles(brand);
 CREATE INDEX idx_vehicles_created ON vehicles(created_at DESC);
 CREATE INDEX idx_clients_email ON clients(email);
+CREATE INDEX idx_leads_status ON leads(status);
+CREATE INDEX idx_leads_created ON leads(created_at DESC);
 
 -- ===================
 -- 6. TRIGGER UPDATED_AT
@@ -133,36 +167,52 @@ CREATE TRIGGER settings_updated_at
   BEFORE UPDATE ON settings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER leads_updated_at
+  BEFORE UPDATE ON leads
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- ===================
--- 7. ROW LEVEL SECURITY
+-- 8. ROW LEVEL SECURITY
 -- ===================
 
--- Active RLS
+-- Active RLS sur toutes les tables
 ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 
--- Policies "Public Access" pour dev (à restreindre en prod)
-CREATE POLICY "Enable all for anon" ON vehicles
-  FOR ALL TO anon USING (true) WITH CHECK (true);
+-- ── VEHICLES ──────────────────────────────────────────
+-- Anon : lecture seule (pour le showroom public)
+CREATE POLICY "vehicles_anon_select" ON vehicles
+  FOR SELECT TO anon USING (true);
 
-CREATE POLICY "Enable all for authenticated" ON vehicles
+-- Authenticated : accès complet (CRM admin)
+CREATE POLICY "vehicles_auth_all" ON vehicles
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY "Enable all for anon" ON clients
-  FOR ALL TO anon USING (true) WITH CHECK (true);
-
-CREATE POLICY "Enable all for authenticated" ON clients
+-- ── CLIENTS ───────────────────────────────────────────
+-- Anon : aucun accès (données personnelles = RGPD)
+-- Authenticated : accès complet
+CREATE POLICY "clients_auth_all" ON clients
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY "Enable all for anon" ON settings
-  FOR ALL TO anon USING (true) WITH CHECK (true);
+-- ── SETTINGS ──────────────────────────────────────────
+-- Anon : aucun accès
+-- Authenticated : accès complet
+CREATE POLICY "settings_auth_all" ON settings
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY "Enable all for authenticated" ON settings
+-- ── LEADS ─────────────────────────────────────────────
+-- Anon : peut insérer uniquement (formulaire de contact public)
+CREATE POLICY "leads_anon_insert" ON leads
+  FOR INSERT TO anon WITH CHECK (true);
+
+-- Authenticated : accès complet (gestion CRM)
+CREATE POLICY "leads_auth_all" ON leads
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ===================
--- 8. DONNÉES INITIALES
+-- 9. DONNÉES INITIALES
 -- ===================
 
 -- Paramètres par défaut
@@ -174,7 +224,7 @@ INSERT INTO settings (key, value, description) VALUES
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- ===================
--- 9. VUE KPI DASHBOARD
+-- 10. VUE KPI DASHBOARD
 -- ===================
 
 CREATE OR REPLACE VIEW view_dashboard_kpis AS

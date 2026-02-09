@@ -1,27 +1,51 @@
 import { useState } from 'react'
-import { Phone, Mail, MapPin, Send, ChevronDown } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { Phone, Mail, MapPin, Send, ChevronDown, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { createLead } from '../../lib/supabase/leads'
 
 function Contact() {
+  const [searchParams] = useSearchParams()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: '',
-    message: ''
+    phone: '',
+    subject: searchParams.get('subject') || '',
+    message: searchParams.get('vehicle')
+      ? `Bonjour, je suis intéressé(e) par le véhicule ${searchParams.get('vehicle')}. `
+      : ''
   })
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState('idle') // 'idle' | 'sending' | 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState('')
   const [openFaq, setOpenFaq] = useState(null)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormData({ name: '', email: '', subject: '', message: '' })
-    }, 4000)
+    setStatus('sending')
+    setErrorMessage('')
+
+    try {
+      await createLead({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        subject: formData.subject,
+        message: formData.message,
+        vehicleId: searchParams.get('vehicleId') || null,
+        vehicleLabel: searchParams.get('vehicle') || null,
+        source: 'contact_form',
+      })
+
+      setStatus('success')
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
+    } catch (err) {
+      console.error('Erreur envoi formulaire:', err)
+      setStatus('error')
+      setErrorMessage('Une erreur est survenue. Veuillez réessayer ou nous contacter par téléphone.')
+    }
   }
 
   const faqItems = [
@@ -143,74 +167,121 @@ function Contact() {
         <div className="card card-premium p-8">
           <h2 className="text-2xl font-semibold font-display mb-6">Envoyez-nous un message</h2>
 
-          {submitted && (
-            <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-xl text-sm">
-              Merci ! Votre message a bien été envoyé.
+          {status === 'success' && (
+            <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-xl text-sm flex items-center gap-3">
+              <CheckCircle size={20} className="flex-shrink-0" />
+              <div>
+                <p className="font-medium">Message envoyé avec succès !</p>
+                <p className="mt-1 text-green-700">Notre équipe vous répondra sous 24h.</p>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid gap-5 md:grid-cols-2">
-              <label className="form-control">
-                <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Nom complet</span>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Votre nom"
-                  className="input-premium w-full bg-base-100"
-                  required
-                />
-              </label>
-              <label className="form-control">
-                <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Email</span>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="vous@email.com"
-                  className="input-premium w-full bg-base-100"
-                  required
-                />
-              </label>
+          {status === 'error' && (
+            <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-xl text-sm flex items-center gap-3">
+              <AlertCircle size={20} className="flex-shrink-0" />
+              <p>{errorMessage}</p>
             </div>
+          )}
 
-            <label className="form-control">
-              <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Sujet</span>
-              <select
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                className="input-premium w-full bg-base-100 cursor-pointer"
-                required
+          {status !== 'success' && (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <label className="form-control">
+                  <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Nom complet</span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Votre nom"
+                    className="input-premium w-full bg-base-100"
+                    required
+                  />
+                </label>
+                <label className="form-control">
+                  <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Email</span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="vous@email.com"
+                    className="input-premium w-full bg-base-100"
+                    required
+                  />
+                </label>
+              </div>
+
+              <label className="form-control">
+                <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Téléphone</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="06 12 34 56 78"
+                  className="input-premium w-full bg-base-100"
+                />
+              </label>
+
+              <label className="form-control">
+                <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Sujet</span>
+                <select
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="input-premium w-full bg-base-100 cursor-pointer"
+                  required
+                >
+                  <option value="">Sélectionnez un sujet</option>
+                  <option value="achat">Achat d&apos;un véhicule</option>
+                  <option value="reprise">Reprise / Dépôt-vente</option>
+                  <option value="recherche">Recherche personnalisée</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </label>
+
+              <label className="form-control">
+                <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Message</span>
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="input-premium w-full bg-base-100 min-h-[140px] resize-none"
+                  placeholder="Décrivez votre projet..."
+                  required
+                />
+              </label>
+
+              <button
+                type="submit"
+                disabled={status === 'sending'}
+                className="btn bg-[#5C3A2E] border-0 text-white w-full py-4 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/20 mt-2 disabled:opacity-60"
               >
-                <option value="">Sélectionnez un sujet</option>
-                <option value="achat">Achat d&apos;un véhicule</option>
-                <option value="reprise">Reprise / Dépôt-vente</option>
-                <option value="recherche">Recherche personnalisée</option>
-                <option value="autre">Autre</option>
-              </select>
-            </label>
+                {status === 'sending' ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    Envoyer le message
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
-            <label className="form-control">
-              <span className="text-xs uppercase tracking-[0.2em] text-base-content/50 mb-2 block">Message</span>
-              <textarea
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                className="input-premium w-full bg-base-100 min-h-[140px] resize-none"
-                placeholder="Décrivez votre projet..."
-                required
-              />
-            </label>
-
-            <button className="btn bg-[#5C3A2E] border-0 text-white w-full py-4 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/20 mt-2">
-              Envoyer le message
-              <Send size={18} />
+          {status === 'success' && (
+            <button
+              onClick={() => setStatus('idle')}
+              className="btn btn-outline border-primary/20 text-primary hover:bg-primary/5 w-full py-3 h-auto mt-4"
+            >
+              Envoyer un autre message
             </button>
-          </form>
+          )}
         </div>
       </section>
 

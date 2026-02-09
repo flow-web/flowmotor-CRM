@@ -29,6 +29,8 @@ import AdminStock from './admin/pages/Stock'
 import Sourcing from './admin/pages/Sourcing'
 import VehicleCockpit from './admin/pages/VehicleCockpit'
 import Clients from './admin/pages/Clients'
+import Leads from './admin/pages/Leads'
+import PoliceRegister from './admin/pages/PoliceRegister'
 import Settings from './admin/pages/Settings'
 
 /**
@@ -94,6 +96,8 @@ function App() {
             <Route path="/admin/stock" element={<AdminStock />} />
             <Route path="/admin/vehicle/:id" element={<VehicleCockpit />} />
             <Route path="/admin/clients" element={<Clients />} />
+            <Route path="/admin/leads" element={<Leads />} />
+            <Route path="/admin/police" element={<PoliceRegister />} />
             <Route path="/admin/settings" element={<Settings />} />
           </Route>
         </Route>

@@ -38,7 +38,7 @@ export default function PublicVehicleDetails() {
       try {
         const { data, error } = await supabase
           .from('vehicles')
-          .select('*')
+          .select('id, brand, model, trim, year, mileage, color, status, selling_price, images, import_country, is_eu_origin')
           .eq('id', id)
           .single()
 
@@ -277,7 +277,7 @@ export default function PublicVehicleDetails() {
             {/* CTA */}
             <div className="space-y-3 pt-2">
               <Link
-                to="/contact"
+                to={`/contact?subject=achat&vehicleId=${vehicle.id}&vehicle=${encodeURIComponent(`${vehicle.brand} ${vehicle.model} ${vehicle.year || ''}`.trim())}`}
                 className="btn bg-accent text-white border-0 hover:bg-accent/90 w-full py-3 h-auto text-base"
               >
                 <Mail size={18} />

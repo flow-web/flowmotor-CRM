@@ -39,6 +39,14 @@ export {
   deleteClient
 } from './clients'
 
+// Leads API
+export {
+  createLead,
+  fetchLeads,
+  updateLead,
+  deleteLead
+} from './leads'
+
 // API Keys
 export {
   generateApiKey,
