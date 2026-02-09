@@ -89,12 +89,7 @@ function App() {
               <ProtectedRoute />
             </AdminProvider>
           }
-        >{/* ... autres routes admin ... */}
-<Route path="/admin/police" element={
-  <ProtectedRoute>
-    <PoliceRegister />
-  </ProtectedRoute>
-} />
+        >
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -104,6 +99,7 @@ function App() {
             <Route path="/admin/clients" element={<Clients />} />
             <Route path="/admin/leads" element={<Leads />} />
             <Route path="/admin/invoices" element={<Invoices />} />
+            <Route path="/admin/police" element={<PoliceRegister />} />
             <Route path="/admin/settings" element={<Settings />} />
           </Route>
         </Route>
