@@ -7,6 +7,7 @@ import {
   ClipboardList, Search, Download, Receipt, Users, ImageIcon
 } from 'lucide-react'
 import ImageUploader from '../components/images/ImageUploader'
+import Workshop from '../components/vehicle/Workshop'
 import TopHeader from '../components/layout/TopHeader'
 import AdminCard from '../components/shared/AdminCard'
 import StatusBadge from '../components/shared/StatusBadge'
@@ -690,14 +691,7 @@ function VehicleCockpit() {
 
           {/* === ATELIER TAB === */}
           {activeTab === 'atelier' && (
-            <AdminCard>
-              <h3 className="text-sm font-medium text-white mb-4">Notes atelier</h3>
-              <div className="text-center py-12">
-                <Wrench size={32} className="text-white/20 mx-auto mb-3" />
-                <p className="text-white/40 text-sm">Fonctionnalité à venir</p>
-                <p className="text-white/30 text-xs mt-1">Checklist préparation, notes mécanicien</p>
-              </div>
-            </AdminCard>
+            <Workshop vehicleId={vehicle.id} purchasePrice={vehicle.purchasePrice || 0} />
           )}
         </div>
       </div>

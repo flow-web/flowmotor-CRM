@@ -1,40 +1,37 @@
-import { ArrowRight, Shield, Truck, Award } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, Shield, Truck, Award, Calendar, Gauge, Car } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import VehicleCard from '../../components/VehicleCard'
+import { supabase } from '../../lib/supabase'
+
+const formatPrice = (price) => {
+  if (!price) return '—'
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price)
+}
+
+const formatKm = (km) => {
+  if (!km) return '—'
+  return new Intl.NumberFormat('fr-FR').format(km) + ' km'
+}
 
 function Home() {
-  const featuredVehicles = [
-    {
-      slug: 'porsche-911-gt3-2023',
-      make: 'Porsche',
-      model: '911 GT3',
-      year: 2023,
-      price: 189900,
-      mileage: 8500,
-      image: 'https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?w=1200&q=80',
-      status: 'DISPONIBLE'
-    },
-    {
-      slug: 'audi-rs6-avant-2022',
-      make: 'Audi',
-      model: 'RS6 Avant',
-      year: 2022,
-      price: 134900,
-      mileage: 12000,
-      image: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=1200&q=80',
-      status: 'ARRIVAGE'
-    },
-    {
-      slug: 'bmw-m4-competition-2023',
-      make: 'BMW',
-      model: 'M4 Competition',
-      year: 2023,
-      price: 98900,
-      mileage: 6500,
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&q=80',
-      status: 'DISPONIBLE'
+  const [featuredVehicles, setFeaturedVehicles] = useState([])
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const { data } = await supabase
+          .from('vehicles')
+          .select('*')
+          .in('status', ['STOCK', 'SOURCING'])
+          .order('created_at', { ascending: false })
+          .limit(3)
+        setFeaturedVehicles(data || [])
+      } catch (err) {
+        console.error('Erreur featured:', err)
+      }
     }
-  ]
+    fetchFeatured()
+  }, [])
 
   return (
     <main className="bg-base-100">
@@ -74,7 +71,7 @@ function Home() {
             {/* Boutons */}
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/stock"
+                to="/showroom"
                 className="btn bg-[#5C3A2E] border-0 text-white px-8 py-3 h-auto rounded-xl hover:bg-[#5C3A2E]/80 shadow-lg shadow-[#5C3A2E]/40 font-medium"
               >
                 Voir le stock
@@ -123,16 +120,46 @@ function Home() {
               <p className="text-xs uppercase tracking-[0.3em] text-primary">Notre sélection</p>
               <h2 className="mt-3 text-3xl font-semibold md:text-4xl font-display">Derniers arrivages</h2>
             </div>
-            <Link to="/stock" className="btn btn-ghost text-primary hover:bg-primary/5">
+            <Link to="/showroom" className="btn btn-ghost text-primary hover:bg-primary/5">
               Voir tout le stock
               <ArrowRight size={18} />
             </Link>
           </div>
 
           <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {featuredVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.slug} vehicle={vehicle} />
-            ))}
+            {featuredVehicles.map((vehicle) => {
+              const img = vehicle.images?.[0]?.url
+              return (
+                <Link
+                  key={vehicle.id}
+                  to={`/vehicule/${vehicle.id}`}
+                  className="card card-premium group"
+                >
+                  <figure className="relative h-56 overflow-hidden rounded-t-2xl bg-base-300">
+                    {img ? (
+                      <img src={img} alt={`${vehicle.brand} ${vehicle.model}`} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center"><Car size={48} className="text-base-content/20" /></div>
+                    )}
+                    <div className="absolute left-4 top-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${vehicle.status === 'SOURCING' ? 'bg-amber-500 text-white' : 'bg-primary text-primary-content'}`}>
+                        {vehicle.status === 'SOURCING' ? 'Arrivage' : 'Disponible'}
+                      </span>
+                    </div>
+                  </figure>
+                  <div className="card-body gap-3">
+                    <h3 className="card-title font-display text-2xl">{vehicle.brand} {vehicle.model}</h3>
+                    <p className="text-sm text-base-content/70">
+                      {vehicle.year} • {formatKm(vehicle.mileage)}
+                    </p>
+                    <div className="card-actions items-center justify-between pt-2">
+                      <span className="text-2xl font-display text-accent">{formatPrice(vehicle.selling_price)}</span>
+                      <span className="btn btn-ghost btn-sm">Détails <ArrowRight size={16} /></span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>

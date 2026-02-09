@@ -1,167 +1,159 @@
-function Legal() {
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, MapPin, Phone, Mail, Shield, Server, FileText, Database, Cookie } from 'lucide-react';
+
+export default function LegalMentions() {
   return (
-    <main className="bg-base-100">
-      <section className="section-spacing">
-        <div className="max-w-3xl mx-auto px-6">
-          <h1 className="text-4xl font-semibold font-display text-primary md:text-5xl">
-            Mentions Légales
-          </h1>
-          <p className="mt-4 text-base-content/50 text-sm">
-            Dernière mise à jour : Janvier 2026
+    <div className="min-h-screen bg-[#1A0F0F] text-[#F4E8D8] font-sans selection:bg-orange-500/30">
+      
+      {/* En-tête */}
+      <div className="border-b border-white/5 bg-[#1A0F0F] sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm uppercase tracking-wider">
+            <ArrowLeft size={16} /> Retour au site
+          </Link>
+          <span className="text-xs text-white/30 font-mono">Mise à jour : Fevrier 2026</span>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-6 py-12 space-y-16">
+        
+        {/* Titre */}
+        <div className="space-y-4 text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-serif text-[#F4E8D8]">Mentions Légales</h1>
+          <p className="text-white/40 max-w-lg mx-auto">
+            Conformément aux dispositions des Articles 6-III et 19 de la Loi n°2004-575 du 21 juin 2004 pour la Confiance dans l’économie numérique, dite L.C.E.N.
           </p>
-
-          <div className="mt-12 space-y-12">
-            {/* Éditeur */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                1. Éditeur du site
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed space-y-3">
-                <p>
-                  Le site <strong>flowmotor.fr</strong> est édité par la société FLOW MOTOR SAS,
-                  au capital de 50 000 euros, immatriculée au Registre du Commerce et des Sociétés
-                  de Lyon sous le numéro RCS 123 456 789.
-                </p>
-                <p>
-                  <strong>Siège social :</strong> 123 Avenue de l'Automobile, 69003 Lyon, France<br />
-                  <strong>Téléphone :</strong> +33 4 12 34 56 78<br />
-                  <strong>Email :</strong> contact@flowmotor.fr<br />
-                  <strong>Directeur de la publication :</strong> M. Jean Dupont, Gérant
-                </p>
-              </div>
-            </section>
-
-            {/* Hébergement */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                2. Hébergement
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed space-y-3">
-                <p>
-                  Le site est hébergé par la société Vercel Inc., située au 340 S Lemon Ave #4133,
-                  Walnut, CA 91789, États-Unis.
-                </p>
-                <p>
-                  <strong>Site web :</strong> vercel.com<br />
-                  <strong>Contact :</strong> privacy@vercel.com
-                </p>
-              </div>
-            </section>
-
-            {/* Propriété intellectuelle */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                3. Propriété intellectuelle
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed space-y-3">
-                <p>
-                  L'ensemble des contenus présents sur le site flowmotor.fr (textes, images, vidéos,
-                  logos, graphismes, icônes, sons, logiciels, etc.) sont la propriété exclusive de
-                  FLOW MOTOR SAS ou de ses partenaires et sont protégés par les lois françaises et
-                  internationales relatives à la propriété intellectuelle.
-                </p>
-                <p>
-                  Toute reproduction, représentation, modification, publication, adaptation de tout
-                  ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est
-                  interdite, sauf autorisation écrite préalable de FLOW MOTOR SAS.
-                </p>
-              </div>
-            </section>
-
-            {/* RGPD */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                4. Protection des données personnelles (RGPD)
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed space-y-3">
-                <p>
-                  Conformément au Règlement Général sur la Protection des Données (RGPD) et à la
-                  loi Informatique et Libertés du 6 janvier 1978 modifiée, vous disposez d'un droit
-                  d'accès, de rectification, de suppression et d'opposition aux données personnelles
-                  vous concernant.
-                </p>
-                <p>
-                  <strong>Données collectées :</strong> Lors de votre navigation ou de vos demandes
-                  de contact, nous collectons les informations suivantes : nom, prénom, adresse email,
-                  numéro de téléphone, informations relatives à votre véhicule (dans le cadre d'une
-                  estimation).
-                </p>
-                <p>
-                  <strong>Finalités :</strong> Ces données sont utilisées pour répondre à vos demandes,
-                  vous proposer nos services et améliorer votre expérience utilisateur. Elles ne sont
-                  jamais cédées à des tiers à des fins commerciales.
-                </p>
-                <p>
-                  <strong>Conservation :</strong> Vos données sont conservées pendant une durée de
-                  3 ans à compter de votre dernier contact avec notre société.
-                </p>
-                <p>
-                  Pour exercer vos droits, contactez-nous à : <strong>rgpd@flowmotor.fr</strong>
-                </p>
-              </div>
-            </section>
-
-            {/* Cookies */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                5. Cookies
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed space-y-3">
-                <p>
-                  Le site flowmotor.fr utilise des cookies pour améliorer l'expérience utilisateur,
-                  analyser le trafic et personnaliser les contenus. Vous pouvez à tout moment
-                  modifier vos préférences en matière de cookies via les paramètres de votre
-                  navigateur.
-                </p>
-                <p>
-                  <strong>Cookies essentiels :</strong> Nécessaires au fonctionnement du site
-                  (session, authentification).<br />
-                  <strong>Cookies analytiques :</strong> Permettent de mesurer l'audience et
-                  d'améliorer nos services (Google Analytics).<br />
-                  <strong>Cookies marketing :</strong> Utilisés pour afficher des publicités
-                  pertinentes (désactivés par défaut).
-                </p>
-              </div>
-            </section>
-
-            {/* Responsabilité */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                6. Limitation de responsabilité
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed space-y-3">
-                <p>
-                  FLOW MOTOR SAS s'efforce d'assurer l'exactitude et la mise à jour des informations
-                  diffusées sur ce site, dont elle se réserve le droit de corriger le contenu à tout
-                  moment et sans préavis.
-                </p>
-                <p>
-                  Toutefois, FLOW MOTOR SAS ne peut garantir l'exactitude, la précision ou
-                  l'exhaustivité des informations mises à disposition sur ce site. En conséquence,
-                  FLOW MOTOR SAS décline toute responsabilité pour toute imprécision, inexactitude
-                  ou omission portant sur des informations disponibles sur ce site.
-                </p>
-              </div>
-            </section>
-
-            {/* Droit applicable */}
-            <section>
-              <h2 className="text-2xl font-semibold font-display text-primary mb-4">
-                7. Droit applicable
-              </h2>
-              <div className="prose prose-sm text-base-content/70 leading-relaxed">
-                <p>
-                  Les présentes mentions légales sont régies par le droit français. En cas de litige,
-                  et après échec de toute tentative de recherche d'une solution amiable, les tribunaux
-                  français seront seuls compétents pour connaître de ce litige.
-                </p>
-              </div>
-            </section>
+          <div className="inline-block bg-orange-500/10 border border-orange-500/20 rounded px-3 py-1 text-xs text-orange-300 mt-4">
+            CGV et Politique de Confidentialité actuellement indisponibles
           </div>
         </div>
-      </section>
-    </main>
-  )
-}
 
-export default Legal
+        {/* 1. ÉDITEUR */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <Shield className="text-orange-400" size={24} />
+            <h2 className="text-2xl font-serif">1. Éditeur du site</h2>
+          </div>
+          <div className="bg-white/5 p-6 rounded-xl border border-white/5 space-y-4 text-white/80 leading-relaxed">
+            <p>
+              Le site <strong>flowmotor.fr</strong> est édité par la société <strong>FLOW MOTOR SASU</strong>, 
+              au capital de 100 euros.
+            </p>
+            <ul className="space-y-3 mt-4 text-sm">
+              <li className="flex gap-3">
+                <FileText size={18} className="text-white/40 shrink-0" />
+                <span>Immatriculée au RCS de Lyon sous le numéro <strong>992 700 427</strong> {/* ⚠️ À CHANGER */}</span>
+              </li>
+              <li className="flex gap-3">
+                <MapPin size={18} className="text-white/40 shrink-0" />
+                <span>Siège social : 6 rue du bon pasteur, 69001 Lyon, France {/* ⚠️ À CHANGER */}</span>
+              </li>
+              <li className="flex gap-3">
+                <Phone size={18} className="text-white/40 shrink-0" />
+                <span>+33 6 22 85 26 22{/* ⚠️ À CHANGER */}</span>
+              </li>
+              <li className="flex gap-3">
+                <Mail size={18} className="text-white/40 shrink-0" />
+                <span>contact@flowmotor.fr</span>
+              </li>
+              <li className="pt-2 border-t border-white/5 mt-2">
+                <strong>Directeur de la publication :</strong> M. Florian Meissel, Président {/* ⚠️ À CHANGER */}
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* 2. HÉBERGEMENT */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <Server className="text-orange-400" size={24} />
+            <h2 className="text-2xl font-serif">2. Hébergement</h2>
+          </div>
+          <div className="bg-white/5 p-6 rounded-xl border border-white/5 text-white/80 leading-relaxed">
+            <p className="mb-2">Le site est hébergé par la société :</p>
+            <p className="font-bold text-lg text-[#F4E8D8]">OVH SAS</p>
+            <p className="text-sm text-white/60 mt-1">
+              2 rue Kellermann - 59100 Roubaix - France<br/>
+              Site web : www.ovhcloud.com
+            </p>
+          </div>
+        </section>
+
+        {/* 3. PROPRIÉTÉ INTELLECTUELLE */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <FileText className="text-orange-400" size={24} />
+            <h2 className="text-2xl font-serif">3. Propriété intellectuelle</h2>
+          </div>
+          <div className="text-white/70 leading-relaxed text-justify">
+            <p>
+              L'ensemble des contenus présents sur le site flowmotor.fr (textes, images, vidéos, logos, graphismes, icônes, sons, logiciels, etc.) sont la propriété exclusive de <strong>FLOW MOTOR SAS</strong> ou de ses partenaires et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle.
+            </p>
+            <p className="mt-4">
+              Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable de FLOW MOTOR SAS.
+            </p>
+          </div>
+        </section>
+
+        {/* 4. DONNÉES PERSONNELLES */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <Database className="text-orange-400" size={24} />
+            <h2 className="text-2xl font-serif">4. Protection des données (RGPD)</h2>
+          </div>
+          <div className="text-white/70 leading-relaxed space-y-4">
+            <p>
+              Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés du 6 janvier 1978 modifiée, vous disposez d'un droit d'accès, de rectification, de suppression et d'opposition aux données personnelles vous concernant.
+            </p>
+            <ul className="list-disc pl-5 space-y-2 marker:text-orange-500">
+              <li><strong>Données collectées :</strong> Nom, prénom, email, téléphone, infos véhicule (estimation).</li>
+              <li><strong>Finalités :</strong> Répondre aux demandes, services, expérience utilisateur. Jamais cédées à des tiers.</li>
+              <li><strong>Conservation :</strong> 3 ans à compter du dernier contact.</li>
+            </ul>
+            <p className="bg-orange-500/5 p-4 rounded-lg border border-orange-500/10 text-orange-200/80 text-sm">
+              Pour exercer vos droits, contactez-nous à : <a href="mailto:rgpd@flowmotor.fr" className="text-orange-400 hover:underline">rgpd@flowmotor.fr</a>
+            </p>
+          </div>
+        </section>
+
+        {/* 5. COOKIES */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <Cookie className="text-orange-400" size={24} />
+            <h2 className="text-2xl font-serif">5. Cookies</h2>
+          </div>
+          <div className="text-white/70 leading-relaxed">
+            <p>
+              Le site flowmotor.fr utilise des cookies pour améliorer l'expérience utilisateur.
+            </p>
+            <ul className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <li className="bg-white/5 p-3 rounded border border-white/5">
+                <strong className="block text-[#F4E8D8] text-sm mb-1">Essentiels</strong>
+                <span className="text-xs">Fonctionnement du site (session).</span>
+              </li>
+              <li className="bg-white/5 p-3 rounded border border-white/5">
+                <strong className="block text-[#F4E8D8] text-sm mb-1">Analytiques</strong>
+                <span className="text-xs">Mesure d'audience (Google Analytics).</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* 6 & 7 RESPONSABILITÉ ET DROIT */}
+        <section className="space-y-6 pt-8 border-t border-white/10">
+          <h3 className="text-lg font-serif text-[#F4E8D8]">6. Limitation de responsabilité</h3>
+          <p className="text-sm text-white/50 text-justify">
+            FLOW MOTOR SAS ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition sur ce site. En conséquence, FLOW MOTOR SAS décline toute responsabilité pour toute imprécision, inexactitude ou omission.
+          </p>
+
+          <h3 className="text-lg font-serif text-[#F4E8D8] mt-8">7. Droit applicable</h3>
+          <p className="text-sm text-white/50 text-justify">
+            Les présentes mentions légales sont régies par le droit français. En cas de litige, les tribunaux français seront seuls compétents.
+          </p>
+        </section>
+
+      </div>
+    </div>
+  );
+}

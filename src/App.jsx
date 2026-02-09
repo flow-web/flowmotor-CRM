@@ -9,6 +9,8 @@ import CookieConsent from './components/CookieConsent'
 // Public Pages
 import Home from './pages/public/Home'
 import Stock from './pages/public/Stock'
+import Showroom from './pages/public/Showroom'
+import PublicVehicleDetails from './pages/public/PublicVehicleDetails'
 import Services from './pages/public/Services'
 import VehicleDetail from './pages/public/VehicleDetail'
 import Atelier from './pages/public/Atelier'
@@ -57,9 +59,10 @@ function App() {
         {/* === PAGES PUBLIQUES === */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/stock" element={<Stock />} />
+          <Route path="/showroom" element={<Showroom />} />
+          <Route path="/stock" element={<Showroom />} />
+          <Route path="/vehicule/:id" element={<PublicVehicleDetails />} />
           <Route path="/services" element={<Services />} />
-          <Route path="/vehicule/:slug" element={<VehicleDetail />} />
           <Route path="/atelier" element={<Atelier />} />
           <Route path="/contact" element={<Contact />} />
 
