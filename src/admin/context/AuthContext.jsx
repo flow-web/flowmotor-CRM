@@ -25,27 +25,52 @@ export function AuthProvider({ children }) {
 
   // Vérifie l'auth au chargement
   useEffect(() => {
-    checkAuth()
+    let cancelled = false
+
+    const init = async () => {
+      try {
+        await checkAuth()
+      } catch (err) {
+        if (!cancelled) {
+          console.warn('Auth init error (non-fatal):', err?.name || err)
+          setIsLoading(false)
+        }
+      }
+    }
+
+    init()
 
     // Écoute les changements d'auth Supabase
+    let subscription = null
     if (!isDemoMode() && supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      const { data } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          if (session?.user) {
-            const profile = await fetchUserProfile(session.user.id)
-            setUser({
-              id: session.user.id,
-              email: session.user.email,
-              name: profile?.name || session.user.email.split('@')[0],
-              role: profile?.role || 'user'
-            })
-          } else {
-            setUser(null)
+          if (cancelled) return
+          try {
+            if (session?.user) {
+              const profile = await fetchUserProfile(session.user.id)
+              if (!cancelled) {
+                setUser({
+                  id: session.user.id,
+                  email: session.user.email,
+                  name: profile?.name || session.user.email.split('@')[0],
+                  role: profile?.role || 'user'
+                })
+              }
+            } else {
+              if (!cancelled) setUser(null)
+            }
+          } catch (err) {
+            console.warn('Auth state change error (non-fatal):', err?.name || err)
           }
         }
       )
+      subscription = data.subscription
+    }
 
-      return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      subscription?.unsubscribe()
     }
   }, [])
 
