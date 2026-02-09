@@ -86,7 +86,25 @@ export const CAR_MAKES = [
 export const STORAGE_KEYS = {
   VEHICLES: 'flowmotor_vehicles',
   SETTINGS: 'flowmotor_settings',
-  AUTH: 'flowmotor_auth'
+  AUTH: 'flowmotor_auth',
+  COMPANY_INFO: 'flowmotor_company_info',
+  INVOICES: 'flowmotor_invoices'
+}
+
+// Informations société par défaut
+export const DEFAULT_COMPANY_INFO = {
+  name: 'FLOW MOTOR',
+  legal: 'SASU AU CAPITAL DE 100 \u20AC',
+  rcs: 'RCS Lyon',
+  owner: 'Florian Meissel',
+  address: '6 Rue du Bon Pasteur',
+  zipCity: '69001 Lyon',
+  phone: '06 22 85 26 22',
+  email: 'florian@flowmotor.fr',
+  siren: '992 700 427',
+  tvaIntra: 'FR18992700427',
+  iban: 'FR76 1695 8000 0101 7915 0306 806',
+  bic: 'QNTOFRP1XXX'
 }
 
 // Paramètres par défaut

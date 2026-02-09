@@ -66,3 +66,13 @@ export {
   fetchAllKPIsWithApiKey,
   calculateLocalStats
 } from './kpis'
+
+// Invoices
+export {
+  getNextInvoiceNumber,
+  createInvoice,
+  fetchInvoices,
+  updateInvoice,
+  finalizeInvoice,
+  cancelInvoice
+} from './invoices'

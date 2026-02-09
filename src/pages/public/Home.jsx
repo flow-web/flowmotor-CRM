@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowRight, Shield, Truck, Award, Calendar, Gauge, Car } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import SEO from '../../components/SEO'
 
 const formatPrice = (price) => {
   if (!price) return '—'
@@ -33,8 +34,32 @@ function Home() {
     fetchFeatured()
   }, [])
 
+  const autoDealerJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AutoDealer',
+    name: 'FLOW MOTOR',
+    description: "Spécialiste import et vente de véhicules sportifs et de collection à Lyon.",
+    url: 'https://www.flowmotor.fr',
+    logo: 'https://www.flowmotor.fr/assets/LOGO_AUBERGINE.png',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '6 Rue du Bon Pasteur',
+      addressLocality: 'Lyon',
+      postalCode: '69001',
+      addressCountry: 'FR'
+    },
+    telephone: '+33622852622',
+    email: 'florian@flowmotor.fr',
+    sameAs: []
+  }
+
   return (
     <main className="bg-base-100">
+      <SEO
+        url="/"
+        description="Spécialiste import et vente de véhicules sportifs et de collection. Youngtimers, JDM, allemandes. Stock disponible à Lyon et recherche personnalisée."
+        jsonLd={autoDealerJsonLd}
+      />
       {/* HERO SECTION */}
       <section className="relative overflow-hidden min-h-[90vh] flex items-center">
         {/* Background Image */}

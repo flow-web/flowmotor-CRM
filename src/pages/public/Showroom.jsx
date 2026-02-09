@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Search, Filter, Car, ArrowRight, Calendar, Gauge } from 'lucide-react'
+import SEO from '../../components/SEO'
 
 const formatPrice = (price) => {
   if (!price) return '—'
@@ -72,6 +73,11 @@ export default function Showroom() {
 
   return (
     <main className="bg-base-100">
+      <SEO
+        title="Showroom"
+        description="Découvrez notre stock de véhicules sportifs et de collection disponibles à Lyon. Import Suisse, Japon, Allemagne."
+        url="/showroom"
+      />
       {/* Header */}
       <section className="relative overflow-hidden section-spacing">
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent" />

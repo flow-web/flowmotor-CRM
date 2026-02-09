@@ -6,24 +6,7 @@ import {
   Image,
   StyleSheet,
 } from '@react-pdf/renderer'
-
-// ================================================================
-// INFORMATIONS SOCIÉTÉ (source: cover.png)
-// ================================================================
-const CO = {
-  name: 'FLOW MOTOR',
-  legal: 'SASU AU CAPITAL DE 100 \u20AC',
-  rcs: 'RCS Lyon',
-  owner: 'Florian Meissel',
-  address: '6 Rue du Bon Pasteur',
-  zipCity: '69001 Lyon',
-  phone: '06 22 85 26 22',
-  email: 'florianmeissel.pro1@gmail.com',
-  siren: '992 700 427',
-  tvaIntra: 'FR XX 992700427',
-  iban: 'FR76 XXXX XXXX XXXX XXXX XXXX XXX',
-  bic: 'XXXXXXXXX',
-}
+import { DEFAULT_COMPANY_INFO } from '../utils/constants'
 
 // ================================================================
 // PALETTE — Brand Board FLOW MOTOR
@@ -78,13 +61,6 @@ const dateNow = () =>
       year: 'numeric',
     }).format(new Date()),
   )
-
-const docNum = (prefix) => {
-  const d = new Date()
-  const p = (n) => String(n).padStart(2, '0')
-  const seq = String(Math.floor(Math.random() * 900) + 100)
-  return `${prefix}-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${seq}`
-}
 
 // ================================================================
 // STYLES
@@ -484,7 +460,8 @@ function DocHeader({ title, number }) {
   )
 }
 
-function PartiesBlock({ client }) {
+function PartiesBlock({ client, company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
   const lines = [
     client.address,
     [client.postalCode, client.city].filter(Boolean).join(' '),
@@ -552,7 +529,8 @@ function VehicleTable({ vehicle }) {
   )
 }
 
-function BankAndTotal({ total }) {
+function BankAndTotal({ total, company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
   return (
     <View style={s.bankTotalRow}>
       <View style={s.bankBox}>
@@ -605,7 +583,8 @@ function PaymentMode() {
   )
 }
 
-function SignatureBlock({ client, total }) {
+function SignatureBlock({ client, total, company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
   return (
     <View style={s.sigRow}>
       <View style={s.sigBox}>
@@ -632,7 +611,8 @@ function SignatureBlock({ client, total }) {
   )
 }
 
-function PageFooter() {
+function PageFooter({ company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
   return (
     <View style={s.footer} fixed>
       <Text style={s.ftTxt}>
@@ -651,7 +631,8 @@ function PageFooter() {
 // ================================================================
 // PAGE 2 : CONDITIONS GÉNÉRALES DE VENTE
 // ================================================================
-function CGVPage() {
+function CGVPage({ company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
   return (
     <Page size="A4" style={s.pageCGV}>
       <Image src={ENGRENAGE} style={s.wmGearCGV} />
@@ -722,7 +703,7 @@ function CGVPage() {
         </View>
       </View>
 
-      <PageFooter />
+      <PageFooter company={CO} />
     </Page>
   )
 }
@@ -730,8 +711,9 @@ function CGVPage() {
 // ================================================================
 // 1. BON DE COMMANDE
 // ================================================================
-export function OrderForm({ vehicle, client }) {
-  const num = docNum('BC')
+export function OrderForm({ vehicle, client, invoiceNumber, company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
+  const num = invoiceNumber || 'BROUILLON'
   const frais = 350
   const prix = vehicle.sellingPrice || 0
   const total = prix + frais
@@ -741,7 +723,7 @@ export function OrderForm({ vehicle, client }) {
       <Page size="A4" style={s.page}>
         <Watermarks />
         <DocHeader title="BON DE COMMANDE" number={num} />
-        <PartiesBlock client={client} />
+        <PartiesBlock client={client} company={CO} />
         <View style={s.hrThin} />
         <VehicleTable vehicle={vehicle} />
 
@@ -764,7 +746,7 @@ export function OrderForm({ vehicle, client }) {
           </View>
         </View>
 
-        <BankAndTotal total={total} />
+        <BankAndTotal total={total} company={CO} />
         <PaymentMode />
 
         <View style={s.legalBanner}>
@@ -773,10 +755,10 @@ export function OrderForm({ vehicle, client }) {
           </Text>
         </View>
 
-        <SignatureBlock client={client} total={total} />
-        <PageFooter />
+        <SignatureBlock client={client} total={total} company={CO} />
+        <PageFooter company={CO} />
       </Page>
-      <CGVPage />
+      <CGVPage company={CO} />
     </Document>
   )
 }
@@ -784,8 +766,9 @@ export function OrderForm({ vehicle, client }) {
 // ================================================================
 // 2. FACTURE — TVA SUR MARGE (Art. 297 A du CGI)
 // ================================================================
-export function InvoiceMarginTemplate({ vehicle, client }) {
-  const num = docNum('FM')
+export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
+  const num = invoiceNumber || 'BROUILLON'
   const frais = 350
   const prix = vehicle.sellingPrice || 0
   const total = prix + frais
@@ -795,7 +778,7 @@ export function InvoiceMarginTemplate({ vehicle, client }) {
       <Page size="A4" style={s.page}>
         <Watermarks />
         <DocHeader title="FACTURE" number={num} />
-        <PartiesBlock client={client} />
+        <PartiesBlock client={client} company={CO} />
         <View style={s.hrThin} />
 
         {/* Bandeau légal TVA Marge */}
@@ -841,12 +824,12 @@ export function InvoiceMarginTemplate({ vehicle, client }) {
           </View>
         </View>
 
-        <BankAndTotal total={total} />
+        <BankAndTotal total={total} company={CO} />
         <PaymentMode />
-        <SignatureBlock client={client} total={total} />
-        <PageFooter />
+        <SignatureBlock client={client} total={total} company={CO} />
+        <PageFooter company={CO} />
       </Page>
-      <CGVPage />
+      <CGVPage company={CO} />
     </Document>
   )
 }
@@ -854,8 +837,9 @@ export function InvoiceMarginTemplate({ vehicle, client }) {
 // ================================================================
 // 3. FACTURE — TVA APPARENTE (HT + TVA 20 % + TTC)
 // ================================================================
-export function InvoiceVatTemplate({ vehicle, client }) {
-  const num = docNum('FV')
+export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company }) {
+  const CO = company || DEFAULT_COMPANY_INFO
+  const num = invoiceNumber || 'BROUILLON'
   const frais = 350
   const prixHT = Math.round(((vehicle.sellingPrice || 0) / 1.2) * 100) / 100
   const tvaVehicule = (vehicle.sellingPrice || 0) - prixHT
@@ -868,7 +852,7 @@ export function InvoiceVatTemplate({ vehicle, client }) {
       <Page size="A4" style={s.page}>
         <Watermarks />
         <DocHeader title="FACTURE" number={num} />
-        <PartiesBlock client={client} />
+        <PartiesBlock client={client} company={CO} />
         <View style={s.hrThin} />
         <VehicleTable vehicle={vehicle} />
 
@@ -912,12 +896,12 @@ export function InvoiceVatTemplate({ vehicle, client }) {
           </View>
         </View>
 
-        <BankAndTotal total={totalTTC} />
+        <BankAndTotal total={totalTTC} company={CO} />
         <PaymentMode />
-        <SignatureBlock client={client} total={totalTTC} />
-        <PageFooter />
+        <SignatureBlock client={client} total={totalTTC} company={CO} />
+        <PageFooter company={CO} />
       </Page>
-      <CGVPage />
+      <CGVPage company={CO} />
     </Document>
   )
 }
@@ -925,9 +909,9 @@ export function InvoiceVatTemplate({ vehicle, client }) {
 // ================================================================
 // DISPATCHER (utilisé par VehicleCockpit)
 // ================================================================
-export function Invoice({ vehicle, client, billingType }) {
+export function Invoice({ vehicle, client, billingType, invoiceNumber, company }) {
   if (billingType === 'margin') {
-    return <InvoiceMarginTemplate vehicle={vehicle} client={client} />
+    return <InvoiceMarginTemplate vehicle={vehicle} client={client} invoiceNumber={invoiceNumber} company={company} />
   }
-  return <InvoiceVatTemplate vehicle={vehicle} client={client} />
+  return <InvoiceVatTemplate vehicle={vehicle} client={client} invoiceNumber={invoiceNumber} company={company} />
 }

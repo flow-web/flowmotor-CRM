@@ -1,19 +1,45 @@
 import { useState, useEffect } from 'react'
-import { Settings as SettingsIcon, Save, RefreshCw, Database, Cloud } from 'lucide-react'
+import { Settings as SettingsIcon, Save, RefreshCw, Database, Cloud, Building2 } from 'lucide-react'
 import TopHeader from '../components/layout/TopHeader'
 import AdminCard from '../components/shared/AdminCard'
 import ApiConnectivity from '../components/settings/ApiConnectivity'
 import { useUI } from '../context/UIContext'
 import { useVehicles } from '../context/VehiclesContext'
-import { STORAGE_KEYS, DEFAULT_SETTINGS } from '../utils/constants'
+import { useCompanySettings } from '../hooks/useCompanySettings'
+import { STORAGE_KEYS, DEFAULT_SETTINGS, DEFAULT_COMPANY_INFO } from '../utils/constants'
+
+const COMPANY_FIELDS = [
+  { key: 'name', label: 'Raison sociale', placeholder: 'FLOW MOTOR' },
+  { key: 'legal', label: 'Forme juridique', placeholder: 'SASU AU CAPITAL DE 100 €' },
+  { key: 'rcs', label: 'RCS', placeholder: 'RCS Lyon' },
+  { key: 'owner', label: 'Dirigeant', placeholder: 'Nom Prénom' },
+  { key: 'address', label: 'Adresse', placeholder: '6 Rue du Bon Pasteur' },
+  { key: 'zipCity', label: 'Code postal + Ville', placeholder: '69001 Lyon' },
+  { key: 'phone', label: 'Téléphone', placeholder: '06 00 00 00 00' },
+  { key: 'email', label: 'Email', placeholder: 'contact@example.com' },
+  { key: 'siren', label: 'SIREN', placeholder: '000 000 000' },
+  { key: 'tvaIntra', label: 'TVA Intracommunautaire', placeholder: 'FR00000000000' },
+  { key: 'iban', label: 'IBAN', placeholder: 'FR76 0000 0000 0000 0000 0000 000' },
+  { key: 'bic', label: 'BIC / SWIFT', placeholder: 'XXXXFRPPXXX' }
+]
 
 function Settings() {
   const { toast } = useUI()
   const { dataMode, isSupabaseMode } = useVehicles()
+  const { companyInfo, updateCompanyInfo, resetCompanyInfo } = useCompanySettings()
 
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [hasChanges, setHasChanges] = useState(false)
-  const [activeTab, setActiveTab] = useState('general') // 'general' | 'api'
+  const [activeTab, setActiveTab] = useState('general')
+
+  // Company form state
+  const [companyForm, setCompanyForm] = useState(companyInfo)
+  const [companyHasChanges, setCompanyHasChanges] = useState(false)
+
+  // Sync company form when hook loads
+  useEffect(() => {
+    setCompanyForm(companyInfo)
+  }, [companyInfo])
 
   // Load settings on mount
   useEffect(() => {
@@ -58,8 +84,28 @@ function Settings() {
     setHasChanges(true)
   }
 
+  // Company handlers
+  const handleCompanyChange = (key, value) => {
+    setCompanyForm(prev => ({ ...prev, [key]: value }))
+    setCompanyHasChanges(true)
+  }
+
+  const handleCompanySave = () => {
+    updateCompanyInfo(companyForm)
+    toast.success('Informations société enregistrées')
+    setCompanyHasChanges(false)
+  }
+
+  const handleCompanyReset = () => {
+    setCompanyForm(DEFAULT_COMPANY_INFO)
+    resetCompanyInfo()
+    toast.success('Informations société réinitialisées')
+    setCompanyHasChanges(false)
+  }
+
   const tabs = [
     { id: 'general', label: 'Général', icon: SettingsIcon },
+    { id: 'company', label: 'Société', icon: Building2 },
     { id: 'api', label: 'Connectivité', icon: isSupabaseMode ? Cloud : Database }
   ]
 
@@ -203,22 +249,6 @@ function Settings() {
                 </p>
               </AdminCard>
 
-              {/* Credentials Info */}
-              <AdminCard>
-                <h3 className="text-sm font-medium text-white mb-4">Accès démo</h3>
-                <div className="p-4 bg-white/5 rounded-lg space-y-2 text-sm">
-                  <p className="text-white/60">
-                    <span className="text-white/40">Identifiant:</span> admin
-                  </p>
-                  <p className="text-white/60">
-                    <span className="text-white/40">Mot de passe:</span> flowmotor2024
-                  </p>
-                </div>
-                <p className="text-xs text-white/30 mt-3">
-                  En production, utilisez un système d'authentification sécurisé.
-                </p>
-              </AdminCard>
-
               {/* Actions */}
               <div className="flex items-center gap-4">
                 <button
@@ -237,6 +267,64 @@ function Settings() {
                   Réinitialiser
                 </button>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'company' && (
+            <div className="space-y-6">
+              <AdminCard>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-[#5C3A2E]/30 rounded-lg">
+                    <Building2 className="text-[#C4A484]" size={20} />
+                  </div>
+                  <div>
+                    <h2 className="font-medium text-white">Informations société</h2>
+                    <p className="text-xs text-white/40">
+                      Ces données apparaissent sur les factures et bons de commande PDF
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {COMPANY_FIELDS.map((field) => (
+                    <div key={field.key}>
+                      <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">
+                        {field.label}
+                      </label>
+                      <input
+                        type="text"
+                        value={companyForm[field.key] || ''}
+                        onChange={(e) => handleCompanyChange(field.key, e.target.value)}
+                        placeholder={field.placeholder}
+                        className="input-admin w-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </AdminCard>
+
+              {/* Actions */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleCompanySave}
+                  disabled={!companyHasChanges}
+                  className={`btn-admin flex items-center gap-2 ${!companyHasChanges ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Save size={16} />
+                  Enregistrer
+                </button>
+                <button
+                  onClick={handleCompanyReset}
+                  className="btn-admin-secondary flex items-center gap-2"
+                >
+                  <RefreshCw size={16} />
+                  Réinitialiser par défaut
+                </button>
+              </div>
+
+              <p className="text-xs text-white/30">
+                Les modifications seront appliquées aux prochains documents PDF générés.
+              </p>
             </div>
           )}
 

@@ -109,18 +109,42 @@ export function calculateStockStats(vehicles = []) {
     totalPRU: 0,
     averageMargin: 0,
     byStatus: {},
-    byMake: {}
+    byMake: {},
+    // Phase 2 — KPIs enrichis
+    totalRevenue: 0,
+    totalProfit: 0,
+    stockValue: 0,
+    revenueCurrentMonth: 0,
+    avgDaysInStock: 0,
+    monthlySales: []
   }
 
   let marginsSum = 0
   let marginsCount = 0
+  let daysInStockSum = 0
+  let daysInStockCount = 0
+
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+
+  // Pour les 6 derniers mois
+  const monthlyMap = {}
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(currentYear, currentMonth - i, 1)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    monthlyMap[key] = { month: key, count: 0, revenue: 0, profit: 0 }
+  }
 
   vehicles.forEach(vehicle => {
     // Par statut
     stats.byStatus[vehicle.status] = (stats.byStatus[vehicle.status] || 0) + 1
 
     // Par marque
-    stats.byMake[vehicle.make] = (stats.byMake[vehicle.make] || 0) + 1
+    const make = vehicle.brand || vehicle.make
+    if (make) {
+      stats.byMake[make] = (stats.byMake[make] || 0) + 1
+    }
 
     // Valeur totale (prix de vente)
     stats.totalValue += vehicle.sellingPrice || 0
@@ -134,9 +158,50 @@ export function calculateStockStats(vehicles = []) {
       marginsSum += calculateMarginPercent(pru, vehicle.sellingPrice)
       marginsCount++
     }
+
+    // Véhicules vendus — CA et profit
+    if (vehicle.status === 'SOLD') {
+      const revenue = vehicle.sellingPrice || 0
+      const profit = revenue - pru
+      stats.totalRevenue += revenue
+      stats.totalProfit += profit
+
+      // CA du mois courant
+      const soldDate = vehicle.soldAt ? new Date(vehicle.soldAt) : (vehicle.updatedAt ? new Date(vehicle.updatedAt) : null)
+      if (soldDate && soldDate.getMonth() === currentMonth && soldDate.getFullYear() === currentYear) {
+        stats.revenueCurrentMonth += revenue
+      }
+
+      // Monthly breakdown
+      if (soldDate) {
+        const key = `${soldDate.getFullYear()}-${String(soldDate.getMonth() + 1).padStart(2, '0')}`
+        if (monthlyMap[key]) {
+          monthlyMap[key].count++
+          monthlyMap[key].revenue += revenue
+          monthlyMap[key].profit += profit
+        }
+      }
+
+      // Days in stock
+      const createdDate = vehicle.createdAt ? new Date(vehicle.createdAt) : null
+      if (createdDate && soldDate) {
+        const days = Math.round((soldDate - createdDate) / (1000 * 60 * 60 * 24))
+        if (days >= 0) {
+          daysInStockSum += days
+          daysInStockCount++
+        }
+      }
+    }
+
+    // Valeur stock actuel (véhicules en stock)
+    if (vehicle.status === 'STOCK') {
+      stats.stockValue += vehicle.sellingPrice || pru
+    }
   })
 
   stats.averageMargin = marginsCount > 0 ? marginsSum / marginsCount : 0
+  stats.avgDaysInStock = daysInStockCount > 0 ? Math.round(daysInStockSum / daysInStockCount) : 0
+  stats.monthlySales = Object.values(monthlyMap)
 
   return stats
 }

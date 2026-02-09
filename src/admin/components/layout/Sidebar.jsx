@@ -5,6 +5,7 @@ import {
   Car,
   Users,
   Kanban,
+  Receipt,
   Book,
   Settings,
   ChevronLeft,
@@ -20,6 +21,7 @@ const navItems = [
   { path: '/admin/stock', label: 'Stock', icon: Car },
   { path: '/admin/clients', label: 'Clients', icon: Users },
   { path: '/admin/leads', label: 'Leads', icon: Kanban },
+  { path: '/admin/invoices', label: 'Factures', icon: Receipt },
   { path: '/admin/police', label: 'Livre de Police', icon: Book },
   { path: '/admin/settings', label: 'Paramètres', icon: Settings }
 ]

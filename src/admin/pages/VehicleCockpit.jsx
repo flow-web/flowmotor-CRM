@@ -18,9 +18,10 @@ import {
 } from '../utils/formatters'
 import { calculatePRU, calculateMarginPercent, calculateTotalCosts } from '../utils/calculations'
 import { VEHICLE_STATUS_LABELS, WORKFLOW_ORDER, COST_TYPES } from '../utils/constants'
-import { OrderForm, Invoice, InvoiceMarginTemplate, InvoiceVatTemplate } from '../documents/PDFTemplates'
-import { fetchClients } from '../../lib/supabase'
+import { OrderForm, Invoice } from '../documents/PDFTemplates'
+import { fetchClients, getNextInvoiceNumber, createInvoice } from '../../lib/supabase'
 import { isDemoMode } from '../../lib/supabase/client'
+import { useCompanySettings } from '../hooks/useCompanySettings'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,6 +31,7 @@ function VehicleCockpit() {
   const navigate = useNavigate()
   const { getVehicle, updateStatus, deleteVehicle, addCost, deleteCost } = useVehicles()
   const { showConfirm, toast } = useUI()
+  const { companyInfo } = useCompanySettings()
 
   const [activeTab, setActiveTab] = useState('info')
   const [showAddCost, setShowAddCost] = useState(false)
@@ -153,7 +155,7 @@ function VehicleCockpit() {
     }
   }
 
-  // PDF generation
+  // PDF generation with persistent invoice number
   const handleDownloadPdf = async (type) => {
     if (!selectedClient) {
       toast.error('Veuillez sélectionner un client')
@@ -163,12 +165,60 @@ function VehicleCockpit() {
     setGeneratingPdf(type)
 
     try {
+      // Determine prefix: BC for order, FM for margin invoice, FV for VAT invoice
+      const docPrefix = type === 'order' ? 'BC' : billingType === 'margin' ? 'FM' : 'FV'
+
+      // Get next sequential invoice number
+      const { invoiceNumber, prefix: pfx, year, sequence } = await getNextInvoiceNumber(docPrefix)
+
+      // Calculate total
+      const frais = 350
+      const prix = vehicle.sellingPrice || 0
+      let totalAmount = prix + frais
+      if (type === 'invoice' && billingType === 'vat') {
+        const prixHT = Math.round((prix / 1.2) * 100) / 100
+        const tvaVehicule = prix - prixHT
+        totalAmount = prixHT + frais + tvaVehicule
+      }
+
+      // Create invoice record BEFORE PDF generation
+      await createInvoice({
+        invoice_number: invoiceNumber,
+        prefix: pfx,
+        year,
+        sequence,
+        vehicle_id: vehicle.id,
+        client_id: selectedClient.id,
+        billing_type: type === 'order' ? null : billingType,
+        total_amount: totalAmount,
+        vehicle_snapshot: {
+          brand: vehicle.brand || vehicle.make,
+          model: vehicle.model,
+          trim: vehicle.trim,
+          vin: vehicle.vin,
+          year: vehicle.year,
+          mileage: vehicle.mileage,
+          color: vehicle.color,
+          sellingPrice: vehicle.sellingPrice
+        },
+        client_snapshot: {
+          firstName: selectedClient.firstName,
+          lastName: selectedClient.lastName,
+          email: selectedClient.email,
+          phone: selectedClient.phone,
+          address: selectedClient.address,
+          postalCode: selectedClient.postalCode,
+          city: selectedClient.city
+        },
+        status: 'finalized'
+      })
+
+      // Render PDF with the persistent invoice number
       let PdfComponent
       if (type === 'order') {
-        PdfComponent = <OrderForm vehicle={vehicle} client={selectedClient} />
+        PdfComponent = <OrderForm vehicle={vehicle} client={selectedClient} invoiceNumber={invoiceNumber} company={companyInfo} />
       } else {
-        // Facture : dispatch selon le type de facturation choisi
-        PdfComponent = <Invoice vehicle={vehicle} client={selectedClient} billingType={billingType} />
+        PdfComponent = <Invoice vehicle={vehicle} client={selectedClient} billingType={billingType} invoiceNumber={invoiceNumber} company={companyInfo} />
       }
 
       const blob = await pdf(PdfComponent).toBlob()
@@ -176,8 +226,8 @@ function VehicleCockpit() {
       const vehicleName = `${vehicle.brand || vehicle.make}_${vehicle.model}`.replace(/\s+/g, '_')
       const clientName = `${selectedClient.lastName}`.replace(/\s+/g, '_')
       const suffix = type === 'invoice' && billingType === 'margin' ? '_Marge' : type === 'invoice' ? '_TVA' : ''
-      const prefix = type === 'order' ? 'BC' : 'Facture'
-      const fileName = `${prefix}${suffix}_${vehicleName}_${clientName}.pdf`
+      const filePrefix = type === 'order' ? 'BC' : 'Facture'
+      const fileName = `${filePrefix}${suffix}_${invoiceNumber}_${vehicleName}_${clientName}.pdf`
 
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -188,7 +238,7 @@ function VehicleCockpit() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
 
-      toast.success(`${type === 'order' ? 'Bon de commande' : 'Facture pro-forma'} téléchargé`)
+      toast.success(`${type === 'order' ? 'Bon de commande' : 'Facture'} ${invoiceNumber} généré`)
     } catch (err) {
       console.error('Erreur génération PDF:', err)
       toast.error(`Erreur: ${err.message || 'Impossible de générer le PDF'}`)

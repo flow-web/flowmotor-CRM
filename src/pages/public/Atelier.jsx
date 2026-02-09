@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Banknote, Shield, TrendingUp, Users, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react'
 import Modal from '../../components/Modal'
+import SEO from '../../components/SEO'
 
 function Atelier() {
   const [formData, setFormData] = useState({
@@ -41,6 +42,11 @@ function Atelier() {
 
   return (
     <main className="bg-base-100">
+      <SEO
+        title="Atelier"
+        description="Vendez votre véhicule sportif ou de collection avec FLOW MOTOR. Estimation gratuite et rapide. Basé à Lyon."
+        url="/atelier"
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Phone, Mail, MapPin, Send, ChevronDown, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { createLead } from '../../lib/supabase/leads'
+import SEO from '../../components/SEO'
 
 function Contact() {
   const [searchParams] = useSearchParams()
@@ -65,6 +66,11 @@ function Contact() {
 
   return (
     <main className="bg-base-100">
+      <SEO
+        title="Contact"
+        description="Contactez FLOW MOTOR pour l'achat, l'import ou la recherche de votre véhicule sportif ou de collection. Basé à Lyon."
+        url="/contact"
+      />
       {/* Header Section */}
       <section className="relative overflow-hidden section-spacing">
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent" />

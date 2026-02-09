@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Shield, TrendingUp, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react'
+import SEO from '../../components/SEO'
 
 function Services() {
   const [duration, setDuration] = useState(48)
@@ -62,6 +63,11 @@ function Services() {
 
   return (
     <main className="bg-base-100">
+      <SEO
+        title="Services"
+        description="Garantie, financement, import personnalisé : découvrez les services FLOW MOTOR pour l'achat de votre véhicule sportif."
+        url="/services"
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">

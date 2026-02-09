@@ -15,6 +15,7 @@ import {
   Shield,
   Wrench
 } from 'lucide-react'
+import SEO from '../../components/SEO'
 
 const formatPrice = (price) => {
   if (!price) return '—'
@@ -117,8 +118,38 @@ export default function PublicVehicleDetails() {
     { label: 'Origine', value: vehicle.import_country, icon: MapPin },
   ].filter(s => s.value)
 
+  const vehicleName = vehicle ? `${vehicle.brand} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ''}` : ''
+  const vehicleImage = images[0]?.url || null
+  const vehiclePrice = vehicle?.selling_price || null
+
+  const productJsonLd = vehicle ? {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: vehicleName,
+    image: vehicleImage,
+    description: `${vehicleName} ${vehicle.year || ''} — ${formatKm(vehicle.mileage)}`,
+    brand: { '@type': 'Brand', name: vehicle.brand },
+    offers: vehiclePrice ? {
+      '@type': 'Offer',
+      price: vehiclePrice,
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      seller: { '@type': 'Organization', name: 'FLOW MOTOR' }
+    } : undefined
+  } : null
+
   return (
     <main className="bg-base-100">
+      {vehicle && (
+        <SEO
+          title={vehicleName}
+          description={`${vehicleName} ${vehicle.year || ''} — ${formatKm(vehicle.mileage)} — ${vehiclePrice ? formatPrice(vehiclePrice) : 'Prix sur demande'}`}
+          image={vehicleImage}
+          url={`/vehicule/${id}`}
+          type="product"
+          jsonLd={productJsonLd}
+        />
+      )}
       {/* Breadcrumb */}
       <section className="container mx-auto px-6 pt-8 pb-4">
         <Link

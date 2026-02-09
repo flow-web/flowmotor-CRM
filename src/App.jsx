@@ -20,6 +20,7 @@ import Legal from './pages/public/Legal'
 import NotFound from './pages/public/NotFound'
 
 // Admin
+import PoliceRegister from './admin/pages/PoliceRegister';
 import AdminProvider from './admin/context/AdminProvider'
 import { AuthProvider } from './admin/context/AuthContext'
 import ProtectedRoute from './admin/components/ProtectedRoute'
@@ -30,7 +31,7 @@ import Sourcing from './admin/pages/Sourcing'
 import VehicleCockpit from './admin/pages/VehicleCockpit'
 import Clients from './admin/pages/Clients'
 import Leads from './admin/pages/Leads'
-import PoliceRegister from './admin/pages/PoliceRegister'
+import Invoices from './admin/pages/Invoices'
 import Settings from './admin/pages/Settings'
 
 /**
@@ -88,7 +89,12 @@ function App() {
               <ProtectedRoute />
             </AdminProvider>
           }
-        >
+        >{/* ... autres routes admin ... */}
+<Route path="/admin/police" element={
+  <ProtectedRoute>
+    <PoliceRegister />
+  </ProtectedRoute>
+} />
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -97,7 +103,7 @@ function App() {
             <Route path="/admin/vehicle/:id" element={<VehicleCockpit />} />
             <Route path="/admin/clients" element={<Clients />} />
             <Route path="/admin/leads" element={<Leads />} />
-            <Route path="/admin/police" element={<PoliceRegister />} />
+            <Route path="/admin/invoices" element={<Invoices />} />
             <Route path="/admin/settings" element={<Settings />} />
           </Route>
         </Route>
