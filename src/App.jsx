@@ -58,52 +58,54 @@ function PublicLayout() {
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* === PAGES PUBLIQUES === */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/showroom" element={<Showroom />} />
-          <Route path="/stock" element={<Showroom />} />
-          <Route path="/vehicule/:id" element={<PublicVehicleDetails />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/atelier" element={<Atelier />} />
-          <Route path="/contact" element={<Contact />} />
+      <AuthProvider>
+        <Routes>
+          {/* === PAGES PUBLIQUES === */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/showroom" element={<Showroom />} />
+            <Route path="/stock" element={<Showroom />} />
+            <Route path="/vehicule/:id" element={<PublicVehicleDetails />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/atelier" element={<Atelier />} />
+            <Route path="/contact" element={<Contact />} />
 
-          {/* Pages légales */}
-          <Route path="/mentions-legales" element={<Legal />} />
-          <Route path="/cgv" element={<PlaceholderPage title="Conditions générales de vente" />} />
-          <Route path="/confidentialite" element={<PlaceholderPage title="Politique de confidentialité" />} />
-          <Route path="/cookies" element={<PlaceholderPage title="Gestion des cookies" />} />
+            {/* Pages légales */}
+            <Route path="/mentions-legales" element={<Legal />} />
+            <Route path="/cgv" element={<PlaceholderPage title="Conditions générales de vente" />} />
+            <Route path="/confidentialite" element={<PlaceholderPage title="Politique de confidentialité" />} />
+            <Route path="/cookies" element={<PlaceholderPage title="Gestion des cookies" />} />
 
-          {/* 404 pour pages publiques */}
-          <Route path="*" element={<NotFound />} />
-        </Route>
-
-        {/* === LOGIN (avec AuthProvider) === */}
-        <Route path="/login" element={<AuthProvider><Login /></AuthProvider>} />
-
-        {/* === ADMIN CRM (protégé) === */}
-        <Route
-          element={
-            <AdminProvider>
-              <ProtectedRoute />
-            </AdminProvider>
-          }
-        >
-          <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/admin/sourcing" element={<Sourcing />} />
-            <Route path="/admin/stock" element={<AdminStock />} />
-            <Route path="/admin/vehicle/:id" element={<VehicleCockpit />} />
-            <Route path="/admin/clients" element={<Clients />} />
-            <Route path="/admin/leads" element={<Leads />} />
-            <Route path="/admin/invoices" element={<Invoices />} />
-            <Route path="/admin/police" element={<PoliceRegister />} />
-            <Route path="/admin/settings" element={<Settings />} />
+            {/* 404 pour pages publiques */}
+            <Route path="*" element={<NotFound />} />
           </Route>
-        </Route>
-      </Routes>
+
+          {/* === LOGIN === */}
+          <Route path="/login" element={<Login />} />
+
+          {/* === ADMIN CRM (protégé) === */}
+          <Route
+            element={
+              <AdminProvider>
+                <ProtectedRoute />
+              </AdminProvider>
+            }
+          >
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/sourcing" element={<Sourcing />} />
+              <Route path="/admin/stock" element={<AdminStock />} />
+              <Route path="/admin/vehicle/:id" element={<VehicleCockpit />} />
+              <Route path="/admin/clients" element={<Clients />} />
+              <Route path="/admin/leads" element={<Leads />} />
+              <Route path="/admin/invoices" element={<Invoices />} />
+              <Route path="/admin/police" element={<PoliceRegister />} />
+              <Route path="/admin/settings" element={<Settings />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
     </Router>
   )
 }

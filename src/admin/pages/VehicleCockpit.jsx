@@ -101,6 +101,7 @@ function VehicleCockpit() {
         setClients(data)
       }
     } catch (err) {
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) return
       console.error('Erreur chargement clients:', err)
       try {
         const stored = localStorage.getItem('flowmotor_clients')

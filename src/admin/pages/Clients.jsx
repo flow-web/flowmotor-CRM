@@ -43,6 +43,7 @@ export default function Clients() {
       if (error) throw error;
       setClients(data || []);
     } catch (error) {
+      if (error.name === 'AbortError' || error.message?.includes('aborted')) return;
       console.error('Erreur chargement clients:', error);
       toast.error("Impossible de charger les clients");
     } finally {
@@ -63,12 +64,11 @@ export default function Clients() {
     const payload = {
       first_name: formData.firstName,
       last_name: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      address: formData.address,
-      postal_code: formData.postalCode,
-      city: formData.city,
-      type: 'PARTICULIER', // Valeur par défaut
+      email: formData.email || null,
+      phone: formData.phone || null,
+      address: formData.address || null,
+      postal_code: formData.postalCode || null,
+      city: formData.city || null,
       country: 'France'
     };
 
@@ -81,8 +81,8 @@ export default function Clients() {
       setFormData({ firstName: '', lastName: '', email: '', phone: '', address: '', postalCode: '', city: '' }); // Reset
       fetchClients(); // Rafraîchir la liste
     } catch (error) {
-      console.error('Erreur création:', error);
-      toast.error("Erreur lors de la création : " + error.message);
+      console.error('Erreur création client:', error.message || error, '| code:', error.code, '| details:', error.details, '| hint:', error.hint);
+      toast.error("Erreur lors de la création : " + (error.message || 'Erreur inconnue'));
     } finally {
       setIsSubmitting(false);
     }

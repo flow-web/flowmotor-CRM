@@ -228,7 +228,7 @@ function Sourcing() {
 
       navigate('/admin/stock')
     } catch (error) {
-      console.error('Erreur création véhicule:', error)
+      console.error('Erreur création véhicule:', error.message || error, '| code:', error.code, '| details:', error.details)
       toast.error(`Erreur: ${error.message || 'Impossible de créer le véhicule'}`)
     } finally {
       setIsSubmitting(false)

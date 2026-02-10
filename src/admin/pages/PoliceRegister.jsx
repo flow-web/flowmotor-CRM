@@ -22,6 +22,7 @@ export default function PoliceRegister() {
       // Sécurité : si data est null, on met un tableau vide
       setEntries(data || []);
     } catch (err) {
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
       console.error("Erreur police:", err);
       setError(err.message);
     } finally {

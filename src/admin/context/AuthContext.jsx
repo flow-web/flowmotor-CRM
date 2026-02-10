@@ -27,50 +27,71 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let cancelled = false
 
-    const init = async () => {
+    // ── Mode demo / localStorage : résolution synchrone ──
+    if (isDemoMode() || !supabase) {
       try {
-        await checkAuth()
-      } catch (err) {
-        if (!cancelled) {
-          console.warn('Auth init error (non-fatal):', err?.name || err)
+        const stored = localStorage.getItem(STORAGE_KEYS.AUTH)
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (parsed.token && parsed.user) {
+            setUser(parsed.user)
+            setAuthMode('demo')
+          }
+        }
+      } catch {}
+      setIsLoading(false)
+      return
+    }
+
+    // ── Mode Supabase : onAuthStateChange est la source unique de vérité ──
+    // Callback SYNCHRONE — set user immédiatement, profil en arrière-plan
+    const { data } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (cancelled) return
+
+        if (session?.user) {
+          // Set user immédiatement avec les données de la session (pas de await)
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.name || session.user.email.split('@')[0],
+            role: 'admin'
+          })
+          setAuthMode('supabase')
+          setIsLoading(false)
+
+          // Enrichir le profil en arrière-plan (non-bloquant)
+          fetchUserProfile(session.user.id).then(profile => {
+            if (!cancelled && profile) {
+              setUser(prev => ({
+                ...prev,
+                name: profile.name || prev.name,
+                role: profile.role || prev.role
+              }))
+            }
+          }).catch(() => {})
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null)
+          setIsLoading(false)
+        } else {
+          // INITIAL_SESSION sans session — débloquer le loading
           setIsLoading(false)
         }
       }
-    }
+    )
 
-    init()
-
-    // Écoute les changements d'auth Supabase
-    let subscription = null
-    if (!isDemoMode() && supabase) {
-      const { data } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (cancelled) return
-          try {
-            if (session?.user) {
-              const profile = await fetchUserProfile(session.user.id)
-              if (!cancelled) {
-                setUser({
-                  id: session.user.id,
-                  email: session.user.email,
-                  name: profile?.name || session.user.email.split('@')[0],
-                  role: profile?.role || 'user'
-                })
-              }
-            } else {
-              if (!cancelled) setUser(null)
-            }
-          } catch (err) {
-            console.warn('Auth state change error (non-fatal):', err?.name || err)
-          }
-        }
-      )
-      subscription = data.subscription
-    }
+    // Timeout de sécurité — débloquer le loading si onAuthStateChange ne fire pas
+    const safetyTimeout = setTimeout(() => {
+      if (!cancelled) {
+        console.warn('Auth: timeout de sécurité (4s), déblocage du loading')
+        setIsLoading(false)
+      }
+    }, 4000)
 
     return () => {
       cancelled = true
-      subscription?.unsubscribe()
+      data.subscription.unsubscribe()
+      clearTimeout(safetyTimeout)
     }
   }, [])
 
@@ -84,7 +105,9 @@ export function AuthProvider({ children }) {
       .single()
 
     if (error) {
-      console.warn('Erreur fetch profile:', error)
+      if (!(error.name === 'AbortError' || error.message?.includes('aborted'))) {
+        console.warn('Erreur fetch profile:', error)
+      }
       return null
     }
     return data
@@ -94,17 +117,24 @@ export function AuthProvider({ children }) {
     setIsLoading(true)
 
     try {
-      // Essaie d'abord Supabase
       if (!isDemoMode() && supabase) {
         const { data: { session } } = await supabase.auth.getSession()
 
         if (session?.user) {
-          const profile = await fetchUserProfile(session.user.id)
+          let profileName = null
+          let profileRole = 'user'
+          try {
+            const profile = await fetchUserProfile(session.user.id)
+            if (profile) {
+              profileName = profile.name
+              profileRole = profile.role || 'user'
+            }
+          } catch {}
           setUser({
             id: session.user.id,
             email: session.user.email,
-            name: profile?.name || session.user.email.split('@')[0],
-            role: profile?.role || 'user'
+            name: profileName || session.user.email.split('@')[0],
+            role: profileRole
           })
           setAuthMode('supabase')
           setIsLoading(false)
@@ -112,7 +142,6 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // Fallback sur le mode demo/localStorage
       const stored = localStorage.getItem(STORAGE_KEYS.AUTH)
       if (stored) {
         const parsed = JSON.parse(stored)
@@ -122,7 +151,9 @@ export function AuthProvider({ children }) {
         }
       }
     } catch (error) {
-      console.warn('Erreur vérification auth:', error)
+      if (!(error.name === 'AbortError' || error.message?.includes('aborted'))) {
+        console.warn('Erreur vérification auth:', error)
+      }
     } finally {
       setIsLoading(false)
     }

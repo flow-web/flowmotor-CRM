@@ -65,6 +65,7 @@ function Leads() {
       const data = await fetchLeads()
       setLeads(data)
     } catch (err) {
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) return
       console.error('Erreur chargement leads:', err)
       toast.error('Erreur de chargement des leads')
     } finally {

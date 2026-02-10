@@ -20,23 +20,39 @@ export async function checkSupabaseConnection() {
   try {
     const { error } = await supabase.from('vehicles').select('count', { count: 'exact', head: true })
     if (error) {
+      // AbortError retourné dans l'objet error (pas thrown) — Strict Mode bénin
+      if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+        return { connected: true, mode: 'supabase' }
+      }
       console.warn('Supabase connection error:', error.message)
       return { connected: false, mode: 'offline', error: error.message }
     }
     return { connected: true, mode: 'supabase' }
   } catch (err) {
+    // AbortError en Strict Mode — pas une vraie erreur réseau
+    if (err.name === 'AbortError' || err.message?.includes('aborted')) {
+      return { connected: true, mode: 'supabase' }
+    }
     console.warn('Supabase connection failed:', err)
     return { connected: false, mode: 'offline', error: err.message }
   }
 }
 
 // Crée le client Supabase (null en mode démo)
+// Note: on strip le signal AbortController pour éviter le bug React 18 Strict Mode
+// où le double-mount corrompt le signal et avorte TOUTES les requêtes (même les clics)
 export const supabase = isDemoMode()
   ? null
   : createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
+      },
+      global: {
+        fetch: (url, options = {}) => {
+          const { signal, ...rest } = options
+          return fetch(url, rest)
+        },
       },
     })
 

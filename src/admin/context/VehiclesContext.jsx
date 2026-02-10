@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect, useMemo, useCallback, u
 import { STORAGE_KEYS, VEHICLE_STATUS, WORKFLOW_ORDER } from '../utils/constants'
 import { calculatePRU, calculateStockStats } from '../utils/calculations'
 import { generateId } from '../utils/formatters'
-import { mockVehicles } from '../data/mockVehicles'
 import {
   isDemoMode,
   checkSupabaseConnection,
@@ -71,6 +70,12 @@ export function VehiclesProvider({ children }) {
         setDataMode(DATA_MODE.LOCAL)
       }
     } catch (err) {
+      // AbortError en Strict Mode — présumer Supabase OK
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
+        setConnectionStatus({ connected: true, mode: 'supabase' })
+        setDataMode(DATA_MODE.SUPABASE)
+        return
+      }
       console.error('[checkConnection] Erreur fatale:', err)
       // Fallback garanti — ne jamais rester en 'checking'
       setConnectionStatus({ connected: false, mode: 'offline' })
@@ -94,6 +99,9 @@ export function VehiclesProvider({ children }) {
         loadVehiclesFromLocalStorage()
       }
     } catch (err) {
+      // AbortError en Strict Mode — ignorer silencieusement
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) return
+
       console.error('[loadVehicles] Erreur:', err)
       setError('Erreur de chargement des données')
       // Fallback sur localStorage en cas d'erreur Supabase
@@ -113,11 +121,11 @@ export function VehiclesProvider({ children }) {
       if (stored) {
         setVehicles(JSON.parse(stored))
       } else {
-        setVehicles(mockVehicles)
+        setVehicles([])
       }
     } catch (err) {
       console.error('Erreur chargement localStorage:', err)
-      setVehicles(mockVehicles)
+      setVehicles([])
     }
   }
 
@@ -143,7 +151,7 @@ export function VehiclesProvider({ children }) {
         setVehicles(prev => [newVehicle, ...prev])
         return newVehicle
       } catch (err) {
-        console.error('Erreur création Supabase:', err)
+        console.error('Erreur création Supabase:', err.message || err, '| code:', err.code, '| details:', err.details, '| hint:', err.hint)
         throw err
       }
     }

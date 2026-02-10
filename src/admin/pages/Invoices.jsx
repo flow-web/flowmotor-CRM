@@ -54,6 +54,7 @@ function Invoices() {
       const data = await fetchInvoices()
       setInvoices(data)
     } catch (err) {
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) return
       console.error('Erreur chargement factures:', err)
       toast.error('Erreur chargement factures')
     } finally {
