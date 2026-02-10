@@ -49,6 +49,9 @@ function transformVehicleFromDB(dbVehicle) {
     documents: [],
     timeline: [],
 
+    // Immatriculation
+    registrationPlate: dbVehicle.registration_plate || '',
+
     // Timestamps
     createdAt: dbVehicle.created_at,
     updatedAt: dbVehicle.updated_at
@@ -91,7 +94,8 @@ function transformVehicleToDB(vehicle) {
 
     status: vehicle.status || 'SOURCING',
     notes: vehicle.notes || null,
-    images: vehicle.images || []
+    images: vehicle.images || [],
+    registration_plate: vehicle.registrationPlate || null
   }
 }
 
@@ -182,6 +186,7 @@ export async function updateVehicle(id, updates) {
   if (updates.status !== undefined) dbUpdates.status = updates.status
   if (updates.notes !== undefined) dbUpdates.notes = updates.notes
   if (updates.images !== undefined) dbUpdates.images = updates.images
+  if (updates.registrationPlate !== undefined) dbUpdates.registration_plate = updates.registrationPlate
 
   const { error } = await supabase
     .from('vehicles')

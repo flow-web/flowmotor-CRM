@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx shadcn@latest add button input table sheet form select badge card toast dialog dropdown-menu skeleton -y)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git push)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: SQL idempotent + Hero lisible\n\n- Schema SQL: DROP TABLE/POLICY/FUNCTION IF EXISTS au debut\n- Script peut etre execute plusieurs fois sans erreur\n- Hero: Overlay gradient from-black/90 via-black/60\n- Titre et sous-titre en blanc/creme \\(#F4E8D8\\)\n- Boutons visibles avec bordure blanche\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(timeout:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(npx vite build:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(npx vite:*)",
+      "Bash(findstr:*)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(ping:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

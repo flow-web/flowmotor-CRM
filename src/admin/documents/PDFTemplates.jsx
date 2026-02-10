@@ -4,461 +4,17 @@ import {
   Text,
   View,
   Image,
-  StyleSheet,
 } from '@react-pdf/renderer'
 import { DEFAULT_COMPANY_INFO } from '../utils/constants'
+import {
+  C, ENGRENAGE, s,
+  fmtEUR, fmtKm, dateNow,
+  Watermarks, DocHeader, PageFooter,
+} from './pdfShared.jsx'
 
 // ================================================================
-// PALETTE — Brand Board FLOW MOTOR
+// BLOCS RÉUTILISABLES (locaux aux factures)
 // ================================================================
-const C = {
-  pageBg: '#F4E8D8',   // Fond beige crème
-  primary: '#3D1E1E',  // Marron Foncé / Aubergine
-  accent: '#5C3A2E',   // Marron chaud
-  gold: '#C4A484',     // Or
-  text: '#3D1E1E',     // Texte = primary
-  muted: '#7A6A5E',    // Gris chaud
-  white: '#FFFFFF',
-  tableBg: '#EDE0CE',  // Fond alternance tableau
-  border: '#3D1E1E',   // Bordure tableau = primary
-  lineSoft: '#C9B99A', // Lignes douces
-}
-
-// ================================================================
-// ASSETS (public/)
-// ================================================================
-const LOGO = '/assets/LOGO_AUBERGINE.png'
-const ROUTE = '/assets/ROUTE.png'
-const ENGRENAGE = '/assets/ENGRENAGE.png'
-
-// ================================================================
-// HELPERS
-// ================================================================
-const sanitize = (s) => s.replace(/\u202F/g, ' ').replace(/\u00A0/g, ' ')
-
-const fmtEUR = (n, d = 2) => {
-  if (n == null) return '-'
-  return sanitize(
-    new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: d,
-      maximumFractionDigits: d,
-    }).format(n),
-  )
-}
-
-const fmtKm = (km) => {
-  if (!km) return '-'
-  return sanitize(new Intl.NumberFormat('fr-FR').format(km) + ' km')
-}
-
-const dateNow = () =>
-  sanitize(
-    new Intl.DateTimeFormat('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    }).format(new Date()),
-  )
-
-// ================================================================
-// STYLES
-// ================================================================
-const s = StyleSheet.create({
-  /* ---- Page ---- */
-  page: {
-    fontFamily: 'Times-Roman',
-    fontSize: 9,
-    backgroundColor: C.pageBg,
-    color: C.text,
-    paddingTop: 30,
-    paddingBottom: 60,
-    paddingHorizontal: 35,
-  },
-  pageCGV: {
-    fontFamily: 'Times-Roman',
-    fontSize: 8,
-    backgroundColor: C.pageBg,
-    color: C.text,
-    paddingTop: 30,
-    paddingBottom: 60,
-    paddingHorizontal: 35,
-  },
-
-  /* ---- Watermarks ---- */
-  wmRoute: {
-    position: 'absolute',
-    bottom: 80,
-    right: 10,
-    width: 300,
-    opacity: 0.08,
-  },
-  wmGear: {
-    position: 'absolute',
-    top: 30,
-    left: 25,
-    width: 50,
-    opacity: 0.04,
-  },
-  wmGearCGV: {
-    position: 'absolute',
-    bottom: 40,
-    right: 20,
-    width: 80,
-    opacity: 0.05,
-  },
-
-  /* ---- Header ---- */
-  hdrRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4,
-  },
-  logo: { width: 80, height: 80 },
-  titleBlock: { alignItems: 'flex-end' },
-  docTitle: {
-    fontSize: 30,
-    fontFamily: 'Helvetica-Bold',
-    color: C.primary,
-    letterSpacing: 4,
-    textTransform: 'uppercase',
-  },
-  docMeta: {
-    fontSize: 8.5,
-    color: C.muted,
-    textAlign: 'right',
-    marginTop: 2,
-  },
-  hrThick: {
-    borderBottomWidth: 2.5,
-    borderBottomColor: C.primary,
-    marginTop: 6,
-    marginBottom: 14,
-  },
-  hrThin: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: C.lineSoft,
-    marginVertical: 8,
-  },
-
-  /* ---- Parties (Company / Client) ---- */
-  partiesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  colLeft: { width: '50%' },
-  colRight: { width: '45%' },
-  coName: {
-    fontSize: 13,
-    fontFamily: 'Helvetica-Bold',
-    color: C.primary,
-    marginBottom: 1,
-  },
-  coSub: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: C.accent,
-    marginBottom: 6,
-  },
-  coLines: {
-    fontFamily: 'Times-Roman',
-    fontSize: 8.5,
-    color: C.text,
-    lineHeight: 1.7,
-  },
-  coSiren: {
-    fontFamily: 'Times-Roman',
-    fontSize: 7.5,
-    color: C.muted,
-    lineHeight: 1.5,
-    marginTop: 4,
-  },
-  label: {
-    fontSize: 7.5,
-    fontFamily: 'Helvetica-Bold',
-    color: C.accent,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    marginBottom: 6,
-  },
-  clName: {
-    fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
-    color: C.text,
-    marginBottom: 3,
-  },
-  clDetail: { fontFamily: 'Times-Roman', fontSize: 8.5, color: C.text, lineHeight: 1.7 },
-
-  /* ---- Section titles ---- */
-  secTitle: {
-    fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
-    color: C.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: 4,
-    paddingBottom: 3,
-    borderBottomWidth: 0.5,
-    borderBottomColor: C.primary,
-  },
-
-  /* ---- Table ---- */
-  tbl: { marginBottom: 6, borderWidth: 0.5, borderColor: C.border },
-  tHead: {
-    flexDirection: 'row',
-    backgroundColor: C.primary,
-    paddingVertical: 5,
-    paddingHorizontal: 6,
-  },
-  th: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: C.white,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  tRow: {
-    flexDirection: 'row',
-    paddingVertical: 6,
-    paddingHorizontal: 6,
-    borderTopWidth: 0.5,
-    borderTopColor: C.border,
-  },
-  tRowAlt: { backgroundColor: C.tableBg },
-  td: { fontFamily: 'Times-Roman', fontSize: 8.5, color: C.text },
-  tdB: { fontFamily: 'Times-Bold', fontSize: 8.5, color: C.text },
-  tdR: { fontFamily: 'Times-Roman', fontSize: 8.5, color: C.text, textAlign: 'right' },
-  tdRB: { fontFamily: 'Times-Bold', fontSize: 8.5, color: C.text, textAlign: 'right' },
-
-  /* ---- Summary / Totals ---- */
-  sumWrap: { marginLeft: 'auto', width: 220, marginTop: 4, marginBottom: 8 },
-  sumRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 2.5,
-    paddingHorizontal: 8,
-  },
-  sumLbl: { fontFamily: 'Times-Roman', fontSize: 8.5, color: C.muted },
-  sumVal: { fontFamily: 'Times-Roman', fontSize: 8.5, color: C.text },
-  sumTotal: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: C.primary,
-    marginTop: 4,
-  },
-  sumTLbl: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: C.white },
-  sumTVal: { fontSize: 11, fontFamily: 'Helvetica-Bold', color: C.gold },
-
-  /* ---- Bank + Payment ---- */
-  bankTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-    gap: 10,
-  },
-  bankBox: {
-    flex: 1,
-    padding: 7,
-    borderWidth: 0.5,
-    borderColor: C.border,
-  },
-  bankLbl: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: C.accent,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: 3,
-  },
-  bankVal: { fontFamily: 'Courier', fontSize: 7.5, color: C.text, lineHeight: 1.6 },
-  totalBox: {
-    padding: 7,
-    borderWidth: 1,
-    borderColor: C.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 140,
-  },
-  totalLbl: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: C.accent,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
-  totalVal: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: C.primary },
-
-  /* ---- Payment mode (checkboxes) ---- */
-  payModeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-    gap: 10,
-  },
-  payModeLeft: { flex: 1 },
-  payModeLbl: {
-    fontSize: 7.5,
-    fontFamily: 'Helvetica-Bold',
-    color: C.primary,
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  payModeTxt: { fontFamily: 'Times-Roman', fontSize: 8, color: C.text, lineHeight: 1.6 },
-  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 },
-  checkbox: {
-    width: 10,
-    height: 10,
-    borderWidth: 1,
-    borderColor: C.primary,
-  },
-  checkLabel: { fontFamily: 'Times-Roman', fontSize: 8.5, color: C.text },
-  checkboxesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-    marginTop: 4,
-  },
-
-  /* ---- Legal Banner ---- */
-  legalBanner: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    backgroundColor: C.primary,
-    marginBottom: 6,
-  },
-  legalTxt: {
-    fontSize: 7.5,
-    fontFamily: 'Helvetica-Bold',
-    color: C.gold,
-    textAlign: 'center',
-    letterSpacing: 0.3,
-  },
-
-  /* ---- Signatures ---- */
-  sigRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 6,
-  },
-  sigBox: {
-    flex: 1,
-    padding: 7,
-    borderWidth: 0.5,
-    borderColor: C.border,
-  },
-  sigLbl: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: C.accent,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  sigName: { fontFamily: 'Times-Roman', fontSize: 8, color: C.text, marginBottom: 2 },
-  sigSpace: { height: 30, borderBottomWidth: 0.5, borderBottomColor: C.lineSoft },
-  sigDate: { fontFamily: 'Times-Roman', fontSize: 7, color: C.muted, marginTop: 3 },
-  sigTotalBox: {
-    width: 130,
-    padding: 7,
-    borderWidth: 1,
-    borderColor: C.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sigTotalLbl: {
-    fontSize: 7,
-    fontFamily: 'Helvetica-Bold',
-    color: C.accent,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
-  sigTotalVal: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: C.primary },
-
-  /* ---- Footer ---- */
-  footer: {
-    position: 'absolute',
-    bottom: 14,
-    left: 35,
-    right: 35,
-    paddingTop: 4,
-    borderTopWidth: 0.5,
-    borderTopColor: C.lineSoft,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  ftTxt: { fontFamily: 'Times-Roman', fontSize: 6, color: C.muted, lineHeight: 1.4 },
-  ftPage: { fontFamily: 'Helvetica-Bold', fontSize: 7.5, color: C.muted },
-
-  /* ---- CGV Page 2 ---- */
-  cgvTitle: {
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    color: C.primary,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    marginBottom: 14,
-    paddingBottom: 6,
-    borderBottomWidth: 1.5,
-    borderBottomColor: C.primary,
-  },
-  cgvCols: {
-    flexDirection: 'row',
-    gap: 18,
-  },
-  cgvCol: { flex: 1 },
-  cgvArticle: { marginBottom: 10 },
-  cgvArtTitle: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: C.primary,
-    textTransform: 'uppercase',
-    marginBottom: 3,
-  },
-  cgvArtText: {
-    fontFamily: 'Times-Roman',
-    fontSize: 7.5,
-    color: C.text,
-    lineHeight: 1.7,
-  },
-})
-
-// ================================================================
-// BLOCS RÉUTILISABLES
-// ================================================================
-
-function Watermarks() {
-  return (
-    <>
-      <Image src={ROUTE} style={s.wmRoute} />
-      <Image src={ENGRENAGE} style={s.wmGear} />
-    </>
-  )
-}
-
-function DocHeader({ title, number }) {
-  return (
-    <>
-      <View style={s.hdrRow}>
-        <Image src={LOGO} style={s.logo} />
-        <View style={s.titleBlock}>
-          <Text style={s.docTitle}>{title}</Text>
-          <Text style={s.docMeta}>{`N\u00B0 ${number}`}</Text>
-          <Text style={s.docMeta}>{dateNow()}</Text>
-        </View>
-      </View>
-      <View style={s.hrThick} />
-    </>
-  )
-}
 
 function PartiesBlock({ client, company }) {
   const CO = company || DEFAULT_COMPANY_INFO
@@ -473,7 +29,6 @@ function PartiesBlock({ client, company }) {
 
   return (
     <View style={s.partiesRow}>
-      {/* Colonne gauche : Société */}
       <View style={s.colLeft}>
         <Text style={s.coName}>{CO.name}</Text>
         <Text style={s.coSub}>
@@ -490,7 +45,6 @@ function PartiesBlock({ client, company }) {
           SIREN {CO.siren} {'\u2013'} TVA Intracommunautaire : {CO.tvaIntra}
         </Text>
       </View>
-      {/* Colonne droite : Client */}
       <View style={s.colRight}>
         <Text style={s.label}>{'\u00C0 L\u2019ATTENTION DE'}</Text>
         <Text style={s.clName}>
@@ -611,23 +165,6 @@ function SignatureBlock({ client, total, company }) {
   )
 }
 
-function PageFooter({ company }) {
-  const CO = company || DEFAULT_COMPANY_INFO
-  return (
-    <View style={s.footer} fixed>
-      <Text style={s.ftTxt}>
-        {CO.name} {'\u2013'} {CO.legal} {'\u2013'} {CO.rcs}{'\n'}
-        SIREN {CO.siren} {'\u2013'} TVA Intra : {CO.tvaIntra}{'\n'}
-        {CO.address}, {CO.zipCity} {'\u2013'} {CO.email}
-      </Text>
-      <Text
-        style={s.ftPage}
-        render={({ pageNumber, totalPages }) => `PAGE ${pageNumber}/${totalPages}`}
-      />
-    </View>
-  )
-}
-
 // ================================================================
 // PAGE 2 : CONDITIONS GÉNÉRALES DE VENTE
 // ================================================================
@@ -640,7 +177,6 @@ function CGVPage({ company }) {
       <Text style={s.cgvTitle}>{`CONDITIONS G\u00C9N\u00C9RALES DE VENTE`}</Text>
 
       <View style={s.cgvCols}>
-        {/* Colonne gauche */}
         <View style={s.cgvCol}>
           <View style={s.cgvArticle}>
             <Text style={s.cgvArtTitle}>1. Objet</Text>
@@ -671,7 +207,6 @@ function CGVPage({ company }) {
           </View>
         </View>
 
-        {/* Colonne droite */}
         <View style={s.cgvCol}>
           <View style={s.cgvArticle}>
             <Text style={s.cgvArtTitle}>{`5. Livraison & Transfert de propri\u00E9t\u00E9`}</Text>
@@ -727,7 +262,6 @@ export function OrderForm({ vehicle, client, invoiceNumber, company }) {
         <View style={s.hrThin} />
         <VehicleTable vehicle={vehicle} />
 
-        {/* Détail financier */}
         <Text style={s.secTitle}>{`D\u00E9tail financier`}</Text>
         <View style={s.tbl}>
           <View style={s.tHead}>
@@ -766,12 +300,13 @@ export function OrderForm({ vehicle, client, invoiceNumber, company }) {
 // ================================================================
 // 2. FACTURE — TVA SUR MARGE (Art. 297 A du CGI)
 // ================================================================
-export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company }) {
+export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company, reprise }) {
   const CO = company || DEFAULT_COMPANY_INFO
   const num = invoiceNumber || 'BROUILLON'
   const frais = 350
   const prix = vehicle.sellingPrice || 0
-  const total = prix + frais
+  const repriseValue = reprise?.tradein_value || 0
+  const total = prix + frais - repriseValue
 
   return (
     <Document>
@@ -781,7 +316,6 @@ export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company 
         <PartiesBlock client={client} company={CO} />
         <View style={s.hrThin} />
 
-        {/* Bandeau légal TVA Marge */}
         <View style={s.legalBanner}>
           <Text style={s.legalTxt}>
             {`R\u00E9gime particulier \u2013 Biens d\u2019occasion \u2013 Article 297 A du CGI \u2013 TVA non r\u00E9cup\u00E9rable`}
@@ -790,7 +324,6 @@ export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company 
 
         <VehicleTable vehicle={vehicle} />
 
-        {/* Détail financier — TTC uniquement */}
         <Text style={s.secTitle}>{`D\u00E9tail financier`}</Text>
         <View style={s.tbl}>
           <View style={s.tHead}>
@@ -807,6 +340,14 @@ export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company 
             <Text style={[s.td, { flex: 3 }]}>Frais de dossier et mise en service</Text>
             <Text style={[s.tdR, { flex: 1 }]}>{fmtEUR(frais)}</Text>
           </View>
+          {repriseValue > 0 && (
+            <View style={s.tRow}>
+              <Text style={[s.td, { flex: 3 }]}>
+                {`Reprise \u2014 ${reprise.tradein_brand || ''} ${reprise.tradein_model || ''}`}
+              </Text>
+              <Text style={[s.tdR, { flex: 1, color: '#B91C1C' }]}>{`- ${fmtEUR(repriseValue)}`}</Text>
+            </View>
+          )}
         </View>
 
         <View style={s.sumWrap}>
@@ -818,6 +359,12 @@ export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company 
             <Text style={s.sumLbl}>Frais de dossier</Text>
             <Text style={s.sumVal}>{fmtEUR(frais)}</Text>
           </View>
+          {repriseValue > 0 && (
+            <View style={s.sumRow}>
+              <Text style={s.sumLbl}>{`D\u00E9duction reprise`}</Text>
+              <Text style={[s.sumVal, { color: '#B91C1C' }]}>{`- ${fmtEUR(repriseValue)}`}</Text>
+            </View>
+          )}
           <View style={s.sumTotal}>
             <Text style={s.sumTLbl}>{`TOTAL TTC \u00C0 R\u00C9GLER`}</Text>
             <Text style={s.sumTVal}>{fmtEUR(total)}</Text>
@@ -837,15 +384,16 @@ export function InvoiceMarginTemplate({ vehicle, client, invoiceNumber, company 
 // ================================================================
 // 3. FACTURE — TVA APPARENTE (HT + TVA 20 % + TTC)
 // ================================================================
-export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company }) {
+export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company, reprise }) {
   const CO = company || DEFAULT_COMPANY_INFO
   const num = invoiceNumber || 'BROUILLON'
   const frais = 350
   const prixHT = Math.round(((vehicle.sellingPrice || 0) / 1.2) * 100) / 100
   const tvaVehicule = (vehicle.sellingPrice || 0) - prixHT
+  const repriseValue = reprise?.tradein_value || 0
   const totalHT = prixHT + frais
   const totalTVA = tvaVehicule
-  const totalTTC = totalHT + totalTVA
+  const totalTTC = totalHT + totalTVA - repriseValue
 
   return (
     <Document>
@@ -856,7 +404,6 @@ export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company }) 
         <View style={s.hrThin} />
         <VehicleTable vehicle={vehicle} />
 
-        {/* Détail financier — HT / TVA / TTC */}
         <Text style={s.secTitle}>{`D\u00E9tail financier`}</Text>
         <View style={s.tbl}>
           <View style={s.tHead}>
@@ -879,6 +426,16 @@ export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company }) 
             <Text style={[s.tdR, { flex: 1 }]}>-</Text>
             <Text style={[s.tdR, { flex: 1 }]}>{fmtEUR(frais)}</Text>
           </View>
+          {repriseValue > 0 && (
+            <View style={s.tRow}>
+              <Text style={[s.td, { flex: 3 }]}>
+                {`Reprise \u2014 ${reprise.tradein_brand || ''} ${reprise.tradein_model || ''}`}
+              </Text>
+              <Text style={[s.tdR, { flex: 1 }]}>-</Text>
+              <Text style={[s.tdR, { flex: 1 }]}>-</Text>
+              <Text style={[s.tdR, { flex: 1, color: '#B91C1C' }]}>{`- ${fmtEUR(repriseValue)}`}</Text>
+            </View>
+          )}
         </View>
 
         <View style={s.sumWrap}>
@@ -890,6 +447,12 @@ export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company }) 
             <Text style={s.sumLbl}>TVA (20 %)</Text>
             <Text style={s.sumVal}>{fmtEUR(totalTVA)}</Text>
           </View>
+          {repriseValue > 0 && (
+            <View style={s.sumRow}>
+              <Text style={s.sumLbl}>{`D\u00E9duction reprise`}</Text>
+              <Text style={[s.sumVal, { color: '#B91C1C' }]}>{`- ${fmtEUR(repriseValue)}`}</Text>
+            </View>
+          )}
           <View style={s.sumTotal}>
             <Text style={s.sumTLbl}>{`TOTAL TTC \u00C0 R\u00C9GLER`}</Text>
             <Text style={s.sumTVal}>{fmtEUR(totalTTC)}</Text>
@@ -909,9 +472,9 @@ export function InvoiceVatTemplate({ vehicle, client, invoiceNumber, company }) 
 // ================================================================
 // DISPATCHER (utilisé par VehicleCockpit)
 // ================================================================
-export function Invoice({ vehicle, client, billingType, invoiceNumber, company }) {
+export function Invoice({ vehicle, client, billingType, invoiceNumber, company, reprise }) {
   if (billingType === 'margin') {
-    return <InvoiceMarginTemplate vehicle={vehicle} client={client} invoiceNumber={invoiceNumber} company={company} />
+    return <InvoiceMarginTemplate vehicle={vehicle} client={client} invoiceNumber={invoiceNumber} company={company} reprise={reprise} />
   }
-  return <InvoiceVatTemplate vehicle={vehicle} client={client} invoiceNumber={invoiceNumber} company={company} />
+  return <InvoiceVatTemplate vehicle={vehicle} client={client} invoiceNumber={invoiceNumber} company={company} reprise={reprise} />
 }

@@ -76,3 +76,20 @@ export {
   finalizeInvoice,
   cancelInvoice
 } from './invoices'
+
+// CERFA Documents
+export {
+  getNextCerfaNumber,
+  createCerfaDocument,
+  fetchCerfaDocuments,
+  fetchCerfaByVehicle
+} from './cerfa'
+
+// Reprises (Trade-in)
+export {
+  createReprise,
+  fetchRepriseByVehicle,
+  fetchReprises,
+  updateReprise,
+  deleteReprise
+} from './reprises'

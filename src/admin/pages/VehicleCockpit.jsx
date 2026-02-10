@@ -4,10 +4,12 @@ import { pdf } from '@react-pdf/renderer'
 import {
   ArrowLeft, Car, Trash2, ExternalLink,
   FileText, DollarSign, Wrench, Info, Plus, Check,
-  ClipboardList, Search, Download, Receipt, Users, ImageIcon
+  ClipboardList, Search, Download, Receipt, Users, ImageIcon,
+  FileCheck, RefreshCw, ArrowRightLeft
 } from 'lucide-react'
 import ImageUploader from '../components/images/ImageUploader'
 import Workshop from '../components/vehicle/Workshop'
+import TradeInForm from '../components/vehicle/TradeInForm'
 import TopHeader from '../components/layout/TopHeader'
 import AdminCard from '../components/shared/AdminCard'
 import StatusBadge from '../components/shared/StatusBadge'
@@ -17,9 +19,15 @@ import {
   formatPrice, formatMileage, formatDate, formatVehicleName, formatVIN
 } from '../utils/formatters'
 import { calculatePRU, calculateMarginPercent, calculateTotalCosts } from '../utils/calculations'
-import { VEHICLE_STATUS_LABELS, WORKFLOW_ORDER, COST_TYPES } from '../utils/constants'
+import { VEHICLE_STATUS_LABELS, WORKFLOW_ORDER, COST_TYPES, CERFA_TYPES, CERFA_PREFIXES, CERFA_LABELS } from '../utils/constants'
 import { OrderForm, Invoice } from '../documents/PDFTemplates'
-import { fetchClients, getNextInvoiceNumber, createInvoice } from '../../lib/supabase'
+import { CerfaDocument } from '../documents/CerfaTemplates'
+import {
+  fetchClients, getNextInvoiceNumber, createInvoice,
+  getNextCerfaNumber, createCerfaDocument,
+  createReprise, fetchRepriseByVehicle,
+  createVehicle as createVehicleInDB
+} from '../../lib/supabase'
 import { isDemoMode } from '../../lib/supabase/client'
 import { useCompanySettings } from '../hooks/useCompanySettings'
 
@@ -45,6 +53,13 @@ function VehicleCockpit() {
   const [generatingPdf, setGeneratingPdf] = useState(null)
   const [billingType, setBillingType] = useState(null) // 'margin' | 'vat'
 
+  // CERFA + Reprise state
+  const [generatingCerfa, setGeneratingCerfa] = useState(null)
+  const [reprise, setReprise] = useState(null)
+  const [repriseLoaded, setRepriseLoaded] = useState(false)
+  const [showTradeInForm, setShowTradeInForm] = useState(false)
+  const [tradeinLoading, setTradeinLoading] = useState(false)
+
   const vehicle = getVehicle(id)
 
   // Default billing type based on vehicle origin
@@ -61,6 +76,13 @@ function VehicleCockpit() {
       loadClients()
     }
   }, [activeTab, clientsLoaded])
+
+  // Load reprise when admin tab is activated
+  useEffect(() => {
+    if (activeTab === 'admin' && !repriseLoaded && vehicle) {
+      loadReprise()
+    }
+  }, [activeTab, repriseLoaded, vehicle])
 
   const loadClients = async () => {
     try {
@@ -85,6 +107,193 @@ function VehicleCockpit() {
       }
     } finally {
       setClientsLoaded(true)
+    }
+  }
+
+  const loadReprise = async () => {
+    try {
+      const data = await fetchRepriseByVehicle(id)
+      if (data) {
+        // Enrich with trade-in vehicle info for display
+        const tradeinVehicle = getVehicle(data.tradein_vehicle_id)
+        if (tradeinVehicle) {
+          data.tradein_brand = tradeinVehicle.brand || tradeinVehicle.make
+          data.tradein_model = tradeinVehicle.model
+          data.tradein_vin = tradeinVehicle.vin
+        }
+      }
+      setReprise(data)
+    } catch (err) {
+      console.error('Erreur chargement reprise:', err)
+    } finally {
+      setRepriseLoaded(true)
+    }
+  }
+
+  // CERFA PDF generation
+  const handleDownloadCerfa = async (cerfaType, direction = 'sale') => {
+    if (!selectedClient) {
+      toast.error('Veuillez sélectionner un client')
+      return
+    }
+    if (!vehicle.registrationPlate) {
+      toast.error("Veuillez renseigner l'immatriculation du véhicule (onglet Info)")
+      return
+    }
+
+    setGeneratingCerfa(cerfaType)
+
+    try {
+      const prefix = CERFA_PREFIXES[cerfaType]
+      const { cerfaNumber, prefix: pfx, year, sequence } = await getNextCerfaNumber(prefix)
+
+      await createCerfaDocument({
+        cerfa_number: cerfaNumber,
+        prefix: pfx,
+        year,
+        sequence,
+        cerfa_type: cerfaType,
+        vehicle_id: vehicle.id,
+        client_id: selectedClient.id,
+        direction,
+        sale_price: vehicle.sellingPrice || 0,
+        vehicle_snapshot: {
+          brand: vehicle.brand || vehicle.make,
+          model: vehicle.model,
+          trim: vehicle.trim,
+          vin: vehicle.vin,
+          year: vehicle.year,
+          mileage: vehicle.mileage,
+          color: vehicle.color,
+          registrationPlate: vehicle.registrationPlate
+        },
+        client_snapshot: {
+          firstName: selectedClient.firstName,
+          lastName: selectedClient.lastName,
+          email: selectedClient.email,
+          phone: selectedClient.phone,
+          address: selectedClient.address,
+          postalCode: selectedClient.postalCode,
+          city: selectedClient.city
+        },
+        company_snapshot: companyInfo,
+        reprise_id: reprise?.id || null,
+        status: 'finalized'
+      })
+
+      const PdfComponent = (
+        <CerfaDocument
+          type={cerfaType}
+          vehicle={vehicle}
+          client={selectedClient}
+          company={companyInfo}
+          cerfaNumber={cerfaNumber}
+          direction={direction}
+          salePrice={vehicle.sellingPrice || 0}
+        />
+      )
+
+      const blob = await pdf(PdfComponent).toBlob()
+
+      const vehicleName = `${vehicle.brand || vehicle.make}_${vehicle.model}`.replace(/\s+/g, '_')
+      const clientName = `${selectedClient.lastName}`.replace(/\s+/g, '_')
+      const fileName = `CERFA_${prefix}_${cerfaNumber}_${vehicleName}_${clientName}.pdf`
+
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      toast.success(`${CERFA_LABELS[cerfaType]} ${cerfaNumber} généré`)
+    } catch (err) {
+      console.error('Erreur génération CERFA:', err)
+      toast.error(`Erreur: ${err.message || 'Impossible de générer le CERFA'}`)
+    } finally {
+      setGeneratingCerfa(null)
+    }
+  }
+
+  // Trade-in submit
+  const handleTradeInSubmit = async (form) => {
+    if (!selectedClient) {
+      toast.error('Veuillez sélectionner un client')
+      return
+    }
+
+    setTradeinLoading(true)
+
+    try {
+      const tradeinValue = parseFloat(form.tradeinValue) || 0
+
+      // Create the trade-in vehicle in stock
+      let newVehicle
+      if (isDemoMode()) {
+        const stored = localStorage.getItem('flowmotor_vehicles')
+        const vehicles = stored ? JSON.parse(stored) : []
+        newVehicle = {
+          id: crypto.randomUUID(),
+          brand: form.brand,
+          model: form.model,
+          year: parseInt(form.year) || new Date().getFullYear(),
+          mileage: parseInt(form.mileage) || 0,
+          vin: form.vin || null,
+          color: form.color || null,
+          registrationPlate: form.registrationPlate || null,
+          purchasePrice: tradeinValue,
+          sellingPrice: 0,
+          costPrice: tradeinValue,
+          currency: 'EUR',
+          status: 'STOCK',
+          notes: form.notes ? `Reprise: ${form.notes}` : 'Véhicule de reprise',
+          images: [],
+          costs: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+        vehicles.push(newVehicle)
+        localStorage.setItem('flowmotor_vehicles', JSON.stringify(vehicles))
+      } else {
+        newVehicle = await createVehicleInDB({
+          brand: form.brand,
+          model: form.model,
+          year: parseInt(form.year) || new Date().getFullYear(),
+          mileage: parseInt(form.mileage) || 0,
+          vin: form.vin || null,
+          color: form.color || null,
+          registrationPlate: form.registrationPlate || null,
+          purchasePrice: tradeinValue,
+          costPrice: tradeinValue,
+          status: 'STOCK',
+          notes: form.notes ? `Reprise: ${form.notes}` : 'Véhicule de reprise'
+        })
+      }
+
+      // Create the reprise record
+      const repriseData = await createReprise({
+        sale_vehicle_id: vehicle.id,
+        tradein_vehicle_id: newVehicle.id,
+        client_id: selectedClient.id,
+        tradein_value: tradeinValue,
+        notes: form.notes || null
+      })
+
+      // Enrich reprise with display info
+      repriseData.tradein_brand = form.brand
+      repriseData.tradein_model = form.model
+      repriseData.tradein_vin = form.vin
+
+      setReprise(repriseData)
+      setShowTradeInForm(false)
+      toast.success(`Reprise créée — ${form.brand} ${form.model} ajouté en stock`)
+    } catch (err) {
+      console.error('Erreur création reprise:', err)
+      toast.error(`Erreur: ${err.message || 'Impossible de créer la reprise'}`)
+    } finally {
+      setTradeinLoading(false)
     }
   }
 
@@ -213,12 +422,19 @@ function VehicleCockpit() {
         status: 'finalized'
       })
 
+      // Build reprise info for invoice if exists
+      const repriseInfo = reprise ? {
+        tradein_value: reprise.tradein_value,
+        tradein_brand: reprise.tradein_brand || '',
+        tradein_model: reprise.tradein_model || ''
+      } : null
+
       // Render PDF with the persistent invoice number
       let PdfComponent
       if (type === 'order') {
         PdfComponent = <OrderForm vehicle={vehicle} client={selectedClient} invoiceNumber={invoiceNumber} company={companyInfo} />
       } else {
-        PdfComponent = <Invoice vehicle={vehicle} client={selectedClient} billingType={billingType} invoiceNumber={invoiceNumber} company={companyInfo} />
+        PdfComponent = <Invoice vehicle={vehicle} client={selectedClient} billingType={billingType} invoiceNumber={invoiceNumber} company={companyInfo} reprise={repriseInfo} />
       }
 
       const blob = await pdf(PdfComponent).toBlob()
@@ -406,6 +622,7 @@ function VehicleCockpit() {
                     <span className="text-white/50">VIN</span>
                     <span className="text-white font-mono text-xs">{vehicle.vin || '-'}</span>
                   </div>
+                  <InfoRow label="Immatriculation" value={vehicle.registrationPlate} />
                 </div>
               </AdminCard>
 
@@ -722,6 +939,114 @@ function VehicleCockpit() {
                       </div>
                     </Button>
                   </div>
+                </AdminCard>
+              )}
+
+              {/* CERFA Documents */}
+              {selectedClient && (
+                <AdminCard>
+                  <h3 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
+                    <FileCheck size={16} className="text-[#C4A484]" />
+                    Documents Administratifs (CERFA)
+                  </h3>
+                  {!vehicle.registrationPlate ? (
+                    <p className="text-xs text-yellow-400/80 bg-yellow-400/10 border border-yellow-400/20 rounded-md px-3 py-2">
+                      Immatriculation requise — Renseignez-la dans l'onglet Info pour générer les CERFA.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-xs text-white/40 mb-4">
+                        Immatriculation : <span className="text-white/70 font-mono">{vehicle.registrationPlate}</span>
+                      </p>
+                      <div className="grid sm:grid-cols-3 gap-3">
+                        {Object.entries(CERFA_TYPES).map(([key, type]) => (
+                          <Button
+                            key={type}
+                            onClick={() => handleDownloadCerfa(type)}
+                            disabled={generatingCerfa !== null}
+                            className="h-auto py-4 bg-[#2a1f1f] hover:bg-[#2a1f1f]/80 text-white border border-[#5C3A2E]/30 flex flex-col items-center gap-2"
+                          >
+                            {generatingCerfa === type ? (
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                              <FileCheck size={20} />
+                            )}
+                            <span className="text-xs text-center leading-tight">{CERFA_LABELS[type]}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </AdminCard>
+              )}
+
+              {/* Reprise (Trade-in) */}
+              {selectedClient && (
+                <AdminCard>
+                  <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                    <ArrowRightLeft size={16} className="text-[#C4A484]" />
+                    Reprise véhicule
+                  </h3>
+
+                  {!reprise && !showTradeInForm && (
+                    <Button
+                      onClick={() => setShowTradeInForm(true)}
+                      className="bg-white/5 hover:bg-white/10 text-white border border-white/10"
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Ajouter une reprise
+                    </Button>
+                  )}
+
+                  {showTradeInForm && !reprise && (
+                    <TradeInForm
+                      onSubmit={handleTradeInSubmit}
+                      onCancel={() => setShowTradeInForm(false)}
+                      loading={tradeinLoading}
+                    />
+                  )}
+
+                  {reprise && (
+                    <div className="space-y-3">
+                      <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <RefreshCw size={14} className="text-[#C4A484]" />
+                            <span className="text-sm font-medium text-white">
+                              {reprise.tradein_brand || 'Véhicule'} {reprise.tradein_model || 'repris'}
+                            </span>
+                          </div>
+                          <span className="text-sm font-semibold text-green-400">
+                            {formatPrice(reprise.tradein_value)}
+                          </span>
+                        </div>
+                        {reprise.tradein_vin && (
+                          <p className="text-xs text-white/40 font-mono">{reprise.tradein_vin}</p>
+                        )}
+                        <div className="flex items-center gap-3 mt-3">
+                          <Link
+                            to={`/admin/vehicle/${reprise.tradein_vehicle_id}`}
+                            className="text-xs text-[#C4A484] hover:underline"
+                          >
+                            Voir le véhicule repris
+                          </Link>
+                          {vehicle.registrationPlate && (
+                            <button
+                              onClick={() => handleDownloadCerfa('cession', 'purchase')}
+                              disabled={generatingCerfa !== null}
+                              className="text-xs text-[#C4A484] hover:underline flex items-center gap-1"
+                            >
+                              <FileCheck size={12} />
+                              CERFA Cession (reprise)
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-white/30">
+                        La valeur de reprise sera déduite de la facture.
+                      </p>
+                    </div>
+                  )}
                 </AdminCard>
               )}
             </div>

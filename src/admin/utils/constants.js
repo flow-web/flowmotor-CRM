@@ -82,13 +82,34 @@ export const CAR_MAKES = [
   'McLaren', 'Aston Martin', 'Lotus'
 ]
 
+// Types CERFA
+export const CERFA_TYPES = {
+  CESSION: 'cession',
+  DEMANDE_IMMATRICULATION: 'demande_immatriculation',
+  MANDAT_IMMATRICULATION: 'mandat_immatriculation'
+}
+
+export const CERFA_PREFIXES = {
+  cession: 'CC',
+  demande_immatriculation: 'DI',
+  mandat_immatriculation: 'MI'
+}
+
+export const CERFA_LABELS = {
+  cession: 'Certificat de Cession',
+  demande_immatriculation: "Demande d'Immatriculation",
+  mandat_immatriculation: "Mandat d'Immatriculation"
+}
+
 // Clés localStorage
 export const STORAGE_KEYS = {
   VEHICLES: 'flowmotor_vehicles',
   SETTINGS: 'flowmotor_settings',
   AUTH: 'flowmotor_auth',
   COMPANY_INFO: 'flowmotor_company_info',
-  INVOICES: 'flowmotor_invoices'
+  INVOICES: 'flowmotor_invoices',
+  CERFA: 'flowmotor_cerfa',
+  REPRISES: 'flowmotor_reprises'
 }
 
 // Informations société par défaut
