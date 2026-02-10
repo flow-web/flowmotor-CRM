@@ -11,11 +11,34 @@ import {
 import { Plus, Search, Filter, Car, Eye, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw } from 'lucide-react'
 import TopHeader from '../components/layout/TopHeader'
 import StatusBadge from '../components/shared/StatusBadge'
+import MarginBar from '../components/shared/MarginBar'
+import EmptyState from '../components/shared/EmptyState'
 import { useVehicles } from '../context/VehiclesContext'
 import { useUI } from '../context/UIContext'
 import { formatPrice, formatMileage, formatVehicleName, formatRelativeDate } from '../utils/formatters'
 import { calculatePRU, calculateMarginPercent } from '../utils/calculations'
 import { VEHICLE_STATUS_LABELS } from '../utils/constants'
+
+// Status dot colors for inline indicator
+const STATUS_DOT_COLORS = {
+  SOURCING: '#EAB308',  // yellow
+  STOCK: '#22C55E',     // green
+  SOLD: '#C4A484'       // brand accent
+}
+
+// Days in stock color helper
+function getDaysColor(days) {
+  if (days <= 30) return 'text-green-400'
+  if (days <= 60) return 'text-yellow-400'
+  return 'text-red-400'
+}
+
+function getDaysInStock(createdAt) {
+  if (!createdAt) return 0
+  const created = new Date(createdAt)
+  const now = new Date()
+  return Math.floor((now - created) / (1000 * 60 * 60 * 24))
+}
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,7 +64,7 @@ function Stock() {
   const { vehicles, deleteVehicle, isLoading, refresh, isSupabaseMode } = useVehicles()
   const { showConfirm, toast } = useUI()
 
-  const [sorting, setSorting] = useState([])
+  const [sorting, setSorting] = useState([{ id: 'daysInStock', desc: true }])
   const [globalFilter, setGlobalFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
@@ -119,14 +142,22 @@ function Stock() {
       accessorFn: (row) => `${row.make} ${row.model}`,
       cell: ({ row }) => {
         const vehicle = row.original
+        const dotColor = STATUS_DOT_COLORS[vehicle.status] || '#95A5A6'
         return (
-          <Link to={`/admin/vehicle/${vehicle.id}`} className="group">
-            <p className="font-semibold text-primary group-hover:text-accent transition-colors">
-              {vehicle.make} {vehicle.model}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {vehicle.year} • {vehicle.color || 'N/A'}
-            </p>
+          <Link to={`/admin/vehicle/${vehicle.id}`} className="group flex items-center gap-2">
+            <div
+              className="w-2 h-2 rounded-full flex-shrink-0"
+              style={{ backgroundColor: dotColor }}
+              title={VEHICLE_STATUS_LABELS[vehicle.status] || vehicle.status}
+            />
+            <div>
+              <p className="font-semibold text-primary group-hover:text-accent transition-colors">
+                {vehicle.make} {vehicle.model}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {vehicle.year} • {vehicle.color || 'N/A'}
+              </p>
+            </div>
           </Link>
         )
       }
@@ -182,6 +213,7 @@ function Stock() {
       header: ({ column }) => (
         <SortableHeader column={column}>Marge</SortableHeader>
       ),
+      size: 160,
       accessorFn: (row) => {
         const pru = calculatePRU(row)
         return calculateMarginPercent(pru, row.sellingPrice)
@@ -190,18 +222,21 @@ function Stock() {
         const pru = calculatePRU(row.original)
         const margin = calculateMarginPercent(pru, row.original.sellingPrice)
         const marginValue = row.original.sellingPrice - pru
-
-        let colorClass = 'text-destructive'
-        if (margin >= 10) colorClass = 'text-green-600 dark:text-green-400'
-        else if (margin >= 5) colorClass = 'text-yellow-600 dark:text-yellow-400'
-
+        return <MarginBar percent={margin} value={marginValue} />
+      }
+    },
+    {
+      id: 'daysInStock',
+      header: ({ column }) => (
+        <SortableHeader column={column}>Jours</SortableHeader>
+      ),
+      accessorFn: (row) => getDaysInStock(row.createdAt),
+      cell: ({ row }) => {
+        const days = getDaysInStock(row.original.createdAt)
         return (
-          <div className="text-sm">
-            <span className={`font-semibold ${colorClass}`}>
-              {margin.toFixed(1)}%
-            </span>
-            <p className="text-xs text-muted-foreground">{formatPrice(marginValue)}</p>
-          </div>
+          <span className={`text-sm font-medium ${getDaysColor(days)}`}>
+            {days}j
+          </span>
         )
       }
     },
@@ -394,23 +429,21 @@ function Stock() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-32 text-center">
-                    <div className="flex flex-col items-center justify-center">
-                      <Car size={32} className="text-muted-foreground/40 mb-3" />
-                      <p className="text-muted-foreground">Aucun véhicule trouvé</p>
-                      {(globalFilter || statusFilter !== 'all') && (
-                        <Button
-                          variant="link"
-                          className="text-accent mt-2"
-                          onClick={() => {
-                            setGlobalFilter('')
-                            setStatusFilter('all')
-                          }}
-                        >
-                          Réinitialiser les filtres
-                        </Button>
-                      )}
-                    </div>
+                  <TableCell colSpan={columns.length} className="p-0">
+                    <EmptyState
+                      icon={Car}
+                      title="Aucun véhicule trouvé"
+                      subtitle={
+                        (globalFilter || statusFilter !== 'all')
+                          ? 'Essayez de modifier vos filtres de recherche.'
+                          : 'Ajoutez votre premier véhicule pour commencer.'
+                      }
+                      primaryAction={
+                        (globalFilter || statusFilter !== 'all')
+                          ? { label: 'Réinitialiser les filtres', onClick: () => { setGlobalFilter(''); setStatusFilter('all') } }
+                          : { label: 'Nouveau véhicule', to: '/admin/sourcing' }
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               )}

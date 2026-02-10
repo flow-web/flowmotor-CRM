@@ -13,6 +13,8 @@ export async function addCost(vehicleId, costData) {
       type: costData.type,
       amount: costData.amount,
       description: costData.description || null,
+      supplier: costData.supplier || null,
+      receipt_url: costData.receipt_url || null,
       date: costData.date || new Date().toISOString()
     })
     .select()
@@ -24,6 +26,8 @@ export async function addCost(vehicleId, costData) {
     type: data.type,
     amount: parseFloat(data.amount),
     description: data.description || '',
+    supplier: data.supplier || '',
+    receipt_url: data.receipt_url || '',
     date: data.date
   }
 }
@@ -38,6 +42,8 @@ export async function updateCost(costId, updates) {
   if (updates.type !== undefined) dbUpdates.type = updates.type
   if (updates.amount !== undefined) dbUpdates.amount = updates.amount
   if (updates.description !== undefined) dbUpdates.description = updates.description
+  if (updates.supplier !== undefined) dbUpdates.supplier = updates.supplier
+  if (updates.receipt_url !== undefined) dbUpdates.receipt_url = updates.receipt_url
   if (updates.date !== undefined) dbUpdates.date = updates.date
 
   const { data, error } = await supabase
@@ -53,6 +59,8 @@ export async function updateCost(costId, updates) {
     type: data.type,
     amount: parseFloat(data.amount),
     description: data.description || '',
+    supplier: data.supplier || '',
+    receipt_url: data.receipt_url || '',
     date: data.date
   }
 }
@@ -90,6 +98,8 @@ export async function fetchCosts(vehicleId) {
     type: c.type,
     amount: parseFloat(c.amount),
     description: c.description || '',
+    supplier: c.supplier || '',
+    receipt_url: c.receipt_url || '',
     date: c.date
   }))
 }

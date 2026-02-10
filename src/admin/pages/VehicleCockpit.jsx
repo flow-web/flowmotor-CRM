@@ -10,6 +10,10 @@ import {
 import ImageUploader from '../components/images/ImageUploader'
 import Workshop from '../components/vehicle/Workshop'
 import TradeInForm from '../components/vehicle/TradeInForm'
+import PRUBreakdown from '../components/vehicle/PRUBreakdown'
+import AddExpenseForm from '../components/vehicle/AddExpenseForm'
+import WorkflowStepper from '../components/vehicle/WorkflowStepper'
+import DocumentChecklist from '../components/vehicle/DocumentChecklist'
 import TopHeader from '../components/layout/TopHeader'
 import AdminCard from '../components/shared/AdminCard'
 import StatusBadge from '../components/shared/StatusBadge'
@@ -19,7 +23,7 @@ import {
   formatPrice, formatMileage, formatDate, formatVehicleName, formatVIN
 } from '../utils/formatters'
 import { calculatePRU, calculateMarginPercent, calculateTotalCosts } from '../utils/calculations'
-import { VEHICLE_STATUS_LABELS, WORKFLOW_ORDER, COST_TYPES, CERFA_TYPES, CERFA_PREFIXES, CERFA_LABELS } from '../utils/constants'
+import { VEHICLE_STATUS_LABELS, WORKFLOW_ORDER, COST_TYPES, COST_CATEGORY_COLORS, CERFA_TYPES, CERFA_PREFIXES, CERFA_LABELS } from '../utils/constants'
 import { OrderForm, Invoice } from '../documents/PDFTemplates'
 import { CerfaDocument } from '../documents/CerfaTemplates'
 import {
@@ -43,7 +47,6 @@ function VehicleCockpit() {
 
   const [activeTab, setActiveTab] = useState('info')
   const [showAddCost, setShowAddCost] = useState(false)
-  const [newCost, setNewCost] = useState({ type: 'Atelier', amount: '', description: '' })
 
   // Admin tab state
   const [clients, setClients] = useState([])
@@ -335,21 +338,6 @@ function VehicleCockpit() {
     toast.success(`Statut mis à jour : ${VEHICLE_STATUS_LABELS[newStatus]}`)
   }
 
-  const handleAddCost = (e) => {
-    e.preventDefault()
-    if (!newCost.amount) return
-
-    addCost(id, {
-      type: newCost.type,
-      amount: parseFloat(newCost.amount),
-      description: newCost.description
-    })
-
-    setNewCost({ type: 'Atelier', amount: '', description: '' })
-    setShowAddCost(false)
-    toast.success('Coût ajouté')
-  }
-
   const handleDeleteCost = async (costId) => {
     const confirmed = await showConfirm({
       title: 'Supprimer ce coût',
@@ -550,37 +538,15 @@ function VehicleCockpit() {
           </AdminCard>
         </div>
 
-        {/* Workflow */}
+        {/* Workflow Stepper */}
         <AdminCard>
           <h3 className="text-sm font-medium text-white mb-4">Workflow</h3>
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            {WORKFLOW_ORDER.map((status, index) => {
-              const isCurrent = vehicle.status === status
-              const currentIndex = WORKFLOW_ORDER.indexOf(vehicle.status)
-              const isPast = index < currentIndex
-              const canActivate = index <= currentIndex + 1
-
-              return (
-                <button
-                  key={status}
-                  onClick={() => canActivate && handleStatusChange(status)}
-                  disabled={!canActivate}
-                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${
-                    isCurrent
-                      ? 'bg-accent text-white'
-                      : isPast
-                      ? 'bg-green-500/20 text-green-400'
-                      : canActivate
-                      ? 'bg-white/5 text-white/60 hover:bg-white/10'
-                      : 'bg-white/5 text-white/20 cursor-not-allowed'
-                  }`}
-                >
-                  {isPast && <Check size={14} />}
-                  {VEHICLE_STATUS_LABELS[status]}
-                </button>
-              )
-            })}
-          </div>
+          <WorkflowStepper
+            steps={WORKFLOW_ORDER}
+            currentStatus={vehicle.status}
+            labels={VEHICLE_STATUS_LABELS}
+            onStatusChange={handleStatusChange}
+          />
         </AdminCard>
 
         {/* Tabs */}
@@ -664,6 +630,17 @@ function VehicleCockpit() {
           {/* === FINANCE TAB === */}
           {activeTab === 'finance' && (
             <div className="space-y-6">
+              {/* PRU Breakdown */}
+              <AdminCard>
+                <PRUBreakdown
+                  vehicle={vehicle}
+                  pru={pru}
+                  margin={margin}
+                  marginValue={vehicle.sellingPrice - pru}
+                />
+              </AdminCard>
+
+              {/* Costs table */}
               <AdminCard>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-white">Coûts ({vehicle.costs?.length || 0})</h3>
@@ -677,44 +654,14 @@ function VehicleCockpit() {
                 </div>
 
                 {showAddCost && (
-                  <form onSubmit={handleAddCost} className="p-4 bg-white/5 rounded-lg mb-4 space-y-3">
-                    <div className="grid grid-cols-3 gap-3">
-                      <select
-                        value={newCost.type}
-                        onChange={(e) => setNewCost({ ...newCost, type: e.target.value })}
-                        className="select-admin"
-                      >
-                        {Object.values(COST_TYPES).map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                      <input
-                        type="number"
-                        value={newCost.amount}
-                        onChange={(e) => setNewCost({ ...newCost, amount: e.target.value })}
-                        placeholder="Montant"
-                        className="input-admin"
-                        required
-                      />
-                      <input
-                        type="text"
-                        value={newCost.description}
-                        onChange={(e) => setNewCost({ ...newCost, description: e.target.value })}
-                        placeholder="Description"
-                        className="input-admin"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <button type="submit" className="btn-admin text-xs">Ajouter</button>
-                      <button
-                        type="button"
-                        onClick={() => setShowAddCost(false)}
-                        className="btn-admin-secondary text-xs"
-                      >
-                        Annuler
-                      </button>
-                    </div>
-                  </form>
+                  <AddExpenseForm
+                    onSubmit={(costData) => {
+                      addCost(id, costData)
+                      setShowAddCost(false)
+                      toast.success('Coût ajouté')
+                    }}
+                    onCancel={() => setShowAddCost(false)}
+                  />
                 )}
 
                 <table className="table-admin">
@@ -722,6 +669,7 @@ function VehicleCockpit() {
                     <tr>
                       <th>Type</th>
                       <th>Description</th>
+                      <th>Fournisseur</th>
                       <th>Date</th>
                       <th>Montant</th>
                       <th></th>
@@ -730,8 +678,17 @@ function VehicleCockpit() {
                   <tbody>
                     {vehicle.costs?.map((cost) => (
                       <tr key={cost.id}>
-                        <td className="text-white">{cost.type}</td>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: COST_CATEGORY_COLORS[cost.type] || '#95A5A6' }}
+                            />
+                            <span className="text-white">{cost.type}</span>
+                          </div>
+                        </td>
                         <td className="text-white/60">{cost.description || '-'}</td>
+                        <td className="text-white/40">{cost.supplier || '-'}</td>
                         <td className="text-white/40">{formatDate(cost.date)}</td>
                         <td className="text-white font-medium">{formatPrice(cost.amount)}</td>
                         <td>
@@ -746,7 +703,7 @@ function VehicleCockpit() {
                     ))}
                     {(!vehicle.costs || vehicle.costs.length === 0) && (
                       <tr>
-                        <td colSpan={5} className="text-center py-8 text-white/40">
+                        <td colSpan={6} className="text-center py-8 text-white/40">
                           Aucun coût enregistré
                         </td>
                       </tr>
@@ -754,7 +711,7 @@ function VehicleCockpit() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t border-white/10">
-                      <td colSpan={3} className="text-white/60 font-medium">Total coûts</td>
+                      <td colSpan={4} className="text-white/60 font-medium">Total coûts</td>
                       <td className="text-white font-semibold">{formatPrice(totalCosts)}</td>
                       <td></td>
                     </tr>
@@ -1055,12 +1012,14 @@ function VehicleCockpit() {
           {/* === DOCUMENTS TAB === */}
           {activeTab === 'documents' && (
             <AdminCard>
-              <h3 className="text-sm font-medium text-white mb-4">Documents</h3>
-              <div className="text-center py-12">
-                <FileText size={32} className="text-white/20 mx-auto mb-3" />
-                <p className="text-white/40 text-sm">Fonctionnalité à venir</p>
-                <p className="text-white/30 text-xs mt-1">Upload de documents (carte grise, factures...)</p>
-              </div>
+              <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                <FileText size={16} className="text-[#C4A484]" />
+                Checklist Documents
+              </h3>
+              <DocumentChecklist
+                vehicleId={vehicle.id}
+                importCountry={vehicle.importCountry || vehicle.originCountry}
+              />
             </AdminCard>
           )}
 

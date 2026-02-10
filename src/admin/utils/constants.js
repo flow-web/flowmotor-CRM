@@ -39,6 +39,72 @@ export const COST_TYPES = {
   OTHER: 'Autre'
 }
 
+// Couleurs par catégorie de coût (pour PRU Breakdown et chips)
+export const COST_CATEGORY_COLORS = {
+  'Achat': '#3498DB',
+  'Transport': '#9B59B6',
+  'Douane': '#E74C3C',
+  'Homologation': '#E67E22',
+  'Malus CO2': '#E74C3C',
+  'Admin': '#F39C12',
+  'Atelier': '#2ECC71',
+  'Pièces': '#34495E',
+  'Detailing': '#D4A574',
+  'Autre': '#95A5A6'
+}
+
+// Checklist documents par pays d'origine
+export const DOCUMENT_CHECKLISTS = {
+  FR: [
+    { key: 'carte_grise', label: 'Carte grise', required: true },
+    { key: 'controle_technique', label: 'Contrôle technique', required: true },
+    { key: 'facture_achat', label: "Facture d'achat", required: true },
+    { key: 'cerfa_cession', label: 'CERFA Cession', required: true },
+    { key: 'attestation_assurance', label: "Attestation d'assurance", required: false },
+  ],
+  CH: [
+    { key: 'carte_grise', label: 'Carte grise suisse', required: true },
+    { key: 'facture_achat', label: "Facture d'achat", required: true },
+    { key: 'dédouanement', label: 'Document de dédouanement (DAU)', required: true },
+    { key: 'quittance_tva', label: 'Quittance TVA import', required: true },
+    { key: 'coc', label: 'COC (Certificat de Conformité)', required: true },
+    { key: 'controle_technique', label: 'Contrôle technique français', required: true },
+    { key: 'demande_immat', label: "Demande d'immatriculation", required: true },
+    { key: 'attestation_assurance', label: "Attestation d'assurance", required: false },
+  ],
+  JP: [
+    { key: 'export_certificate', label: "Certificat d'export japonais", required: true },
+    { key: 'facture_achat', label: "Facture d'achat", required: true },
+    { key: 'bill_of_lading', label: 'Bill of Lading (BL)', required: true },
+    { key: 'dédouanement', label: 'Document de dédouanement (DAU)', required: true },
+    { key: 'quittance_tva', label: 'Quittance TVA import', required: true },
+    { key: 'homologation', label: 'Homologation DREAL/UTAC', required: true },
+    { key: 'controle_technique', label: 'Contrôle technique français', required: true },
+    { key: 'demande_immat', label: "Demande d'immatriculation", required: true },
+    { key: 'attestation_assurance', label: "Attestation d'assurance", required: false },
+  ],
+  GB: [
+    { key: 'v5c', label: 'V5C (logbook UK)', required: true },
+    { key: 'facture_achat', label: "Facture d'achat", required: true },
+    { key: 'dédouanement', label: 'Document de dédouanement (DAU)', required: true },
+    { key: 'quittance_tva', label: 'Quittance TVA import', required: true },
+    { key: 'coc', label: 'COC ou attestation constructeur', required: true },
+    { key: 'controle_technique', label: 'Contrôle technique français', required: true },
+    { key: 'demande_immat', label: "Demande d'immatriculation", required: true },
+    { key: 'attestation_assurance', label: "Attestation d'assurance", required: false },
+  ],
+  DEFAULT: [
+    { key: 'carte_grise', label: 'Carte grise / titre étranger', required: true },
+    { key: 'facture_achat', label: "Facture d'achat", required: true },
+    { key: 'dédouanement', label: 'Document de dédouanement', required: false },
+    { key: 'quittance_tva', label: 'Quittance TVA', required: false },
+    { key: 'coc', label: 'COC (Certificat de Conformité)', required: false },
+    { key: 'controle_technique', label: 'Contrôle technique', required: true },
+    { key: 'demande_immat', label: "Demande d'immatriculation", required: true },
+    { key: 'attestation_assurance', label: "Attestation d'assurance", required: false },
+  ]
+}
+
 // Types de documents
 export const DOCUMENT_TYPES = {
   CARTE_GRISE: 'Carte grise',
