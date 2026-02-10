@@ -252,16 +252,20 @@ export function VehiclesProvider({ children }) {
 
   // Costs Management
   const addCost = async (vehicleId, cost) => {
+    console.log('[addCost] mode:', dataMode, '| vehicleId:', vehicleId, '| cost:', cost)
     if (dataMode === DATA_MODE.SUPABASE) {
       try {
         const newCost = await supabaseAddCost(vehicleId, cost)
+        console.log('[addCost] SUCCESS — Supabase returned:', newCost)
         setVehicles(prev => prev.map(v => {
           if (v.id !== vehicleId) return v
-          return { ...v, costs: [...v.costs, newCost] }
+          const updated = { ...v, costs: [...(v.costs || []), newCost] }
+          console.log('[addCost] State updated — costs count:', updated.costs.length)
+          return updated
         }))
         return newCost
       } catch (err) {
-        console.error('Erreur ajout coût Supabase:', err)
+        console.error('[addCost] ERREUR Supabase:', err.message, '| code:', err.code, '| details:', err.details)
         throw err
       }
     }

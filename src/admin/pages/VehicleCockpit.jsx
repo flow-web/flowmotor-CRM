@@ -655,10 +655,15 @@ function VehicleCockpit() {
 
                 {showAddCost && (
                   <AddExpenseForm
-                    onSubmit={(costData) => {
-                      addCost(id, costData)
-                      setShowAddCost(false)
-                      toast.success('Coût ajouté')
+                    onSubmit={async (costData) => {
+                      try {
+                        await addCost(id, costData)
+                        setShowAddCost(false)
+                        toast.success('Coût ajouté')
+                      } catch (err) {
+                        console.error('Erreur ajout coût:', err)
+                        toast.error(`Erreur: ${err.message || "Impossible d'ajouter le coût"}`)
+                      }
                     }}
                     onCancel={() => setShowAddCost(false)}
                   />

@@ -99,7 +99,7 @@ function transformVehicleToDB(vehicle) {
   }
 }
 
-// Récupère tous les véhicules
+// Récupère tous les véhicules avec leurs coûts
 export async function fetchVehicles() {
   if (isDemoMode()) {
     throw new Error('Demo mode - use localStorage')
@@ -112,7 +112,38 @@ export async function fetchVehicles() {
 
   if (error) throw error
 
-  return vehicles.map(v => transformVehicleFromDB(v))
+  // Charger les coûts depuis vehicle_costs et les rattacher
+  let costsMap = {}
+  try {
+    const { data: allCosts, error: costsError } = await supabase
+      .from('vehicle_costs')
+      .select('*')
+      .order('date', { ascending: false })
+
+    if (!costsError && allCosts) {
+      allCosts.forEach(c => {
+        if (!costsMap[c.vehicle_id]) costsMap[c.vehicle_id] = []
+        costsMap[c.vehicle_id].push({
+          id: c.id,
+          type: c.type,
+          amount: parseFloat(c.amount),
+          description: c.description || '',
+          supplier: c.supplier || '',
+          receipt_url: c.receipt_url || '',
+          date: c.date
+        })
+      })
+    }
+  } catch (e) {
+    // Table might not exist yet — silently continue with empty costs
+    console.warn('[fetchVehicles] vehicle_costs not available:', e.message)
+  }
+
+  return vehicles.map(v => {
+    const transformed = transformVehicleFromDB(v)
+    transformed.costs = costsMap[v.id] || []
+    return transformed
+  })
 }
 
 // Récupère un véhicule par ID
