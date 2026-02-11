@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Banknote, Shield, TrendingUp, Users, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react'
+import { Banknote, Shield, TrendingUp, Users, CheckCircle2, Sparkles, ArrowRight, Loader2, CheckCircle } from 'lucide-react'
+import { createLead } from '../../lib/supabase/leads'
 import Modal from '../../components/Modal'
 import SEO from '../../components/SEO'
 
@@ -15,25 +16,45 @@ function Atelier() {
     email: '',
     phone: ''
   })
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState('idle') // 'idle' | 'sending' | 'success' | 'error'
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [acceptedConditions, setAcceptedConditions] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!acceptedConditions) {
       alert('Veuillez accepter les conditions de dépôt-vente pour continuer.')
       return
     }
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
+    setStatus('sending')
+    try {
+      const vehicleDetails = [
+        `Véhicule : ${formData.brand} ${formData.model}`,
+        `Année : ${formData.year}`,
+        `Kilométrage : ${formData.mileage} km`,
+        formData.desiredPrice && `Prix souhaité : ${formData.desiredPrice} €`,
+        formData.options && `Détails : ${formData.options}`,
+      ].filter(Boolean).join('\n')
+
+      await createLead({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        subject: 'reprise',
+        message: vehicleDetails,
+        source: 'trade_in_form',
+      })
+
+      setStatus('success')
       setFormData({
         brand: '', model: '', year: '', mileage: '',
         options: '', desiredPrice: '', name: '', email: '', phone: ''
       })
       setAcceptedConditions(false)
-    }, 3000)
+    } catch (err) {
+      console.error('Erreur envoi reprise:', err)
+      setStatus('error')
+    }
   }
 
   const handleChange = (e) => {
@@ -211,9 +232,19 @@ function Atelier() {
 
           <div className="mx-auto mt-12 max-w-4xl">
             <div className="card card-premium p-8 lg:p-10">
-              {submitted && (
-                <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-xl text-sm">
-                  Merci ! Votre demande a bien été envoyée.
+              {status === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-xl text-sm flex items-center gap-3">
+                  <CheckCircle size={20} className="flex-shrink-0" />
+                  <div>
+                    <p className="font-medium">Demande envoyée avec succès !</p>
+                    <p className="mt-1 text-green-700">Notre équipe vous répondra sous 24h avec une estimation.</p>
+                  </div>
+                </div>
+              )}
+
+              {status === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-xl text-sm">
+                  Erreur lors de l&apos;envoi. Veuillez réessayer ou nous contacter par téléphone.
                 </div>
               )}
 
@@ -350,10 +381,20 @@ function Atelier() {
 
                 <button
                   type="submit"
-                  className="btn bg-[#5C3A2E] border-0 text-white w-full py-4 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/20 mt-2"
+                  disabled={status === 'sending'}
+                  className="btn bg-[#5C3A2E] border-0 text-white w-full py-4 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/20 mt-2 disabled:opacity-60"
                 >
-                  Envoyer la demande
-                  <ArrowRight size={18} />
+                  {status === 'sending' ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRight size={18} />
+                      Envoyer la demande
+                    </>
+                  )}
                 </button>
               </form>
             </div>

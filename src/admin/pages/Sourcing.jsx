@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Calculator, Plus, ExternalLink, TrendingUp, AlertTriangle, Check } from 'lucide-react'
+import { Calculator, Plus, ExternalLink, TrendingUp, AlertTriangle, Check, Sparkles } from 'lucide-react'
 import TopHeader from '../components/layout/TopHeader'
+import SmartImportModal from '../components/sourcing/SmartImportModal'
 import { useVehicles } from '../context/VehiclesContext'
 import { useUI } from '../context/UIContext'
 import { CAR_MAKES } from '../utils/constants'
@@ -49,6 +50,7 @@ function Sourcing() {
   const { createVehicle } = useVehicles()
   const { toast } = useUI()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSmartImport, setShowSmartImport] = useState(false)
 
   // === ÉTAT DU CALCULATEUR ===
   const [calc, setCalc] = useState({
@@ -250,6 +252,17 @@ function Sourcing() {
       <TopHeader title="Sourcing" subtitle="Calculateur d'import & création véhicule" />
 
       <div className="p-6">
+        {/* Import Magique button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => setShowSmartImport(true)}
+            className="bg-[#C4A484] hover:bg-[#C4A484]/80 text-black font-semibold h-11 px-6"
+          >
+            <Sparkles size={18} className="mr-2" />
+            Import Magique
+          </Button>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-6">
           {/* === CALCULATEUR D'IMPORT === */}
           <Card className="bg-[#2a1f1f] border-[#3D1E1E]">
@@ -658,6 +671,10 @@ function Sourcing() {
           </a>
         </div>
       </div>
+
+      {showSmartImport && (
+        <SmartImportModal onClose={() => setShowSmartImport(false)} />
+      )}
     </div>
   )
 }

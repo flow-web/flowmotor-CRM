@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { pdf } from '@react-pdf/renderer'
 import {
   ArrowLeft, Car, Trash2, ExternalLink,
   FileText, DollarSign, Wrench, Info, Plus, Check,
   ClipboardList, Search, Download, Receipt, Users, ImageIcon,
-  FileCheck, RefreshCw, ArrowRightLeft
+  FileCheck, RefreshCw, ArrowRightLeft, Sparkles, Copy, Save, Loader2
 } from 'lucide-react'
 import ImageUploader from '../components/images/ImageUploader'
 import Workshop from '../components/vehicle/Workshop'
@@ -33,6 +33,7 @@ import {
   createVehicle as createVehicleInDB
 } from '../../lib/supabase'
 import { isDemoMode } from '../../lib/supabase/client'
+import { generateAdDescription, isGeminiConfigured } from '../../lib/gemini'
 import { useCompanySettings } from '../hooks/useCompanySettings'
 
 import { Button } from '@/components/ui/button'
@@ -41,7 +42,7 @@ import { Input } from '@/components/ui/input'
 function VehicleCockpit() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { getVehicle, updateStatus, deleteVehicle, addCost, deleteCost } = useVehicles()
+  const { getVehicle, updateVehicle, updateStatus, deleteVehicle, addCost, deleteCost } = useVehicles()
   const { showConfirm, toast } = useUI()
   const { companyInfo } = useCompanySettings()
 
@@ -55,6 +56,12 @@ function VehicleCockpit() {
   const [clientsLoaded, setClientsLoaded] = useState(false)
   const [generatingPdf, setGeneratingPdf] = useState(null)
   const [billingType, setBillingType] = useState(null) // 'margin' | 'vat'
+
+  // AI Description state
+  const [adDescription, setAdDescription] = useState('')
+  const [generatingAd, setGeneratingAd] = useState(false)
+  const [savingDescription, setSavingDescription] = useState(false)
+  const textareaRef = useRef(null)
 
   // CERFA + Reprise state
   const [generatingCerfa, setGeneratingCerfa] = useState(null)
@@ -72,6 +79,13 @@ function VehicleCockpit() {
       setBillingType(vehicle.isEuOrigin ? 'margin' : 'vat')
     }
   }, [vehicle, billingType])
+
+  // Init ad description from vehicle notes
+  useEffect(() => {
+    if (vehicle?.notes && !adDescription) {
+      setAdDescription(vehicle.notes)
+    }
+  }, [vehicle?.id])
 
   // Load clients when admin tab is activated
   useEffect(() => {
@@ -575,40 +589,130 @@ function VehicleCockpit() {
         <div>
           {/* === INFO TAB === */}
           {activeTab === 'info' && (
-            <div className="grid md:grid-cols-2 gap-6">
-              <AdminCard>
-                <h3 className="text-sm font-medium text-white mb-4">Véhicule</h3>
-                <div className="space-y-3 text-sm">
-                  <InfoRow label="Marque" value={vehicle.brand || vehicle.make} />
-                  <InfoRow label="Modèle" value={vehicle.model} />
-                  <InfoRow label="Finition" value={vehicle.trim} />
-                  <InfoRow label="Année" value={vehicle.year} />
-                  <InfoRow label="Kilométrage" value={formatMileage(vehicle.mileage)} />
-                  <InfoRow label="Couleur" value={vehicle.color} />
-                  <div className="flex justify-between">
-                    <span className="text-white/50">VIN</span>
-                    <span className="text-white font-mono text-xs">{vehicle.vin || '-'}</span>
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <AdminCard>
+                  <h3 className="text-sm font-medium text-white mb-4">Véhicule</h3>
+                  <div className="space-y-3 text-sm">
+                    <InfoRow label="Marque" value={vehicle.brand || vehicle.make} />
+                    <InfoRow label="Modèle" value={vehicle.model} />
+                    <InfoRow label="Finition" value={vehicle.trim} />
+                    <InfoRow label="Année" value={vehicle.year} />
+                    <InfoRow label="Kilométrage" value={formatMileage(vehicle.mileage)} />
+                    <InfoRow label="Couleur" value={vehicle.color} />
+                    <div className="flex justify-between">
+                      <span className="text-white/50">VIN</span>
+                      <span className="text-white font-mono text-xs">{vehicle.vin || '-'}</span>
+                    </div>
+                    <InfoRow label="Immatriculation" value={vehicle.registrationPlate} />
                   </div>
-                  <InfoRow label="Immatriculation" value={vehicle.registrationPlate} />
-                </div>
-              </AdminCard>
+                </AdminCard>
 
-              <AdminCard>
-                <h3 className="text-sm font-medium text-white mb-4">Sourcing</h3>
-                <div className="space-y-3 text-sm">
-                  <InfoRow label="Origine" value={vehicle.originCountry} />
-                  <InfoRow label="Vendeur" value={vehicle.sellerName} />
-                  <InfoRow label="Prix achat" value={formatPrice(vehicle.purchasePrice, vehicle.currency)} />
-                  <InfoRow label="Transport" value={formatPrice(vehicle.transportCost)} />
-                  <InfoRow label="Douane" value={formatPrice(vehicle.customsFee)} />
-                  <InfoRow label="TVA" value={formatPrice(vehicle.vatAmount)} />
-                </div>
-
-                {vehicle.notes && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Notes</p>
-                    <p className="text-sm text-white/70">{vehicle.notes}</p>
+                <AdminCard>
+                  <h3 className="text-sm font-medium text-white mb-4">Sourcing</h3>
+                  <div className="space-y-3 text-sm">
+                    <InfoRow label="Origine" value={vehicle.originCountry} />
+                    <InfoRow label="Vendeur" value={vehicle.sellerName} />
+                    <InfoRow label="Prix achat" value={formatPrice(vehicle.purchasePrice, vehicle.currency)} />
+                    <InfoRow label="Transport" value={formatPrice(vehicle.transportCost)} />
+                    <InfoRow label="Douane" value={formatPrice(vehicle.customsFee)} />
+                    <InfoRow label="TVA" value={formatPrice(vehicle.vatAmount)} />
                   </div>
+                </AdminCard>
+              </div>
+
+              {/* Description / Annonce IA */}
+              <AdminCard>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                    <FileText size={16} className="text-[#C4A484]" />
+                    Description / Annonce
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {adDescription && (
+                      <>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(adDescription)
+                            toast.success('Annonce copiée dans le presse-papier')
+                          }}
+                          className="btn-admin-secondary flex items-center gap-1.5 text-xs"
+                        >
+                          <Copy size={13} />
+                          Copier
+                        </button>
+                        <button
+                          onClick={async () => {
+                            setSavingDescription(true)
+                            try {
+                              await updateVehicle(id, { notes: adDescription })
+                              toast.success('Description sauvegardée')
+                            } catch {
+                              toast.error('Erreur lors de la sauvegarde')
+                            } finally {
+                              setSavingDescription(false)
+                            }
+                          }}
+                          disabled={savingDescription || adDescription === vehicle.notes}
+                          className="btn-admin-secondary flex items-center gap-1.5 text-xs disabled:opacity-40"
+                        >
+                          {savingDescription ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                          Sauvegarder
+                        </button>
+                      </>
+                    )}
+                    {isGeminiConfigured() && (
+                      <button
+                        onClick={async () => {
+                          setGeneratingAd(true)
+                          try {
+                            const text = await generateAdDescription(vehicle)
+                            setAdDescription(text)
+                            toast.success('Annonce générée avec succès')
+                          } catch (err) {
+                            toast.error(err.message || 'Erreur lors de la génération')
+                          } finally {
+                            setGeneratingAd(false)
+                          }
+                        }}
+                        disabled={generatingAd || !(vehicle.brand && vehicle.model)}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+                      >
+                        {generatingAd ? (
+                          <>
+                            <Loader2 size={13} className="animate-spin" />
+                            Génération...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={13} />
+                            Générer avec l'IA
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {!(vehicle.brand && vehicle.model) && isGeminiConfigured() && (
+                  <p className="text-xs text-yellow-400/70 mb-3">
+                    Renseignez au moins la marque et le modèle pour générer une annonce.
+                  </p>
+                )}
+
+                <textarea
+                  ref={textareaRef}
+                  value={adDescription}
+                  onChange={(e) => setAdDescription(e.target.value)}
+                  placeholder="Description de l'annonce... Cliquez sur 'Générer avec l'IA' pour créer une annonce automatiquement."
+                  rows={12}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white/90 placeholder-white/30 focus:outline-none focus:border-[#C4A484]/50 resize-y"
+                />
+
+                {adDescription && (
+                  <p className="text-xs text-white/30 mt-2 text-right">
+                    {adDescription.length} caractères
+                  </p>
                 )}
               </AdminCard>
             </div>

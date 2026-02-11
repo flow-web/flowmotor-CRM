@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { createLead } from '../../lib/supabase/leads'
 import {
   ArrowLeft,
   Calendar,
@@ -13,7 +14,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Wrench
+  Wrench,
+  Send,
+  CheckCircle,
+  Loader2
 } from 'lucide-react'
 import SEO from '../../components/SEO'
 
@@ -25,6 +29,111 @@ const formatPrice = (price) => {
 const formatKm = (km) => {
   if (!km) return '—'
   return new Intl.NumberFormat('fr-FR').format(km) + ' km'
+}
+
+function VehicleInquiryForm({ vehicle, vehicleName }) {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [status, setStatus] = useState('idle')
+
+  const defaultMessage = `Bonjour, je suis intéressé(e) par ${vehicleName}${vehicle.year ? ` (${vehicle.year})` : ''}. Pouvez-vous me recontacter ?`
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('sending')
+    try {
+      await createLead({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || null,
+        subject: 'achat',
+        message: form.message || defaultMessage,
+        vehicleId: vehicle.id,
+        vehicleLabel: `${vehicle.brand} ${vehicle.model} ${vehicle.year || ''}`.trim(),
+        source: 'vehicle_inquiry',
+      })
+      setStatus('success')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="card card-premium p-6 ring-1 ring-green-500/20 bg-green-50/5">
+        <div className="flex items-center gap-3 text-green-700">
+          <CheckCircle size={24} />
+          <div>
+            <p className="font-semibold">Demande envoyée !</p>
+            <p className="text-sm text-green-600 mt-1">Notre équipe vous répondra sous 24h.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card card-premium p-6 ring-1 ring-accent/20">
+      <h3 className="text-lg font-semibold font-display mb-1">Ce véhicule vous intéresse ?</h3>
+      <p className="text-sm text-base-content/50 mb-5">Laissez-nous vos coordonnées, nous vous recontactons rapidement.</p>
+
+      {status === 'error' && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          Erreur lors de l&apos;envoi. Réessayez ou appelez-nous directement.
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <input
+            type="text"
+            placeholder="Votre nom"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="input-premium w-full bg-base-100"
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="input-premium w-full bg-base-100"
+            required
+          />
+        </div>
+        <input
+          type="tel"
+          placeholder="Téléphone (recommandé)"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          className="input-premium w-full bg-base-100"
+        />
+        <textarea
+          placeholder={defaultMessage}
+          value={form.message}
+          onChange={(e) => setForm({ ...form, message: e.target.value })}
+          className="input-premium w-full bg-base-100 min-h-[80px] resize-none"
+        />
+        <button
+          type="submit"
+          disabled={status === 'sending'}
+          className="btn bg-[#5C3A2E] border-0 text-white w-full py-3 h-auto rounded-xl hover:bg-[#5C3A2E]/90 shadow-lg shadow-[#5C3A2E]/20 disabled:opacity-60"
+        >
+          {status === 'sending' ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              Envoi en cours...
+            </>
+          ) : (
+            <>
+              <Send size={18} />
+              Envoyer ma demande
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  )
 }
 
 export default function PublicVehicleDetails() {
@@ -39,8 +148,9 @@ export default function PublicVehicleDetails() {
       try {
         const { data, error } = await supabase
           .from('vehicles')
-          .select('id, brand, model, trim, year, mileage, color, status, selling_price, images, import_country, is_eu_origin')
+          .select('id, brand, model, trim, year, mileage, color, status, selling_price, images, import_country, is_eu_origin, notes')
           .eq('id', id)
+          .in('status', ['STOCK', 'SOURCING'])
           .single()
 
         if (error) throw error
@@ -283,6 +393,14 @@ export default function PublicVehicleDetails() {
               </div>
             </div>
 
+            {/* Description / Annonce */}
+            {vehicle.notes && (
+              <div className="card card-premium p-6">
+                <h3 className="text-sm uppercase tracking-wider text-base-content/40 mb-4">Description</h3>
+                <p className="text-sm text-base-content/70 leading-relaxed whitespace-pre-line">{vehicle.notes}</p>
+              </div>
+            )}
+
             {/* Garanties */}
             <div className="grid grid-cols-2 gap-3">
               <div className="card card-premium p-4">
@@ -305,47 +423,17 @@ export default function PublicVehicleDetails() {
               </div>
             </div>
 
-            {/* CTA */}
-            <div className="space-y-3 pt-2">
-              <Link
-                to={`/contact?subject=achat&vehicleId=${vehicle.id}&vehicle=${encodeURIComponent(`${vehicle.brand} ${vehicle.model} ${vehicle.year || ''}`.trim())}`}
-                className="btn bg-accent text-white border-0 hover:bg-accent/90 w-full py-3 h-auto text-base"
-              >
-                <Mail size={18} />
-                Demander plus d&apos;informations
-              </Link>
-              <a
-                href="tel:+33668396937"
-                className="btn btn-outline border-primary/20 text-primary hover:bg-primary/5 w-full py-3 h-auto text-base"
-              >
-                <Phone size={18} />
-                06 68 39 69 37
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+            {/* Formulaire de contact inline */}
+            <VehicleInquiryForm vehicle={vehicle} vehicleName={vehicleName} />
 
-      {/* Section CTA finale */}
-      <section className="bg-gradient-to-br from-base-200 via-base-100 to-primary/10 py-16">
-        <div className="container mx-auto px-6">
-          <div className="card bg-primary text-primary-content shadow-2xl">
-            <div className="card-body text-center p-10">
-              <h2 className="text-3xl font-semibold md:text-4xl font-display">
-                Intéressé par {vehicle.brand === 'Audi' || vehicle.brand === 'Alpine' ? 'cette' : 'ce'} {vehicle.model} ?
-              </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-primary-content/70">
-                Réservez dès maintenant ou demandez un dossier complet. Notre équipe vous répond sous 24h.
-              </p>
-              <div className="card-actions mt-6 justify-center gap-4">
-                <Link to="/contact" className="btn bg-accent text-white border-0 hover:bg-accent/90">
-                  Nous contacter
-                </Link>
-                <Link to="/showroom" className="btn btn-outline border-primary-content/30 text-primary-content hover:bg-primary-content/10">
-                  Voir les autres véhicules
-                </Link>
-              </div>
-            </div>
+            {/* Téléphone direct */}
+            <a
+              href="tel:+33668396937"
+              className="btn btn-outline border-primary/20 text-primary hover:bg-primary/5 w-full py-3 h-auto text-base"
+            >
+              <Phone size={18} />
+              Ou appelez-nous : 06 68 39 69 37
+            </a>
           </div>
         </div>
       </section>
