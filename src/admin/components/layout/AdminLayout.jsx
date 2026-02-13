@@ -7,8 +7,9 @@ import ConfirmDialog from '../shared/ConfirmDialog'
 
 /**
  * AdminLayout - Layout principal du CRM FLOW MOTOR
- * Desktop : Sidebar fixe à gauche + contenu scrollable
- * Mobile  : Bottom Tab Bar + contenu plein écran
+ * Command Center — Dark luxury with gold accents
+ * Desktop : Sidebar fixe a gauche + contenu scrollable
+ * Mobile  : Bottom Tab Bar + contenu plein ecran
  */
 function AdminLayout() {
   const { sidebarCollapsed } = useUI()
@@ -16,11 +17,12 @@ function AdminLayout() {
   return (
     <div
       data-theme="flowmotor-admin"
-      className="flex h-screen w-full bg-[#1A0F0F] text-white overflow-hidden"
+      className="flex h-screen w-full text-white overflow-hidden"
+      style={{ background: '#1A0F0F' }}
     >
       {/* Sidebar - Desktop only */}
       <aside
-        className={`flex-shrink-0 border-r border-white/10 hidden md:block transition-all duration-300 ${
+        className={`flex-shrink-0 border-r border-white/[0.06] hidden md:block transition-all duration-300 ${
           sidebarCollapsed ? 'w-16' : 'w-64'
         }`}
       >

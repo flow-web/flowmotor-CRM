@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   Search, Car, Banknote, TrendingUp, ArrowRight, ArrowLeft,
   ChevronRight, Check, Phone, Mail, User, MapPin, Shield,
-  Clock, Star, Sparkles, X, Loader2
+  Clock, Star, Sparkles, X, Loader2, CheckCircle2, AlertCircle
 } from 'lucide-react'
 import SEO from '../../components/SEO'
 import { createLead } from '../../lib/supabase/leads'
+import { getVehicleByPlate, validatePlate, estimateMileageRange } from '../../lib/api/siv'
 
 /* ─────────────────────────────────────────────
    CONSTANTS
@@ -35,7 +36,7 @@ const MILEAGE_RANGES = [
    FRENCH LICENSE PLATE COMPONENT
    ───────────────────────────────────────────── */
 
-function LicensePlateInput({ value, onChange, onSubmit }) {
+function LicensePlateInput({ value, onChange, onSubmit, isValid }) {
   const formatPlate = (raw) => {
     const clean = raw.toUpperCase().replace(/[^A-Z0-9]/g, '')
     if (clean.length <= 2) return clean
@@ -57,10 +58,21 @@ function LicensePlateInput({ value, onChange, onSubmit }) {
     }
   }
 
+  // Check format validity for visual feedback
+  const cleanValue = value.replace(/-/g, '')
+  const isComplete = cleanValue.length === 7
+  const showValidation = cleanValue.length >= 4
+
   return (
     <div className="relative mx-auto max-w-md">
       <div
-        className="flex items-stretch overflow-hidden rounded-lg border-2 border-[#003DA5]/60 shadow-lg shadow-black/30"
+        className={`flex items-stretch overflow-hidden rounded-lg border-2 shadow-lg transition-all duration-300 ${
+          showValidation
+            ? isValid
+              ? 'border-emerald-500/60 shadow-emerald-500/20'
+              : 'border-red-500/60 shadow-red-500/20'
+            : 'border-[#003DA5]/60 shadow-black/30'
+        }`}
         style={{ height: '64px' }}
       >
         {/* Blue band left */}
@@ -91,6 +103,13 @@ function LicensePlateInput({ value, onChange, onSubmit }) {
           <span className="text-[8px] font-semibold leading-none opacity-60">69</span>
         </div>
       </div>
+
+      {/* Format hint */}
+      {!isComplete && cleanValue.length > 0 && (
+        <p className="mt-2 text-center text-xs text-white/30">
+          Format attendu: 2 lettres - 3 chiffres - 2 lettres
+        </p>
+      )}
     </div>
   )
 }
@@ -138,6 +157,8 @@ export default function Atelier() {
   // --- State ---
   const [plateValue, setPlateValue] = useState('')
   const [plateSubmitted, setPlateSubmitted] = useState(false)
+  const [plateLoading, setPlateLoading] = useState(false)
+  const [plateResult, setPlateResult] = useState(null) // { success, data, error }
   const [showWizard, setShowWizard] = useState(false)
   const [wizardStep, setWizardStep] = useState(0)
   const [status, setStatus] = useState('idle') // idle | sending | success | error
@@ -168,9 +189,55 @@ export default function Atelier() {
   }, [])
 
   // --- Handlers ---
-  const handlePlateSubmit = () => {
-    if (plateValue.replace(/-/g, '').length >= 4) {
-      setPlateSubmitted(true)
+  const handlePlateSubmit = async () => {
+    // Validate format first
+    const validation = validatePlate(plateValue)
+    if (!validation.valid) {
+      setPlateResult({ success: false, error: validation.error })
+      return
+    }
+
+    // Call SIV API
+    setPlateLoading(true)
+    setPlateResult(null)
+
+    try {
+      const result = await getVehicleByPlate(plateValue)
+      setPlateResult(result)
+
+      if (result.success && result.data) {
+        // Auto-fill wizard fields
+        setSelectedBrand(POPULAR_BRANDS.includes(result.data.brand) ? result.data.brand : 'Autre')
+        if (!POPULAR_BRANDS.includes(result.data.brand)) {
+          setCustomBrand(result.data.brand)
+        }
+        setModel(result.data.model || '')
+        setYear(result.data.year ? String(result.data.year) : '')
+
+        // Estimate mileage range if not provided
+        if (result.data.mileage) {
+          const km = result.data.mileage
+          if (km < 10000) setMileage('0-10000')
+          else if (km < 30000) setMileage('10000-30000')
+          else if (km < 60000) setMileage('30000-60000')
+          else if (km < 100000) setMileage('60000-100000')
+          else if (km < 150000) setMileage('100000-150000')
+          else setMileage('150000+')
+        } else if (result.data.year) {
+          setMileage(estimateMileageRange(result.data.year))
+        }
+
+        // Show wizard with pre-filled data
+        setPlateSubmitted(true)
+        setTimeout(() => {
+          setShowWizard(true)
+        }, 1500)
+      }
+    } catch (err) {
+      console.error('Erreur recherche plaque:', err)
+      setPlateResult({ success: false, error: 'Une erreur est survenue' })
+    } finally {
+      setPlateLoading(false)
     }
   }
 
@@ -219,6 +286,8 @@ export default function Atelier() {
     setContactPhone('')
     setPlateSubmitted(false)
     setPlateValue('')
+    setPlateResult(null)
+    setPlateLoading(false)
     setStatus('idle')
   }
 
@@ -550,17 +619,76 @@ export default function Atelier() {
 
                     <LicensePlateInput
                       value={plateValue}
-                      onChange={setPlateValue}
+                      onChange={(val) => {
+                        setPlateValue(val)
+                        setPlateResult(null) // Clear previous results
+                      }}
                       onSubmit={handlePlateSubmit}
+                      isValid={validatePlate(plateValue).valid}
                     />
+
+                    {/* Result feedback */}
+                    {plateResult && (
+                      <div
+                        className={`mx-auto max-w-md rounded-xl border p-4 ${
+                          plateResult.success
+                            ? 'border-emerald-500/30 bg-emerald-500/10'
+                            : 'border-red-500/30 bg-red-500/10'
+                        }`}
+                        style={{ animation: 'fadeSlideUp 0.3s ease-out' }}
+                      >
+                        <div className="flex items-start gap-3">
+                          {plateResult.success ? (
+                            <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-emerald-400" />
+                          ) : (
+                            <AlertCircle size={20} className="mt-0.5 shrink-0 text-red-400" />
+                          )}
+                          <div className="flex-1">
+                            {plateResult.success ? (
+                              <>
+                                <p className="font-medium text-emerald-400">
+                                  Vehicule trouve
+                                </p>
+                                <p className="mt-1 text-sm text-white/70">
+                                  {plateResult.data.brand} {plateResult.data.model}
+                                  {plateResult.data.version && ` ${plateResult.data.version}`}
+                                  {' '}- {plateResult.data.year}
+                                </p>
+                                <p className="mt-2 text-xs text-white/40">
+                                  Les informations vont etre pré-remplies dans le formulaire...
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="font-medium text-red-400">
+                                  {plateResult.error || 'Véhicule non trouvé'}
+                                </p>
+                                <p className="mt-1 text-sm text-white/60">
+                                  Veuillez remplir le formulaire manuellement
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <button
                       onClick={handlePlateSubmit}
-                      disabled={plateValue.replace(/-/g, '').length < 4}
+                      disabled={!validatePlate(plateValue).valid || plateLoading}
                       className="mx-auto flex w-full max-w-md items-center justify-center gap-2 rounded-xl bg-[#C4A484] px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-[#1A0F0F] transition-all duration-300 hover:bg-[#D4BC9A] hover:shadow-lg hover:shadow-[#C4A484]/20 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      Estimer ma voiture
-                      <ArrowRight size={16} />
+                      {plateLoading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Recherche en cours...
+                        </>
+                      ) : (
+                        <>
+                          Estimer ma voiture
+                          <ArrowRight size={16} />
+                        </>
+                      )}
                     </button>
 
                     {/* Divider */}
@@ -582,34 +710,17 @@ export default function Atelier() {
                     </button>
                   </div>
                 ) : (
-                  /* Plate submitted — coming soon */
+                  /* Plate submitted — transitioning to wizard */
                   <div className="py-8 text-center" style={{ animation: 'fadeSlideUp 0.4s ease-out' }}>
-                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#C4A484]/10">
-                      <Car size={28} className="text-[#C4A484]" />
+                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
+                      <CheckCircle2 size={28} className="text-emerald-400" />
                     </div>
                     <h3 className="font-display text-xl font-semibold">
-                      Fonctionnalite bientot disponible
+                      Vehicule identifie
                     </h3>
                     <p className="mx-auto mt-3 max-w-sm text-sm text-white/50 leading-relaxed">
-                      La recherche par plaque sera disponible prochainement.
-                      En attendant, utilisez notre formulaire rapide ou contactez-nous.
+                      Redirection vers le formulaire avec vos informations pré-remplies...
                     </p>
-                    <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                      <button
-                        onClick={() => { setPlateSubmitted(false); setShowWizard(true) }}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[#C4A484] px-6 py-3 text-sm font-semibold text-[#1A0F0F] transition-all duration-300 hover:bg-[#D4BC9A]"
-                      >
-                        Formulaire rapide
-                        <ArrowRight size={14} />
-                      </button>
-                      <Link
-                        to="/contact?subject=reprise"
-                        className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/70 transition-all duration-300 hover:border-white/20 hover:text-white"
-                      >
-                        <Phone size={14} />
-                        Nous contacter
-                      </Link>
-                    </div>
                   </div>
                 )}
               </>

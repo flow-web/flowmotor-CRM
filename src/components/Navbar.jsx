@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Heart, User, Menu, X, ChevronRight, Car, Phone } from 'lucide-react'
 
 /**
@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { name: 'Stock', path: '/showroom' },
   { name: 'Financement', path: '/services' },
   { name: 'Reprise', path: '/atelier' },
-  { name: 'Import', path: '/services' },
+  { name: 'Guides', path: '/guides' },
   { name: 'Contact', path: '/contact' },
 ]
 
@@ -39,6 +39,7 @@ function setFavoritesToStorage(ids) {
 
 function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [favoritesOpen, setFavoritesOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -46,6 +47,7 @@ function Navbar() {
 
   const favoritesRef = useRef(null)
   const profileRef = useRef(null)
+  const profileModalRef = useRef(null)
   const navRef = useRef(null)
 
   // Sync favorites from localStorage on storage event (cross-tab)
@@ -77,7 +79,10 @@ function Navbar() {
       if (favoritesRef.current && !favoritesRef.current.contains(e.target)) {
         setFavoritesOpen(false)
       }
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
+      if (
+        profileRef.current && !profileRef.current.contains(e.target) &&
+        (!profileModalRef.current || !profileModalRef.current.contains(e.target))
+      ) {
         setProfileOpen(false)
       }
     }
@@ -326,10 +331,12 @@ function Navbar() {
 
           {/* Modal */}
           <div
+            ref={profileModalRef}
             className="relative w-full max-w-sm rounded-2xl overflow-hidden
                         bg-[#1A0F0F]/80 backdrop-blur-2xl border border-white/10
                         shadow-2xl shadow-black/50
                         animate-[fadeScaleIn_0.3s_ease-out]"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
@@ -354,6 +361,11 @@ function Navbar() {
             {/* Options */}
             <div className="px-8 space-y-3">
               <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setProfileOpen(false)
+                  setTimeout(() => navigate('/login'), 100)
+                }}
                 className="w-full flex items-center gap-4 p-4 rounded-xl
                            bg-white/[0.04] border border-white/[0.06] hover:border-[#C4A484]/20 hover:bg-white/[0.07]
                            transition-all duration-300 group/opt text-left"
@@ -371,6 +383,11 @@ function Navbar() {
               </button>
 
               <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setProfileOpen(false)
+                  setTimeout(() => navigate('/admin'), 100)
+                }}
                 className="w-full flex items-center gap-4 p-4 rounded-xl
                            bg-white/[0.04] border border-white/[0.06] hover:border-[#C4A484]/20 hover:bg-white/[0.07]
                            transition-all duration-300 group/opt text-left"

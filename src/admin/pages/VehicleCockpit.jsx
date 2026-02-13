@@ -5,7 +5,7 @@ import {
   ArrowLeft, Car, Trash2, ExternalLink,
   FileText, DollarSign, Wrench, Info, Plus, Check,
   ClipboardList, Search, Download, Receipt, Users, ImageIcon,
-  FileCheck, RefreshCw, ArrowRightLeft, Sparkles, Copy, Save, Loader2
+  FileCheck, RefreshCw, ArrowRightLeft, Sparkles, Copy, Save, Loader2, Target
 } from 'lucide-react'
 import ImageUploader from '../components/images/ImageUploader'
 import Workshop from '../components/vehicle/Workshop'
@@ -14,6 +14,7 @@ import PRUBreakdown from '../components/vehicle/PRUBreakdown'
 import AddExpenseForm from '../components/vehicle/AddExpenseForm'
 import WorkflowStepper from '../components/vehicle/WorkflowStepper'
 import DocumentChecklist from '../components/vehicle/DocumentChecklist'
+import MarketSniperModal from '../components/sourcing/MarketSniperModal'
 import TopHeader from '../components/layout/TopHeader'
 import AdminCard from '../components/shared/AdminCard'
 import StatusBadge from '../components/shared/StatusBadge'
@@ -48,6 +49,7 @@ function VehicleCockpit() {
 
   const [activeTab, setActiveTab] = useState('info')
   const [showAddCost, setShowAddCost] = useState(false)
+  const [showMarketSniper, setShowMarketSniper] = useState(false)
 
   // Admin tab state
   const [clients, setClients] = useState([])
@@ -609,7 +611,17 @@ function VehicleCockpit() {
                 </AdminCard>
 
                 <AdminCard>
-                  <h3 className="text-sm font-medium text-white mb-4">Sourcing</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-white">Sourcing</h3>
+                    <Button
+                      onClick={() => setShowMarketSniper(true)}
+                      variant="outline"
+                      className="h-8 px-3 border-[#C4A484]/30 text-[#C4A484] hover:bg-[#C4A484]/10 text-xs"
+                    >
+                      <Target size={14} className="mr-1.5" />
+                      Analyser
+                    </Button>
+                  </div>
                   <div className="space-y-3 text-sm">
                     <InfoRow label="Origine" value={vehicle.originCountry} />
                     <InfoRow label="Vendeur" value={vehicle.sellerName} />
@@ -1139,6 +1151,14 @@ function VehicleCockpit() {
           )}
         </div>
       </div>
+
+      {/* Market Sniper Modal */}
+      {showMarketSniper && (
+        <MarketSniperModal
+          vehicle={vehicle}
+          onClose={() => setShowMarketSniper(false)}
+        />
+      )}
     </div>
   )
 }

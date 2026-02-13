@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Upload, X, Star, Loader2, AlertCircle, ImageIcon } from 'lucide-react'
+import { Upload, X, Star, Loader2, AlertCircle, ImageIcon, Sparkles } from 'lucide-react'
 import { uploadImage as uploadToStorage } from '../../../lib/supabase/client'
 import { useVehicles } from '../../context/VehiclesContext'
 import { useUI } from '../../context/UIContext'
+import { applyVirtualStudio, isPhotoroomConfigured } from '../../../lib/api/photoroom'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_TYPES = { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] }
@@ -14,6 +15,7 @@ export default function ImageUploader({ vehicleId, images = [] }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [uploadCount, setUploadCount] = useState({ current: 0, total: 0 })
+  const [processingStudio, setProcessingStudio] = useState(null) // Track which image is being processed
 
   const onDrop = useCallback(async (acceptedFiles) => {
     if (acceptedFiles.length === 0) return
@@ -82,6 +84,43 @@ export default function ImageUploader({ vehicleId, images = [] }) {
       toast.success('Image principale mise à jour')
     } catch (err) {
       toast.error('Erreur mise à jour')
+    }
+  }
+
+  const handleStudioMode = async (image) => {
+    setProcessingStudio(image.path)
+
+    try {
+      // Step 1: Apply Virtual Studio (background removal + watermark)
+      const processedBlob = await applyVirtualStudio(image.url)
+
+      // Step 2: Upload to Supabase Storage
+      const file = new File([processedBlob], `studio_${image.name || 'image.png'}`, {
+        type: processedBlob.type
+      })
+
+      const result = await uploadToStorage(file, vehicleId, images.length)
+
+      if (!result) {
+        throw new Error('Upload failed')
+      }
+
+      // Step 3: Add to vehicle and set as primary
+      await addImages(vehicleId, [{
+        url: result.url,
+        path: result.path,
+        name: file.name,
+      }])
+
+      // Set the new studio image as primary
+      await setPrimaryImage(vehicleId, result.path)
+
+      toast.success('Image studio créée et définie comme principale')
+    } catch (err) {
+      console.error('[StudioMode] Error:', err)
+      toast.error(err.message || 'Erreur lors du traitement studio')
+    } finally {
+      setProcessingStudio(null)
     }
   }
 
@@ -178,11 +217,33 @@ export default function ImageUploader({ vehicleId, images = [] }) {
                   </div>
                 )}
 
+                {/* Studio Mode Processing Overlay */}
+                {processingStudio === image.path && (
+                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-3 z-10">
+                    <Loader2 size={32} className="text-[#C4A484] animate-spin" />
+                    <div className="text-center">
+                      <p className="text-white text-xs font-semibold">Mode Studio</p>
+                      <p className="text-white/60 text-[10px] mt-1">Traitement en cours...</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  {isPhotoroomConfigured() && (
+                    <button
+                      onClick={() => handleStudioMode(image)}
+                      disabled={processingStudio !== null}
+                      className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Mode Studio — Fond pro + watermark"
+                    >
+                      <Sparkles size={18} />
+                    </button>
+                  )}
                   {!isPrimary && (
                     <button
                       onClick={() => handleSetPrimary(image)}
-                      className="p-2 rounded-lg bg-white/20 hover:bg-[#C4A484] text-white transition-colors"
+                      disabled={processingStudio !== null}
+                      className="p-2 rounded-lg bg-white/20 hover:bg-[#C4A484] text-white transition-colors disabled:opacity-50"
                       title="Définir comme principale"
                     >
                       <Star size={18} />
@@ -190,7 +251,8 @@ export default function ImageUploader({ vehicleId, images = [] }) {
                   )}
                   <button
                     onClick={() => handleDeleteImage(image)}
-                    className="p-2 rounded-lg bg-white/20 hover:bg-red-500 text-white transition-colors"
+                    disabled={processingStudio !== null}
+                    className="p-2 rounded-lg bg-white/20 hover:bg-red-500 text-white transition-colors disabled:opacity-50"
                     title="Supprimer"
                   >
                     <X size={18} />

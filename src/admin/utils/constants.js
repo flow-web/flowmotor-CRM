@@ -12,11 +12,11 @@ export const VEHICLE_STATUS_LABELS = {
   SOLD: 'Vendu'
 }
 
-// Couleurs des badges par statut (Brand Board)
+// Couleurs des badges par statut (Brand Board — Luxe Command Center)
 export const VEHICLE_STATUS_COLORS = {
-  SOURCING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  STOCK: 'bg-green-500/20 text-green-400 border-green-500/30',
-  SOLD: 'bg-[#5C3A2E]/30 text-[#C4A484] border-[#5C3A2E]/50'
+  SOURCING: 'bg-transparent text-yellow-400 border-yellow-400/40',
+  STOCK: 'bg-transparent text-emerald-400 border-emerald-400/40',
+  SOLD: 'bg-transparent text-[#D4AF37] border-[#D4AF37]/40'
 }
 
 // Ordre du workflow (simplifié)

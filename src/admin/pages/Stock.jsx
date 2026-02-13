@@ -23,12 +23,12 @@ import { VEHICLE_STATUS_LABELS } from '../utils/constants'
 const STATUS_DOT_COLORS = {
   SOURCING: '#EAB308',  // yellow
   STOCK: '#22C55E',     // green
-  SOLD: '#C4A484'       // brand accent
+  SOLD: '#D4AF37'       // gold
 }
 
 // Days in stock color helper
 function getDaysColor(days) {
-  if (days <= 30) return 'text-green-400'
+  if (days <= 30) return 'text-emerald-400'
   if (days <= 60) return 'text-yellow-400'
   return 'text-red-400'
 }
@@ -58,7 +58,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 
 function Stock() {
   const { vehicles, deleteVehicle, isLoading, refresh, isSupabaseMode } = useVehicles()
@@ -68,12 +67,12 @@ function Stock() {
   const [globalFilter, setGlobalFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // Refresh silencieux au montage — données fraîches sans F5
+  // Refresh silencieux au montage
   useEffect(() => {
     refresh()
   }, [])
 
-  // Filtered data (safe si vehicles est vide ou null)
+  // Filtered data
   const filteredData = useMemo(() => {
     return (vehicles || []).filter(vehicle => {
       if (statusFilter && statusFilter !== 'all' && vehicle.status !== statusFilter) {
@@ -91,8 +90,8 @@ function Stock() {
   // Handle delete
   const handleDelete = async (vehicle) => {
     const confirmed = await showConfirm({
-      title: 'Supprimer le véhicule',
-      message: `Êtes-vous sûr de vouloir supprimer ${formatVehicleName(vehicle)} ? Cette action est irréversible.`,
+      title: 'Supprimer le vehicule',
+      message: `Etes-vous sur de vouloir supprimer ${formatVehicleName(vehicle)} ? Cette action est irreversible.`,
       confirmLabel: 'Supprimer',
       variant: 'danger'
     })
@@ -100,7 +99,7 @@ function Stock() {
     if (confirmed) {
       try {
         await deleteVehicle(vehicle.id)
-        toast.success('Véhicule supprimé avec succès')
+        toast.success('Vehicule supprime avec succes')
       } catch (err) {
         toast.error('Erreur lors de la suppression')
       }
@@ -118,7 +117,7 @@ function Stock() {
         const vehicle = row.original
         const primaryImage = vehicle.images?.[0]
         return (
-          <div className="w-12 h-9 rounded-lg overflow-hidden bg-secondary/50 flex-shrink-0">
+          <div className="w-12 h-9 rounded-lg overflow-hidden bg-white/[0.04] flex-shrink-0 border border-white/[0.06]">
             {primaryImage?.url ? (
               <img
                 src={primaryImage.url}
@@ -127,7 +126,7 @@ function Stock() {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Car size={16} className="text-muted-foreground" />
+                <Car size={14} className="text-white/15" />
               </div>
             )}
           </div>
@@ -137,25 +136,28 @@ function Stock() {
     {
       accessorKey: 'model',
       header: ({ column }) => (
-        <SortableHeader column={column}>Modèle</SortableHeader>
+        <SortableHeader column={column}>Modele</SortableHeader>
       ),
       accessorFn: (row) => `${row.make} ${row.model}`,
       cell: ({ row }) => {
         const vehicle = row.original
         const dotColor = STATUS_DOT_COLORS[vehicle.status] || '#95A5A6'
         return (
-          <Link to={`/admin/vehicle/${vehicle.id}`} className="group flex items-center gap-2">
+          <Link to={`/admin/vehicle/${vehicle.id}`} className="group flex items-center gap-2.5">
             <div
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{ backgroundColor: dotColor }}
+              className="w-2 h-2 rounded-full flex-shrink-0 shadow-sm"
+              style={{
+                backgroundColor: dotColor,
+                boxShadow: `0 0 6px ${dotColor}40`
+              }}
               title={VEHICLE_STATUS_LABELS[vehicle.status] || vehicle.status}
             />
             <div>
-              <p className="font-semibold text-primary group-hover:text-accent transition-colors">
+              <p className="font-semibold text-white group-hover:text-[#D4AF37] transition-colors duration-200">
                 {vehicle.make} {vehicle.model}
               </p>
-              <p className="text-xs text-muted-foreground">
-                {vehicle.year} • {vehicle.color || 'N/A'}
+              <p className="text-[10px] text-white/30 font-mono tabular-nums">
+                {vehicle.year} &middot; {vehicle.color || 'N/A'}
               </p>
             </div>
           </Link>
@@ -177,7 +179,7 @@ function Stock() {
         <SortableHeader column={column}>Km</SortableHeader>
       ),
       cell: ({ row }) => (
-        <span className="text-muted-foreground text-sm">
+        <span className="text-white/50 text-sm font-mono tabular-nums">
           {formatMileage(row.original.mileage)}
         </span>
       )
@@ -191,8 +193,8 @@ function Stock() {
         const pru = calculatePRU(row.original)
         return (
           <div className="text-sm">
-            <p className="text-muted-foreground">{formatPrice(row.original.purchasePrice)}</p>
-            <p className="text-xs text-muted-foreground/60">PRU: {formatPrice(pru)}</p>
+            <p className="text-white/60 font-mono tabular-nums">{formatPrice(row.original.purchasePrice)}</p>
+            <p className="text-[10px] text-white/25 font-mono tabular-nums">PRU: {formatPrice(pru)}</p>
           </div>
         )
       }
@@ -203,7 +205,7 @@ function Stock() {
         <SortableHeader column={column}>Prix Vente</SortableHeader>
       ),
       cell: ({ row }) => (
-        <span className="font-semibold text-accent">
+        <span className="font-semibold text-[#D4AF37] font-mono tabular-nums">
           {formatPrice(row.original.sellingPrice)}
         </span>
       )
@@ -234,7 +236,7 @@ function Stock() {
       cell: ({ row }) => {
         const days = getDaysInStock(row.original.createdAt)
         return (
-          <span className={`text-sm font-medium ${getDaysColor(days)}`}>
+          <span className={`text-sm font-mono font-semibold tabular-nums ${getDaysColor(days)}`}>
             {days}j
           </span>
         )
@@ -243,10 +245,10 @@ function Stock() {
     {
       accessorKey: 'createdAt',
       header: ({ column }) => (
-        <SortableHeader column={column}>Ajouté</SortableHeader>
+        <SortableHeader column={column}>Ajoute</SortableHeader>
       ),
       cell: ({ row }) => (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-[11px] text-white/30 font-mono tabular-nums">
           {formatRelativeDate(row.original.createdAt)}
         </span>
       )
@@ -262,17 +264,17 @@ function Stock() {
           <div className="flex items-center gap-1">
             <Link
               to={`/admin/vehicle/${vehicle.id}`}
-              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 text-white/20 hover:text-[#D4AF37] transition-colors duration-200"
               title="Voir"
             >
-              <Eye size={16} />
+              <Eye size={15} />
             </Link>
             <button
               onClick={() => handleDelete(vehicle)}
-              className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+              className="p-2 text-white/20 hover:text-red-400 transition-colors duration-200"
               title="Supprimer"
             >
-              <Trash2 size={16} />
+              <Trash2 size={15} />
             </button>
           </div>
         )
@@ -304,20 +306,20 @@ function Stock() {
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#1a1212]">
+      <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #0F0808 0%, #1A0F0F 40%)' }}>
         <TopHeader
           title="Stock"
           subtitle="Chargement..."
         />
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 max-w-[1600px] mx-auto">
           <div className="flex items-center justify-between gap-4">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-10 w-40" />
+            <div className="h-10 w-64 skeleton-gold" />
+            <div className="h-10 w-40 skeleton-gold" />
           </div>
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="rounded-xl border border-white/[0.06] overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)' }}>
             <div className="p-4 space-y-3">
               {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
+                <div key={i} className="h-12 w-full skeleton-gold" />
               ))}
             </div>
           </div>
@@ -327,38 +329,38 @@ function Stock() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1212]">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #0F0808 0%, #1A0F0F 40%)' }}>
       <TopHeader
         title="Stock"
-        subtitle={`${filteredData.length} véhicule${filteredData.length > 1 ? 's' : ''}`}
+        subtitle={`${filteredData.length} vehicule${filteredData.length > 1 ? 's' : ''}`}
       />
 
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 max-w-[1600px] mx-auto" style={{ animation: 'admin-fade-up 0.4s ease-out' }}>
         {/* Actions Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
               <Input
                 type="text"
                 placeholder="Rechercher..."
                 value={globalFilter ?? ''}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-10 w-64 bg-secondary/50 border-border"
+                className="pl-10 w-64 bg-white/[0.04] border-white/[0.08] text-white placeholder-white/20 focus:border-[#D4AF37]/30 focus:ring-[#D4AF37]/10 rounded-xl"
               />
             </div>
 
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px] bg-secondary/50 border-border">
-                <Filter size={16} className="mr-2 text-muted-foreground" />
+              <SelectTrigger className="w-[180px] bg-white/[0.04] border-white/[0.08] text-white/60 rounded-xl">
+                <Filter size={14} className="mr-2 text-white/20" />
                 <SelectValue placeholder="Filtrer par statut" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
+              <SelectContent className="bg-[#1A0F0F] border-white/10">
+                <SelectItem value="all" className="text-white/80 focus:bg-[#D4AF37]/10 focus:text-[#D4AF37]">Tous les statuts</SelectItem>
                 {uniqueStatuses.map(status => (
-                  <SelectItem key={status} value={status}>
+                  <SelectItem key={status} value={status} className="text-white/80 focus:bg-[#D4AF37]/10 focus:text-[#D4AF37]">
                     {VEHICLE_STATUS_LABELS[status] || status}
                   </SelectItem>
                 ))}
@@ -370,40 +372,49 @@ function Stock() {
               variant="outline"
               size="icon"
               onClick={refresh}
-              className="bg-secondary/50 border-border"
-              title="Rafraîchir"
+              className="bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-[#D4AF37] hover:border-[#D4AF37]/20 rounded-xl"
+              title="Rafraichir"
             >
-              <RefreshCw size={16} />
+              <RefreshCw size={15} />
             </Button>
           </div>
 
           {/* Add Button */}
           <Link to="/admin/sourcing">
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <Plus size={16} className="mr-2" />
-              Nouveau véhicule
+            <Button className="btn-admin rounded-xl">
+              <Plus size={15} className="mr-2" />
+              Nouveau vehicule
             </Button>
           </Link>
         </div>
 
         {/* Connection indicator */}
         {isSupabaseMode && (
-          <Badge variant="outline" className="text-green-400 border-green-400/50">
-            Connecté à Supabase
+          <Badge variant="outline" className="text-emerald-400/80 border-emerald-400/30 text-[10px] uppercase tracking-wider font-medium">
+            Supabase connecte
           </Badge>
         )}
 
         {/* Data Table */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-lg">
+        <div className="rounded-xl border border-white/[0.06] overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)' }}>
           <Table>
-            <TableHeader>
+            <TableHeader className="table-gold-header">
               {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id} className="border-border hover:bg-transparent">
+                <TableRow key={headerGroup.id} className="border-none hover:bg-transparent">
                   {headerGroup.headers.map(header => (
                     <TableHead
                       key={header.id}
-                      className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-secondary/30"
-                      style={{ width: header.getSize() }}
+                      style={{
+                        width: header.getSize(),
+                        background: 'linear-gradient(135deg, rgba(212,175,55,0.85), rgba(184,150,12,0.75))',
+                        color: '#1A0F0F',
+                        fontSize: '0.6875rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        fontWeight: 600,
+                        fontFamily: '"Plus Jakarta Sans", sans-serif',
+                      }}
+                      className="py-3 px-4"
                     >
                       {header.isPlaceholder
                         ? null
@@ -415,13 +426,14 @@ function Stock() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map(row => (
+                table.getRowModel().rows.map((row, index) => (
                   <TableRow
                     key={row.id}
-                    className="border-border hover:bg-secondary/20 transition-colors"
+                    className="border-white/[0.04] hover:bg-[#D4AF37]/[0.03] transition-colors duration-200"
+                    style={{ animation: `admin-fade-up ${0.15 + Math.min(index, 10) * 0.03}s ease-out` }}
                   >
                     {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id} className="py-3">
+                      <TableCell key={cell.id} className="py-3 px-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -432,16 +444,16 @@ function Stock() {
                   <TableCell colSpan={columns.length} className="p-0">
                     <EmptyState
                       icon={Car}
-                      title="Aucun véhicule trouvé"
+                      title="Aucun vehicule trouve"
                       subtitle={
                         (globalFilter || statusFilter !== 'all')
                           ? 'Essayez de modifier vos filtres de recherche.'
-                          : 'Ajoutez votre premier véhicule pour commencer.'
+                          : 'Ajoutez votre premier vehicule pour commencer.'
                       }
                       primaryAction={
                         (globalFilter || statusFilter !== 'all')
-                          ? { label: 'Réinitialiser les filtres', onClick: () => { setGlobalFilter(''); setStatusFilter('all') } }
-                          : { label: 'Nouveau véhicule', to: '/admin/sourcing' }
+                          ? { label: 'Reinitialiser les filtres', onClick: () => { setGlobalFilter(''); setStatusFilter('all') } }
+                          : { label: 'Nouveau vehicule', to: '/admin/sourcing' }
                       }
                     />
                   </TableCell>
@@ -452,9 +464,9 @@ function Stock() {
 
           {/* Pagination */}
           {table.getPageCount() > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/20">
-              <div className="text-sm text-muted-foreground">
-                Page {table.getState().pagination.pageIndex + 1} sur {table.getPageCount()}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-white/[0.06]" style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <div className="text-[11px] text-white/30 font-mono tabular-nums">
+                Page {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -462,16 +474,16 @@ function Stock() {
                   size="sm"
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
-                  className="bg-secondary/50"
+                  className="bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37]/20 text-xs rounded-lg disabled:opacity-30"
                 >
-                  Précédent
+                  Precedent
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
-                  className="bg-secondary/50"
+                  className="bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37]/20 text-xs rounded-lg disabled:opacity-30"
                 >
                   Suivant
                 </Button>
@@ -481,16 +493,16 @@ function Stock() {
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6" style={{ animation: 'admin-fade-up 0.6s ease-out' }}>
           <StatCard
             label="Total"
             value={(vehicles || []).length}
-            suffix="véhicules"
+            suffix="vehicules"
           />
           <StatCard
             label="En Stock"
             value={(vehicles || []).filter(v => v.status === 'STOCK').length}
-            suffix="véhicules"
+            suffix="vehicules"
             highlight
           />
           <StatCard
@@ -516,16 +528,16 @@ function SortableHeader({ column, children }) {
 
   return (
     <button
-      className="flex items-center gap-1 hover:text-foreground transition-colors"
+      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity text-[#1A0F0F]"
       onClick={() => column.toggleSorting(sorted === 'asc')}
     >
       {children}
       {sorted === 'asc' ? (
-        <ChevronUp size={14} />
+        <ChevronUp size={13} />
       ) : sorted === 'desc' ? (
-        <ChevronDown size={14} />
+        <ChevronDown size={13} />
       ) : (
-        <ChevronsUpDown size={14} className="opacity-30" />
+        <ChevronsUpDown size={13} className="opacity-40" />
       )}
     </button>
   )
@@ -534,12 +546,12 @@ function SortableHeader({ column, children }) {
 // Stat Card Component
 function StatCard({ label, value, suffix, highlight }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
-      <p className={`text-xl font-semibold ${highlight ? 'text-accent' : 'text-foreground'}`}>
+    <div className="card-admin-kpi p-5">
+      <p className="text-[10px] text-white/25 uppercase tracking-[0.15em] font-medium mb-1.5">{label}</p>
+      <p className={`text-xl font-mono font-bold tabular-nums ${highlight ? 'text-[#D4AF37]' : 'text-white'}`}>
         {value}
       </p>
-      {suffix && <p className="text-xs text-muted-foreground">{suffix}</p>}
+      {suffix && <p className="text-[10px] text-white/20 mt-0.5 uppercase tracking-wider">{suffix}</p>}
     </div>
   )
 }

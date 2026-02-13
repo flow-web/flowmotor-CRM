@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { label: 'Stock', to: '/showroom' },
   { label: 'Financement', to: '/services' },
   { label: 'Reprise', to: '/atelier' },
+  { label: 'Guides', to: '/guides' },
   { label: 'Contact', to: '/contact' },
 ]
 

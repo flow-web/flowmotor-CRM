@@ -16,6 +16,10 @@ import VehicleDetail from './pages/public/VehicleDetail'
 import Atelier from './pages/public/Atelier'
 import Login from './pages/public/Login'
 import Contact from './pages/public/Contact'
+import Guides from './pages/public/Guides'
+import ProcessusImport from './pages/public/guides/ProcessusImport'
+import Garanties from './pages/public/guides/Garanties'
+import CommentAcheter from './pages/public/guides/CommentAcheter'
 import Legal from './pages/public/Legal'
 import NotFound from './pages/public/NotFound'
 
@@ -69,6 +73,12 @@ function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/atelier" element={<Atelier />} />
             <Route path="/contact" element={<Contact />} />
+
+            {/* Guides & Journal */}
+            <Route path="/guides" element={<Guides />} />
+            <Route path="/guides/processus-import" element={<ProcessusImport />} />
+            <Route path="/guides/garanties" element={<Garanties />} />
+            <Route path="/guides/comment-acheter" element={<CommentAcheter />} />
 
             {/* Pages légales */}
             <Route path="/mentions-legales" element={<Legal />} />

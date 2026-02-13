@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Calculator, Plus, ExternalLink, TrendingUp, AlertTriangle, Check, Sparkles } from 'lucide-react'
+import { Calculator, Plus, ExternalLink, TrendingUp, AlertTriangle, Check, Sparkles, Target, Wrench } from 'lucide-react'
 import TopHeader from '../components/layout/TopHeader'
 import SmartImportModal from '../components/sourcing/SmartImportModal'
+import MarketSniperModal from '../components/sourcing/MarketSniperModal'
+import MechanicGPTModal from '../components/sourcing/MechanicGPTModal'
 import { useVehicles } from '../context/VehiclesContext'
 import { useUI } from '../context/UIContext'
 import { CAR_MAKES } from '../utils/constants'
@@ -51,6 +53,8 @@ function Sourcing() {
   const { toast } = useUI()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSmartImport, setShowSmartImport] = useState(false)
+  const [showMarketSniper, setShowMarketSniper] = useState(false)
+  const [showMechanicGPT, setShowMechanicGPT] = useState(false)
 
   // === ÉTAT DU CALCULATEUR ===
   const [calc, setCalc] = useState({
@@ -252,14 +256,39 @@ function Sourcing() {
       <TopHeader title="Sourcing" subtitle="Calculateur d'import & création véhicule" />
 
       <div className="p-6">
-        {/* Import Magique button */}
-        <div className="mb-6">
+        {/* Action buttons */}
+        <div className="mb-6 flex items-center gap-3">
           <Button
             onClick={() => setShowSmartImport(true)}
             className="bg-[#C4A484] hover:bg-[#C4A484]/80 text-black font-semibold h-11 px-6"
           >
             <Sparkles size={18} className="mr-2" />
             Import Magique
+          </Button>
+
+          <Button
+            onClick={() => {
+              // Check if we have enough data for market analysis
+              if (!vehicle.brand || !vehicle.model || !vehicle.year) {
+                toast.error('Renseignez au moins la marque, le modèle et l\'année pour analyser le marché')
+                return
+              }
+              setShowMarketSniper(true)
+            }}
+            variant="outline"
+            className="border-[#C4A484]/30 text-[#C4A484] hover:bg-[#C4A484]/10 h-11 px-6"
+          >
+            <Target size={18} className="mr-2" />
+            Analyser le Marché
+          </Button>
+
+          <Button
+            onClick={() => setShowMechanicGPT(true)}
+            variant="outline"
+            className="border-red-400/30 text-red-400 hover:bg-red-400/10 h-11 px-6"
+          >
+            <Wrench size={18} className="mr-2" />
+            Mechanic GPT
           </Button>
         </div>
 
@@ -674,6 +703,35 @@ function Sourcing() {
 
       {showSmartImport && (
         <SmartImportModal onClose={() => setShowSmartImport(false)} />
+      )}
+
+      {showMarketSniper && (
+        <MarketSniperModal
+          vehicle={{
+            brand: vehicle.brand,
+            model: vehicle.model,
+            trim: vehicle.trim,
+            year: vehicle.year,
+            mileage: vehicle.mileage || 0,
+            fuel: '', // Not available in current form state
+            gearbox: '', // Not available in current form state
+            color: vehicle.color,
+            purchasePrice: parseFloat(calc.purchasePrice) || 0,
+            costPrice: calculations.costPrice,
+          }}
+          onClose={() => setShowMarketSniper(false)}
+        />
+      )}
+
+      {showMechanicGPT && (
+        <MechanicGPTModal
+          onClose={() => setShowMechanicGPT(false)}
+          onAddToExpenses={(expense) => {
+            // Add CT repair cost to transport/fees for margin calculation
+            handleCalcChange('transportCost', (parseFloat(calc.transportCost) || 0) + expense.amount)
+            toast.success(`${expense.amount}€ ajoutés au calcul de frais`)
+          }}
+        />
       )}
     </div>
   )
