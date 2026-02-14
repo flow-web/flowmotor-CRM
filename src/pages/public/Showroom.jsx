@@ -8,9 +8,6 @@ import {
 } from 'lucide-react'
 import SEO from '../../components/SEO'
 
-// ═══════════════════════════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════════════════════════
 const ITEMS_PER_PAGE = 12
 const FAVORITES_KEY = 'flowmotor-favorites'
 
@@ -61,9 +58,6 @@ const SORT_OPTIONS = [
   { value: 'year_desc', label: 'Annee recente' },
 ]
 
-// ═══════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════
 function getFavoritesFromStorage() {
   try {
     const raw = localStorage.getItem(FAVORITES_KEY)
@@ -97,18 +91,13 @@ const formatKm = (km) => {
   return new Intl.NumberFormat('fr-FR').format(km) + ' km'
 }
 
-// ═══════════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════
 export default function Showroom() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
-  // --- Data ---
   const [vehicles, setVehicles] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // --- Filters ---
   const [selectedBrand, setSelectedBrand] = useState('')
   const [budgetRange, setBudgetRange] = useState(null)
   const [kmRange, setKmRange] = useState(null)
@@ -116,7 +105,6 @@ export default function Showroom() {
   const [selectedTransmission, setSelectedTransmission] = useState('')
   const [selectedFuel, setSelectedFuel] = useState('')
 
-  // --- UI State ---
   const [sortBy, setSortBy] = useState('recent')
   const [viewMode, setViewMode] = useState('grid')
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
@@ -124,14 +112,12 @@ export default function Showroom() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
 
-  // --- Brand Autocomplete ---
   const [brandSearch, setBrandSearch] = useState('')
   const [brandDropdownOpen, setBrandDropdownOpen] = useState(false)
   const brandInputRef = useRef(null)
   const brandDropdownRef = useRef(null)
   const sortRef = useRef(null)
 
-  // ── Override PublicLayout cream background ──
   useEffect(() => {
     const parent = document.querySelector('[data-theme="flowmotor"]')
     if (parent) {
@@ -146,7 +132,6 @@ export default function Showroom() {
     }
   }, [])
 
-  // ── Fetch vehicles ──
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
@@ -167,7 +152,6 @@ export default function Showroom() {
     fetchVehicles()
   }, [])
 
-  // ── Read query params from Home search module ──
   useEffect(() => {
     const brand = searchParams.get('brand')
     const budgetMax = searchParams.get('budgetMax')
@@ -186,18 +170,15 @@ export default function Showroom() {
     }
   }, [searchParams])
 
-  // ── Unique brands ──
   const uniqueBrands = useMemo(() => {
     return [...new Set(vehicles.map(v => v.brand).filter(Boolean))].sort()
   }, [vehicles])
 
-  // ── Filtered brands for autocomplete ──
   const filteredBrands = useMemo(() => {
     if (!brandSearch) return uniqueBrands
     return uniqueBrands.filter(b => b.toLowerCase().includes(brandSearch.toLowerCase()))
   }, [uniqueBrands, brandSearch])
 
-  // ── Close brand dropdown on outside click ──
   useEffect(() => {
     const handler = (e) => {
       if (
@@ -216,7 +197,6 @@ export default function Showroom() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // ── Lock scroll when drawer is open ──
   useEffect(() => {
     if (drawerOpen) {
       document.body.style.overflow = 'hidden'
@@ -226,37 +206,30 @@ export default function Showroom() {
     return () => { document.body.style.overflow = '' }
   }, [drawerOpen])
 
-  // ── Filtering Logic ──
   const filteredVehicles = useMemo(() => {
     let result = vehicles.filter(v => {
-      // Brand
       if (selectedBrand && v.brand !== selectedBrand) return false
 
-      // Budget range
       if (budgetRange) {
         const price = v.selling_price || 0
         if (budgetRange.min && price < budgetRange.min) return false
         if (budgetRange.max && price > budgetRange.max) return false
       }
 
-      // KM range
       if (kmRange) {
         const km = v.mileage || 0
         if (kmRange.min && km < kmRange.min) return false
         if (kmRange.max && km > kmRange.max) return false
       }
 
-      // Color (visual only — skip if no data column)
-      // selectedColors is kept for UI state but not filtered until DB has color data
+      // selectedColors: filtrage desactive tant que la colonne DB n'existe pas
 
-      // Transmission (client-side on object property if available)
       if (selectedTransmission && v.transmission) {
         const vTrans = v.transmission.toLowerCase()
         if (selectedTransmission === 'automatic' && !vTrans.includes('auto')) return false
         if (selectedTransmission === 'manual' && !vTrans.includes('manu')) return false
       }
 
-      // Fuel (client-side on object property if available)
       if (selectedFuel && v.fuel) {
         const vFuel = v.fuel.toLowerCase()
         if (!vFuel.includes(selectedFuel)) return false
@@ -265,7 +238,6 @@ export default function Showroom() {
       return true
     })
 
-    // Sort
     switch (sortBy) {
       case 'price_asc':
         result.sort((a, b) => (a.selling_price || 0) - (b.selling_price || 0))
@@ -289,7 +261,6 @@ export default function Showroom() {
   const visibleVehicles = filteredVehicles.slice(0, visibleCount)
   const hasMore = visibleCount < filteredVehicles.length
 
-  // ── Actions ──
   const hasActiveFilters = selectedBrand || budgetRange || kmRange || selectedColors.length > 0 || selectedTransmission || selectedFuel
   const activeFilterCount = [selectedBrand, budgetRange, kmRange, selectedColors.length > 0, selectedTransmission, selectedFuel].filter(Boolean).length
 
@@ -337,12 +308,8 @@ export default function Showroom() {
     setVisibleCount(ITEMS_PER_PAGE)
   }, [])
 
-  // ═══════════════════════════════════════════════════════════
-  // FILTER PANEL (shared between sidebar and drawer)
-  // ═══════════════════════════════════════════════════════════
   const FilterPanel = ({ onClose }) => (
     <div className="flex flex-col h-full">
-      {/* Header (mobile only) */}
       {onClose && (
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div className="flex items-center gap-3">
@@ -366,7 +333,6 @@ export default function Showroom() {
 
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
 
-        {/* ── Brand Autocomplete ── */}
         <div>
           <label className="text-[11px] uppercase tracking-[0.2em] text-[#F4E8D8]/35 font-medium mb-3 block">
             Marque
@@ -418,7 +384,6 @@ export default function Showroom() {
           )}
         </div>
 
-        {/* ── Budget Chips ── */}
         <div>
           <label className="text-[11px] uppercase tracking-[0.2em] text-[#F4E8D8]/35 font-medium mb-3 block">
             Budget

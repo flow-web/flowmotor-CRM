@@ -461,17 +461,14 @@ function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
         </div>
 
-        {/* Ambient glow */}
         <div className="absolute -top-32 right-10 h-80 w-80 rounded-full bg-[#C4A484]/10 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-[#5C3A2E]/20 blur-[100px] pointer-events-none" />
 
-        {/* Content */}
         <div className="relative w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div
             className="text-center max-w-4xl mx-auto"
             style={{ animation: 'soft-rise 0.8s ease-out' }}
           >
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C4A484]/15 border border-[#C4A484]/30 mb-5">
               <Sparkles size={14} className="text-[#C4A484]" />
               <span className="text-xs uppercase tracking-[0.3em] font-medium text-[#C4A484]">
@@ -479,22 +476,18 @@ function Home() {
               </span>
             </div>
 
-            {/* Title */}
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white leading-[1.1] text-balance">
               L&apos;excellence automobile,{' '}
               <span className="text-[#C4A484]">sélectionnée</span> pour vous.
             </h1>
 
-            {/* Subtitle */}
             <p className="mt-6 text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed">
               Véhicules rares, préparation atelier complète et accompagnement sur-mesure
               pour une expérience d&apos;achat premium.
             </p>
 
-            {/* ─── SEARCH MODULE ─── */}
             <div className="mt-8 glass-panel p-4 md:p-5 max-w-4xl mx-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Brand */}
                 <div className="text-left">
                   <label className="text-[10px] uppercase tracking-[0.2em] text-[#F4E8D8]/30 mb-1.5 block font-medium">
                     Marque
@@ -513,7 +506,6 @@ function Home() {
                   </select>
                 </div>
 
-                {/* Model */}
                 <div className="text-left">
                   <label className="text-[10px] uppercase tracking-[0.2em] text-[#F4E8D8]/30 mb-1.5 block font-medium">
                     Modèle
@@ -539,7 +531,6 @@ function Home() {
                   </select>
                 </div>
 
-                {/* Budget */}
                 <div className="text-left">
                   <label className="text-[10px] uppercase tracking-[0.2em] text-[#F4E8D8]/30 mb-1.5 block font-medium">
                     Budget max
@@ -557,7 +548,6 @@ function Home() {
                   </select>
                 </div>
 
-                {/* Year Min */}
                 <div className="text-left">
                   <label className="text-[10px] uppercase tracking-[0.2em] text-[#F4E8D8]/30 mb-1.5 block font-medium">
                     Année min
@@ -576,7 +566,6 @@ function Home() {
                 </div>
               </div>
 
-              {/* CTA Button */}
               <button
                 onClick={handleSearch}
                 className="mt-5 w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-[#C4A484] text-[#1A0F0F] font-bold text-base hover:bg-[#D4B494] active:scale-[0.98] transition-all duration-300 focus:ring-2 focus:ring-[#C4A484]/50 focus:outline-none"
@@ -593,7 +582,6 @@ function Home() {
               </button>
             </div>
 
-            {/* Wizard link */}
             <button
               onClick={() => setWizardOpen(true)}
               className="mt-6 inline-flex items-center gap-2 text-sm text-white/40 hover:text-[#C4A484] transition-colors duration-300 group"
@@ -612,11 +600,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          DERNIERS ARRIVAGES
-          ══════════════════════════════════════ */}
       <section className="relative py-8 md:py-10 overflow-hidden">
-        {/* Watermark */}
         <img
           src="/assets/gears.svg"
           alt=""
@@ -626,7 +610,6 @@ function Home() {
         />
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Section header */}
           <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484] mb-2">
@@ -648,7 +631,6 @@ function Home() {
             </Link>
           </div>
 
-          {/* Vehicle grid */}
           {isLoading ? (
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(3)].map((_, i) => (
@@ -691,11 +673,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          REASSURANCE / FEATURES
-          ══════════════════════════════════════ */}
       <section className="relative py-8 md:py-10 overflow-hidden">
-        {/* Watermark */}
         <img
           src="/assets/gear-motion.svg"
           alt=""
@@ -704,13 +682,11 @@ function Home() {
           style={{ filter: 'brightness(0)' }}
         />
 
-        {/* Ambient blurs */}
         <div className="absolute -left-10 top-10 h-56 w-56 rounded-full bg-[#5C3A2E]/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-[#C4A484]/5 blur-3xl pointer-events-none" />
 
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid gap-5 lg:grid-cols-2 lg:items-center">
-            {/* Left: Atelier CTA card */}
             <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#5C3A2E] to-[#3D1E1E] p-5 md:p-8 border border-[#C4A484]/10">
               <span className="text-xs uppercase tracking-[0.3em] text-[#C4A484]/70">
                 Atelier FLOW MOTOR
@@ -733,7 +709,6 @@ function Home() {
               </div>
             </div>
 
-            {/* Right: Feature cards */}
             <div className="grid gap-3">
               {[
                 {
@@ -777,15 +752,11 @@ function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          SOURCING CTA BANNER
-          ══════════════════════════════════════ */}
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 md:pb-10">
         <Link
           to="/contact"
           className="block relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5C3A2E] to-[#3D1E1E] p-5 md:p-8 group border border-[#C4A484]/10 hover:border-[#C4A484]/30 transition-colors duration-500"
         >
-          {/* Glow */}
           <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-[#C4A484]/10 blur-2xl group-hover:bg-[#C4A484]/20 transition-colors duration-500" />
 
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -811,7 +782,6 @@ function Home() {
         </Link>
       </section>
 
-      {/* Wizard Modal */}
       <WizardModal isOpen={wizardOpen} onClose={() => setWizardOpen(false)} />
     </main>
   )
