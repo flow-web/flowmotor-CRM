@@ -253,7 +253,6 @@ export default function MagicFillForm({ onApply, onClose }) {
           </div>
         )}
 
-        {/* Extract Button */}
         <button
           onClick={handleExtract}
           disabled={isLoading}
@@ -273,7 +272,6 @@ export default function MagicFillForm({ onApply, onClose }) {
         </button>
       </div>
 
-      {/* Extracted Data Preview */}
       {extractedData && (
         <div className="p-6 border-t border-white/10 bg-white/5">
           <div className="flex items-center gap-2 mb-4">
@@ -296,7 +294,6 @@ export default function MagicFillForm({ onApply, onClose }) {
               ))}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-3 mt-6">
             <button
               onClick={handleApply}
@@ -318,7 +315,6 @@ export default function MagicFillForm({ onApply, onClose }) {
   )
 }
 
-// Helper: Format field name for display
 function formatFieldName(key) {
   const labels = {
     brand: 'Marque',
@@ -370,7 +366,6 @@ function formatFieldName(key) {
   return labels[key] || key
 }
 
-// Helper: Format field value for display
 function formatFieldValue(key, value) {
   if (typeof value === 'boolean') {
     return value ? 'Oui' : 'Non'

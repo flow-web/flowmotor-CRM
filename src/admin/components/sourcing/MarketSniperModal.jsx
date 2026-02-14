@@ -12,22 +12,18 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysis, setAnalysis] = useState(null)
 
-  // Calculate deal metrics
   const calculateDealMetrics = (marketData) => {
     const purchasePrice = parseFloat(vehicle.purchasePrice) || 0
     const costPrice = parseFloat(vehicle.costPrice) || purchasePrice
     const avgMarketPrice = marketData.averagePrice
 
-    // Potential margin if sold at average market price
     const potentialMargin = avgMarketPrice - costPrice
     const potentialMarginPercent = costPrice > 0 ? (potentialMargin / avgMarketPrice) * 100 : 0
 
-    // Deal quality: how much below market are we buying?
     const marketDiscount = avgMarketPrice - purchasePrice
     const marketDiscountPercent = avgMarketPrice > 0 ? (marketDiscount / avgMarketPrice) * 100 : 0
 
-    // Classify deal quality
-    let dealQuality = 'danger' // Red
+    let dealQuality = 'danger'
     let dealLabel = 'Prix élevé'
     let dealIcon = XCircle
 
@@ -116,12 +112,9 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Panel */}
       <div className="relative bg-[#1A1414] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 z-10 bg-[#1A1414] border-b border-white/10 px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#C4A484]/20 rounded-lg">
@@ -141,7 +134,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Vehicle summary */}
           <div className="bg-[#0f0a0a] rounded-xl p-4 border border-white/5">
             <h3 className="text-white font-medium mb-2">
               {vehicle.year} {vehicle.brand} {vehicle.model}
@@ -171,7 +163,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
             )}
           </div>
 
-          {/* Analyze button */}
           {!analysis && (
             <Button
               onClick={handleAnalyze}
@@ -199,10 +190,8 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
             </div>
           )}
 
-          {/* Analysis results */}
           {analysis && metrics && (
             <>
-              {/* Deal Quality Gauge */}
               <div className="bg-[#0f0a0a] rounded-xl p-5 border border-white/5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-white font-medium flex items-center gap-2">
@@ -221,7 +210,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                   </span>
                 </div>
 
-                {/* Visual gauge */}
                 <div className="relative h-3 bg-white/5 rounded-full overflow-hidden mb-2">
                   <div
                     className={`absolute top-0 left-0 h-full rounded-full transition-all ${
@@ -253,7 +241,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                 </div>
               </div>
 
-              {/* Market price range */}
               <div className="bg-[#0f0a0a] rounded-xl p-5 border border-white/5">
                 <h3 className="text-white/50 text-xs uppercase tracking-wider mb-4">
                   Fourchette de prix marché
@@ -287,9 +274,7 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                   </div>
                 </div>
 
-                {/* Visual price range */}
                 <div className="mt-4 relative h-2 bg-gradient-to-r from-red-500/20 via-yellow-500/20 to-green-500/20 rounded-full">
-                  {/* Purchase price marker */}
                   <div
                     className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-[#C4A484] border-2 border-[#1A1414] rounded-full"
                     style={{
@@ -305,7 +290,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                 </div>
               </div>
 
-              {/* Estimated margin */}
               <div className="bg-[#0f0a0a] rounded-xl p-5 border border-white/5">
                 <h3 className="text-white/50 text-xs uppercase tracking-wider mb-4">
                   Marge brute estimée
@@ -351,7 +335,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                 )}
               </div>
 
-              {/* Liquidity score */}
               <div className="bg-[#0f0a0a] rounded-xl p-5 border border-white/5">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-white/50 text-xs uppercase tracking-wider">Score de liquidité</h3>
@@ -372,7 +355,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                 </p>
               </div>
 
-              {/* Market notes */}
               {analysis.marketNotes && (
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 flex items-start gap-3">
                   <Info size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
@@ -382,7 +364,6 @@ export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
                 </div>
               )}
 
-              {/* Apply price + Re-analyze buttons */}
               <div className="flex gap-3">
                 {onApplyPrice && (
                   <Button

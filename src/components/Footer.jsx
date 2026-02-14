@@ -1,11 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Mail, Phone, Instagram, ArrowRight, Star, ExternalLink } from 'lucide-react'
 
-/* ──────────────────────────────────────────────────────────
-   Footer - Flow Motor Public Site
-   Charte "Luxe Old School Freestyle"
-   ────────────────────────────────────────────────────────── */
-
 const BRAND_MARQUEE = [
   'Audi', 'BMW', 'Mercedes-Benz', 'Porsche', 'Volkswagen',
   'Toyota', 'Nissan', 'Subaru', 'Mazda', 'Lexus',
@@ -34,8 +29,6 @@ const LEGAL_LINKS = [
   { label: 'Confidentialite', to: '/confidentialite' },
   { label: 'Cookies', to: '/cookies' },
 ]
-
-/* ── Inline SVG Icons (Lucide doesn't have these) ── */
 
 function TikTokIcon({ size = 18, className = '' }) {
   return (
@@ -102,15 +95,12 @@ const SOCIAL_LINKS = [
   { label: 'YouTube', href: 'https://youtube.com/@flowmotor', Icon: YouTubeIcon },
 ]
 
-/* ══════════════════════════════════════════════════════════ */
-
 function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
     <footer className="relative" style={{ background: 'linear-gradient(to bottom, #0D0707, #1A0F0F)' }}>
 
-      {/* ──── 1. Brand Marquee Banner ──── */}
       <div className="border-t border-[#C4A484]/20">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-center gap-0 overflow-hidden whitespace-nowrap">
@@ -130,12 +120,10 @@ function Footer() {
         </div>
       </div>
 
-      {/* ──── 2. Main Section (4 columns) ──── */}
       <div className="border-t border-white/5">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid gap-8 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 
-            {/* Column 1 - Brand */}
             <div className="space-y-4 sm:col-span-2 lg:col-span-1">
               <Link to="/" className="inline-block group">
                 <img
@@ -149,7 +137,6 @@ function Footer() {
                 Specialiste import automobile depuis Lyon. Vehicules premium selectionnes en Suisse, Allemagne et Japon.
               </p>
 
-              {/* Social Icons */}
               <div className="flex items-center gap-3 pt-1">
                 {SOCIAL_LINKS.map(({ label, href, Icon }) => (
                   <a
@@ -170,7 +157,6 @@ function Footer() {
               </div>
             </div>
 
-            {/* Column 2 - Navigation */}
             <div className="space-y-4">
               <h6 className="text-xs uppercase tracking-[0.2em] text-white/40 font-sans font-medium">
                 Navigation
@@ -188,7 +174,6 @@ function Footer() {
               </nav>
             </div>
 
-            {/* Column 3 - Services */}
             <div className="space-y-4">
               <h6 className="text-xs uppercase tracking-[0.2em] text-white/40 font-sans font-medium">
                 Services
@@ -206,13 +191,11 @@ function Footer() {
               </nav>
             </div>
 
-            {/* Column 4 - Contact */}
             <div className="space-y-4">
               <h6 className="text-xs uppercase tracking-[0.2em] text-white/40 font-sans font-medium">
                 Contact
               </h6>
               <div className="space-y-4">
-                {/* Lyon */}
                 <div className="space-y-2">
                   <div className="flex items-start gap-2.5">
                     <MapPin size={15} className="text-[#C4A484]/60 shrink-0 mt-0.5" />
@@ -232,7 +215,6 @@ function Footer() {
                   </div>
                 </div>
 
-                {/* Geneve */}
                 <div className="space-y-2">
                   <div className="flex items-start gap-2.5">
                     <MapPin size={15} className="text-[#C4A484]/60 shrink-0 mt-0.5" />
@@ -252,7 +234,6 @@ function Footer() {
                   </div>
                 </div>
 
-                {/* Email */}
                 <div className="flex items-center gap-2.5 pt-1">
                   <Mail size={15} className="text-[#C4A484]/60 shrink-0" />
                   <a
@@ -268,11 +249,9 @@ function Footer() {
         </div>
       </div>
 
-      {/* ──── 3. Google Reviews Banner ──── */}
       <div className="border-t border-white/5">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5">
-            {/* Stars */}
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -283,7 +262,6 @@ function Footer() {
               ))}
             </div>
 
-            {/* Rating */}
             <div className="flex items-center gap-3">
               <span className="font-display text-2xl font-semibold text-[#C4A484]">
                 4.9/5
@@ -293,7 +271,6 @@ function Footer() {
               </span>
             </div>
 
-            {/* CTA Link */}
             <a
               href="https://g.page/flowmotor/review"
               target="_blank"
@@ -312,7 +289,6 @@ function Footer() {
         </div>
       </div>
 
-      {/* ──── 4. Bottom Bar ──── */}
       <div className="border-t border-white/5">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3
                         flex flex-col sm:flex-row items-center justify-between gap-3

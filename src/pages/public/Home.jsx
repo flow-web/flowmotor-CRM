@@ -9,10 +9,6 @@ import { supabase } from '../../lib/supabase'
 import SEO from '../../components/SEO'
 import heroImage from '../../assets/images/hero-main.jpg'
 
-/* ═══════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════ */
-
 const formatPrice = (price) => {
   if (!price) return 'Sur demande'
   return new Intl.NumberFormat('fr-FR', {
@@ -26,10 +22,6 @@ const formatKm = (km) => {
   if (!km) return 'N/C'
   return new Intl.NumberFormat('fr-FR').format(km) + ' km'
 }
-
-/* ═══════════════════════════════════════════════
-   CONSTANTS
-   ═══════════════════════════════════════════════ */
 
 const BUDGET_OPTIONS = [
   { value: '', label: 'Pas de limite' },
@@ -80,10 +72,6 @@ const USAGE_TYPES = [
   { id: 'sport', label: 'Sport', icon: Trophy },
   { id: 'tous', label: 'Tous usages', icon: Car },
 ]
-
-/* ═══════════════════════════════════════════════
-   WIZARD MODAL
-   ═══════════════════════════════════════════════ */
 
 function WizardModal({ isOpen, onClose }) {
   const navigate = useNavigate()
@@ -156,18 +144,15 @@ function WizardModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={handleClose}
       />
 
-      {/* Modal */}
       <div
         className="relative w-full max-w-2xl bg-[#1A0F0F] border border-white/10 rounded-2xl overflow-hidden"
         style={{ animation: 'soft-rise 0.4s ease-out' }}
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484] mb-1">
@@ -187,7 +172,6 @@ function WizardModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-4">
           <div className={`grid gap-3 ${
             current.items.length <= 4
@@ -219,9 +203,7 @@ function WizardModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between p-4 border-t border-white/10">
-          {/* Progress dots */}
           <div className="flex items-center gap-2">
             {Array.from({ length: totalSteps }, (_, i) => (
               <div
@@ -237,7 +219,6 @@ function WizardModal({ isOpen, onClose }) {
             ))}
           </div>
 
-          {/* Navigation */}
           <div className="flex items-center gap-3">
             {step > 1 && (
               <button
@@ -272,10 +253,6 @@ function WizardModal({ isOpen, onClose }) {
   )
 }
 
-/* ═══════════════════════════════════════════════
-   VEHICLE CARD V2
-   ═══════════════════════════════════════════════ */
-
 function VehicleCardV2({ vehicle }) {
   const primaryImage =
     vehicle.images?.find((img) => img.isPrimary)?.url ||
@@ -293,7 +270,6 @@ function VehicleCardV2({ vehicle }) {
       to={`/vehicule/${vehicle.id}`}
       className="group flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.07] hover:border-[#C4A484]/30 hover:shadow-xl hover:shadow-[#C4A484]/10 transition-all duration-500"
     >
-      {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-[#2A1515]">
         {primaryImage ? (
           <img
@@ -312,10 +288,8 @@ function VehicleCardV2({ vehicle }) {
             <span className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/20">Photo à venir</span>
           </div>
         )}
-        {/* Gradient overlay */}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
 
-        {/* Status badge */}
         <div className="absolute left-3 top-3">
           <span
             className={`px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide ${statusClasses}`}
@@ -325,7 +299,6 @@ function VehicleCardV2({ vehicle }) {
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-4 flex flex-col flex-1">
         <h3 className="text-lg font-display font-semibold text-[#F4E8D8] group-hover:text-[#C4A484] transition-colors line-clamp-1">
           {vehicle.brand} {vehicle.model}
@@ -336,7 +309,6 @@ function VehicleCardV2({ vehicle }) {
           </p>
         )}
 
-        {/* Specs row */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-[#F4E8D8]/50">
           {vehicle.year && (
             <span className="flex items-center gap-1.5">
@@ -356,7 +328,6 @@ function VehicleCardV2({ vehicle }) {
           )}
         </div>
 
-        {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
           <span className="text-2xl font-display font-semibold text-[#C4A484]">
             {formatPrice(vehicle.selling_price)}
@@ -374,23 +345,17 @@ function VehicleCardV2({ vehicle }) {
   )
 }
 
-/* ═══════════════════════════════════════════════
-   HOME PAGE
-   ═══════════════════════════════════════════════ */
-
 function Home() {
   const navigate = useNavigate()
   const [vehicles, setVehicles] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [wizardOpen, setWizardOpen] = useState(false)
 
-  // Search module state
   const [selectedBrand, setSelectedBrand] = useState('')
   const [selectedModel, setSelectedModel] = useState('')
   const [selectedBudget, setSelectedBudget] = useState('')
   const [selectedYear, setSelectedYear] = useState('')
 
-  // Fetch all available vehicles
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
@@ -411,12 +376,10 @@ function Home() {
     fetchVehicles()
   }, [])
 
-  // Unique brands from live data
   const uniqueBrands = useMemo(() => {
     return [...new Set(vehicles.map((v) => v.brand).filter(Boolean))].sort()
   }, [vehicles])
 
-  // Models filtered by selected brand
   const availableModels = useMemo(() => {
     if (!selectedBrand) return []
     return [
@@ -429,13 +392,11 @@ function Home() {
     ].sort()
   }, [vehicles, selectedBrand])
 
-  // Reset model when brand changes
   const handleBrandChange = useCallback((value) => {
     setSelectedBrand(value)
     setSelectedModel('')
   }, [])
 
-  // Count matching vehicles (live filtering)
   const matchingCount = useMemo(() => {
     return vehicles.filter((v) => {
       if (selectedBrand && v.brand !== selectedBrand) return false
@@ -447,12 +408,10 @@ function Home() {
     }).length
   }, [vehicles, selectedBrand, selectedModel, selectedBudget, selectedYear])
 
-  // Featured vehicles (3 latest)
   const featuredVehicles = useMemo(() => {
     return vehicles.slice(0, 6)
   }, [vehicles])
 
-  // Navigate to showroom with filters
   const handleSearch = () => {
     const params = new URLSearchParams()
     if (selectedBrand) params.set('brand', selectedBrand)
@@ -463,7 +422,6 @@ function Home() {
     navigate(query ? `/showroom?${query}` : '/showroom')
   }
 
-  // Schema.org JSON-LD
   const autoDealerJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'AutoDealer',
@@ -492,11 +450,7 @@ function Home() {
         jsonLd={autoDealerJsonLd}
       />
 
-      {/* ══════════════════════════════════════
-          HERO SECTION
-          ══════════════════════════════════════ */}
       <section className="relative overflow-hidden min-h-[92vh] flex items-center">
-        {/* Background Image */}
         <div className="absolute inset-0">
           <img
             src={heroImage}

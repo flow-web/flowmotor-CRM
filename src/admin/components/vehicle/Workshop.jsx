@@ -84,7 +84,6 @@ export default function Workshop({ vehicleId, purchasePrice }) {
 
   return (
     <div className="space-y-6 animate-in fade-in">
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-[#1A0F0F] p-4 rounded-xl border border-white/10">
           <p className="text-white/40 text-xs uppercase mb-1">Total Achat</p>
@@ -100,7 +99,6 @@ export default function Workshop({ vehicleId, purchasePrice }) {
         </div>
       </div>
 
-      {/* Mechanic GPT — CT Analyzer */}
       <div className="bg-[#1A0F0F] border border-white/10 rounded-xl p-5">
         <CTAnalyzer
           vehicleId={vehicleId}
@@ -114,7 +112,6 @@ export default function Workshop({ vehicleId, purchasePrice }) {
         />
       </div>
 
-      {/* Formulaire */}
       <div className="bg-[#1A0F0F] border border-white/10 rounded-xl p-5">
         <h3 className="text-[#F4E8D8] font-medium mb-4 flex items-center gap-2">
           <Wrench size={18} /> Ajouter un frais atelier
@@ -175,7 +172,6 @@ export default function Workshop({ vehicleId, purchasePrice }) {
         </form>
       </div>
 
-      {/* Liste */}
       <div className="space-y-2">
         {workshopCosts.length === 0 ? (
           <div className="text-center py-8 bg-white/5 rounded-xl border border-dashed border-white/10">

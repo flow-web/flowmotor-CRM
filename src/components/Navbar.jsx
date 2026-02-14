@@ -2,12 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Heart, User, Menu, X, ChevronRight, Car, Phone } from 'lucide-react'
 
-/**
- * Navbar - Navigation principale du site public FLOW MOTOR
- * Fixed top, h-20, fond noir profond semi-transparent avec backdrop blur
- * Charte "Luxe Old School Freestyle"
- */
-
 const NAV_LINKS = [
   { name: 'Stock', path: '/showroom' },
   { name: 'Financement', path: '/services' },
@@ -50,7 +44,6 @@ function Navbar() {
   const profileModalRef = useRef(null)
   const navRef = useRef(null)
 
-  // Sync favorites from localStorage on storage event (cross-tab)
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === FAVORITES_KEY) {
@@ -61,7 +54,6 @@ function Navbar() {
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
 
-  // Also poll localStorage periodically to catch same-tab updates from Showroom
   useEffect(() => {
     const interval = setInterval(() => {
       const stored = getFavoritesFromStorage()
@@ -73,7 +65,6 @@ function Navbar() {
     return () => clearInterval(interval)
   }, [])
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (favoritesRef.current && !favoritesRef.current.contains(e.target)) {
@@ -90,14 +81,12 @@ function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false)
     setFavoritesOpen(false)
     setProfileOpen(false)
   }, [location.pathname])
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden'
@@ -133,7 +122,6 @@ function Navbar() {
       >
         <div className="flex justify-between items-center h-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* ========== LEFT: Logo ========== */}
           <Link to="/" className="flex items-center group">
             <img
               src="/assets/logo-cream.svg"
@@ -142,7 +130,6 @@ function Navbar() {
             />
           </Link>
 
-          {/* ========== CENTER: Desktop Navigation ========== */}
           <div className="hidden lg:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <Link
@@ -158,7 +145,6 @@ function Navbar() {
                 `}
               >
                 {link.name}
-                {/* Active underline */}
                 <span
                   className={`
                     absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-[#C4A484] rounded-full
@@ -170,10 +156,8 @@ function Navbar() {
             ))}
           </div>
 
-          {/* ========== RIGHT: User Zone ========== */}
           <div className="flex items-center gap-2">
 
-            {/* --- Favorites Button --- */}
             <div ref={favoritesRef} className="relative">
               <button
                 onClick={() => { setFavoritesOpen(!favoritesOpen); setProfileOpen(false) }}
@@ -196,7 +180,6 @@ function Navbar() {
                 )}
               </button>
 
-              {/* Favorites Dropdown */}
               {favoritesOpen && (
                 <div className="absolute right-0 top-14 w-80 bg-[#1A0F0F] border border-white/10 rounded-xl
                                 shadow-2xl shadow-black/50 overflow-hidden
@@ -280,7 +263,6 @@ function Navbar() {
               )}
             </div>
 
-            {/* --- Profile Button --- */}
             <div ref={profileRef} className="relative">
               <button
                 onClick={() => { setProfileOpen(!profileOpen); setFavoritesOpen(false) }}
@@ -293,7 +275,6 @@ function Navbar() {
               </button>
             </div>
 
-            {/* --- Mobile Burger --- */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden flex items-center justify-center h-10 w-10 rounded-full
@@ -320,16 +301,13 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* ========== PROFILE MODAL (Glassmorphism) ========== */}
       {profileOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
             onClick={() => setProfileOpen(false)}
           />
 
-          {/* Modal */}
           <div
             ref={profileModalRef}
             className="relative w-full max-w-sm rounded-2xl overflow-hidden
@@ -338,7 +316,6 @@ function Navbar() {
                         animate-[fadeScaleIn_0.3s_ease-out]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
             <button
               onClick={() => setProfileOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-full text-white/30 hover:text-white/60
@@ -348,7 +325,6 @@ function Navbar() {
               <X size={18} />
             </button>
 
-            {/* Header */}
             <div className="pt-10 pb-6 px-8 text-center">
               <div className="mx-auto mb-5 flex items-center justify-center h-16 w-16 rounded-full
                               bg-gradient-to-br from-[#C4A484]/20 to-[#C4A484]/5 border border-[#C4A484]/20">
@@ -358,7 +334,6 @@ function Navbar() {
               <p className="text-sm text-white/40">Connectez-vous a votre espace</p>
             </div>
 
-            {/* Options */}
             <div className="px-8 space-y-3">
               <button
                 onClick={(e) => {
@@ -405,14 +380,12 @@ function Navbar() {
               </button>
             </div>
 
-            {/* Divider */}
             <div className="mx-8 my-5 flex items-center gap-3">
               <div className="flex-1 h-px bg-white/[0.06]" />
               <span className="text-[10px] uppercase tracking-widest text-white/20">ou</span>
               <div className="flex-1 h-px bg-white/[0.06]" />
             </div>
 
-            {/* Google Button */}
             <div className="px-8 pb-8">
               <button
                 className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl
@@ -433,7 +406,6 @@ function Navbar() {
         </div>
       )}
 
-      {/* ========== MOBILE FULL-SCREEN MENU ========== */}
       <div
         className={`
           fixed inset-0 z-[55] lg:hidden
@@ -444,17 +416,14 @@ function Navbar() {
           }
         `}
       >
-        {/* Backdrop */}
         <div
           className={`absolute inset-0 bg-[#1A0F0F]/98 backdrop-blur-2xl transition-opacity duration-500
             ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
         />
 
-        {/* Content */}
         <div className={`relative flex flex-col h-full pt-24 pb-8 px-6 transition-transform duration-500
           ${mobileMenuOpen ? 'translate-y-0' : '-translate-y-4'}`}>
 
-          {/* Navigation Links */}
           <div className="flex-1 flex flex-col justify-center -mt-16">
             <div className="space-y-2">
               {NAV_LINKS.map((link, index) => (
@@ -481,9 +450,7 @@ function Navbar() {
             </div>
           </div>
 
-          {/* Mobile User Zone */}
           <div className="space-y-3 pt-6 border-t border-white/5">
-            {/* Favorites summary */}
             <Link
               to="/showroom"
               onClick={() => setMobileMenuOpen(false)}
@@ -499,7 +466,6 @@ function Navbar() {
               <ChevronRight size={16} className="text-white/20" />
             </Link>
 
-            {/* Profile link */}
             <button
               onClick={() => { setMobileMenuOpen(false); setTimeout(() => setProfileOpen(true), 350) }}
               className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] transition-colors w-full text-left"
@@ -512,7 +478,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* ========== CUSTOM ANIMATIONS (inline style tag) ========== */}
       <style>{`
         @keyframes fadeSlideDown {
           from { opacity: 0; transform: translateY(-8px); }
