@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Car, Users, Menu, X, Plus, Receipt, Book, Settings, Search, LogOut, Camera, Upload } from 'lucide-react'
+import { LayoutDashboard, Car, Users, Menu, X, Plus, Receipt, Book, Settings, Search, LogOut, Camera, Upload, GitBranch, CalendarDays } from 'lucide-react'
 import { useUI } from '../../context/UIContext'
 import { useAuth } from '../../context/AuthContext'
 
@@ -14,6 +14,8 @@ const primaryTabs = [
 
 const moreMenuItems = [
   { path: '/admin/sourcing', label: 'Sourcing', icon: Search },
+  { path: '/admin/pipeline', label: 'Pipeline', icon: GitBranch },
+  { path: '/admin/agenda', label: 'Agenda', icon: CalendarDays },
   { path: '/admin/clients', label: 'Clients', icon: Users },
   { path: '/admin/invoices', label: 'Factures', icon: Receipt },
   { path: '/admin/police', label: 'Livre de Police', icon: Book },

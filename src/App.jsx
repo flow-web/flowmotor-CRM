@@ -46,6 +46,8 @@ const Clients = lazy(() => import('./admin/pages/Clients'))
 const Leads = lazy(() => import('./admin/pages/Leads'))
 const Invoices = lazy(() => import('./admin/pages/Invoices'))
 const PoliceRegister = lazy(() => import('./admin/pages/PoliceRegister'))
+const Pipeline = lazy(() => import('./admin/pages/Pipeline'))
+const Agenda = lazy(() => import('./admin/pages/Agenda'))
 const Settings = lazy(() => import('./admin/pages/Settings'))
 
 /** Spinner de chargement pour les routes lazy */
@@ -144,6 +146,8 @@ function App() {
                 <Route path="/admin/clients" element={<Clients />} />
                 <Route path="/admin/leads" element={<Leads />} />
                 <Route path="/admin/invoices" element={<Invoices />} />
+                <Route path="/admin/pipeline" element={<Pipeline />} />
+                <Route path="/admin/agenda" element={<Agenda />} />
                 <Route path="/admin/police" element={<PoliceRegister />} />
                 <Route path="/admin/settings" element={<Settings />} />
               </Route>
