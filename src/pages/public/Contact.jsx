@@ -162,7 +162,7 @@ function Contact() {
       {/* ══════════════════════════════════════
           HERO
          ══════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-20 sm:py-24">
+      <section className="relative overflow-hidden py-10 sm:py-12">
         {/* Ambient orbs */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
           <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#C4A484]/[0.04] blur-[120px]" />
@@ -179,7 +179,7 @@ function Contact() {
           style={{ filter: 'brightness(0) invert(1)' }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{ animation: 'fadeSlideUp 0.6s ease-out' }}>
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{ animation: 'fadeSlideUp 0.6s ease-out' }}>
           <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484] font-sans font-medium">
             Conciergerie automobile
           </p>
@@ -191,7 +191,7 @@ function Contact() {
             de votre prochain vehicule d'exception.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-sm text-white/60">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-sm text-white/60">
             <span className="flex items-center gap-2">
               <Clock size={16} className="text-[#C4A484]" />
               Reponse sous 24h
@@ -211,19 +211,19 @@ function Contact() {
       {/* ══════════════════════════════════════
           CONTACT GRID — 2 columns
          ══════════════════════════════════════ */}
-      <section className="relative pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] items-start">
+      <section className="relative pb-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-5 lg:grid-cols-[1fr_1.2fr] items-start">
 
             {/* ── LEFT COLUMN: Contact Info + Hours + Map ── */}
-            <div className="space-y-6" style={{ animation: 'fadeSlideUp 0.6s ease-out 0.1s both' }}>
+            <div className="space-y-4" style={{ animation: 'fadeSlideUp 0.6s ease-out 0.1s both' }}>
 
               {/* Phone cards */}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                 {/* Lyon */}
                 <a
                   href="tel:+33412345678"
-                  className="group flex items-start gap-4 rounded-2xl border border-[#C4A484]/20 bg-white/[0.03] backdrop-blur-xl p-6 transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-lg hover:shadow-[#C4A484]/5"
+                  className="group flex items-start gap-4 rounded-2xl border border-[#C4A484]/20 bg-white/[0.03] backdrop-blur-xl p-4 transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-lg hover:shadow-[#C4A484]/5"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C4A484]/10 flex-shrink-0 transition-all duration-300 group-hover:bg-[#C4A484]/20">
                     <Phone size={20} className="text-[#C4A484]" />
@@ -241,7 +241,7 @@ function Contact() {
                 {/* Geneva */}
                 <a
                   href="tel:+41221234567"
-                  className="group flex items-start gap-4 rounded-2xl border border-[#C4A484]/20 bg-white/[0.03] backdrop-blur-xl p-6 transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-lg hover:shadow-[#C4A484]/5"
+                  className="group flex items-start gap-4 rounded-2xl border border-[#C4A484]/20 bg-white/[0.03] backdrop-blur-xl p-4 transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-lg hover:shadow-[#C4A484]/5"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C4A484]/10 flex-shrink-0 transition-all duration-300 group-hover:bg-[#C4A484]/20">
                     <Phone size={20} className="text-[#C4A484]" />
@@ -260,7 +260,7 @@ function Contact() {
               {/* Email card */}
               <a
                 href="mailto:contact@flowmotor.fr"
-                className="group flex items-start gap-4 rounded-2xl border border-[#C4A484]/20 bg-white/[0.03] backdrop-blur-xl p-6 transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-lg hover:shadow-[#C4A484]/5"
+                className="group flex items-start gap-4 rounded-2xl border border-[#C4A484]/20 bg-white/[0.03] backdrop-blur-xl p-4 transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-lg hover:shadow-[#C4A484]/5"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C4A484]/10 flex-shrink-0 transition-all duration-300 group-hover:bg-[#C4A484]/20">
                   <Mail size={20} className="text-[#C4A484]" />
@@ -276,7 +276,7 @@ function Contact() {
               </a>
 
               {/* Addresses + Hours card */}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 space-y-6">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 space-y-4">
                 {/* Addresses */}
                 <div>
                   <div className="flex items-center gap-3 mb-4">
@@ -392,10 +392,10 @@ function Contact() {
 
             {/* ── RIGHT COLUMN: Contact Form ── */}
             <div
-              className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 sm:p-8 lg:sticky lg:top-28"
+              className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 sm:p-6 lg:sticky lg:top-28"
               style={{ animation: 'fadeSlideUp 0.6s ease-out 0.2s both' }}
             >
-              <div className="text-center mb-8">
+              <div className="text-center mb-5">
                 <h2 className="font-display text-2xl sm:text-3xl text-white">
                   Envoyez-nous un message
                 </h2>
@@ -569,7 +569,7 @@ function Contact() {
       {/* ══════════════════════════════════════
           FAQ SECTION
          ══════════════════════════════════════ */}
-      <section className="relative py-20 border-t border-white/5">
+      <section className="relative py-10 border-t border-white/5">
         {/* Watermark */}
         <img
           src="/assets/gear-motion.svg"
@@ -580,7 +580,7 @@ function Contact() {
         />
 
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C4A484]/10 text-[#C4A484] text-xs font-semibold tracking-wider uppercase mb-4">
               <ChevronDown size={14} />
               FAQ

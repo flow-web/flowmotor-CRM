@@ -15,6 +15,7 @@ import AddExpenseForm from '../components/vehicle/AddExpenseForm'
 import WorkflowStepper from '../components/vehicle/WorkflowStepper'
 import DocumentChecklist from '../components/vehicle/DocumentChecklist'
 import MarketSniperModal from '../components/sourcing/MarketSniperModal'
+import DDPCalculator from '../components/vehicle/DDPCalculator'
 import TopHeader from '../components/layout/TopHeader'
 import AdminCard from '../components/shared/AdminCard'
 import StatusBadge from '../components/shared/StatusBadge'
@@ -34,7 +35,7 @@ import {
   createVehicle as createVehicleInDB
 } from '../../lib/supabase'
 import { isDemoMode } from '../../lib/supabase/client'
-import { generateAdDescription, isGeminiConfigured } from '../../lib/gemini'
+import { generateAdDescription, isGeminiConfigured } from '../../services/ai/gemini'
 import { useCompanySettings } from '../hooks/useCompanySettings'
 
 import { Button } from '@/components/ui/button'
@@ -51,7 +52,6 @@ function VehicleCockpit() {
   const [showAddCost, setShowAddCost] = useState(false)
   const [showMarketSniper, setShowMarketSniper] = useState(false)
 
-  // Admin tab state
   const [clients, setClients] = useState([])
   const [clientSearch, setClientSearch] = useState('')
   const [selectedClient, setSelectedClient] = useState(null)
@@ -59,13 +59,11 @@ function VehicleCockpit() {
   const [generatingPdf, setGeneratingPdf] = useState(null)
   const [billingType, setBillingType] = useState(null) // 'margin' | 'vat'
 
-  // AI Description state
   const [adDescription, setAdDescription] = useState('')
   const [generatingAd, setGeneratingAd] = useState(false)
   const [savingDescription, setSavingDescription] = useState(false)
   const textareaRef = useRef(null)
 
-  // CERFA + Reprise state
   const [generatingCerfa, setGeneratingCerfa] = useState(null)
   const [reprise, setReprise] = useState(null)
   const [repriseLoaded, setRepriseLoaded] = useState(false)
@@ -74,29 +72,25 @@ function VehicleCockpit() {
 
   const vehicle = getVehicle(id)
 
-  // Default billing type based on vehicle origin
+  // Facturation par defaut selon l'origine UE/hors-UE
   useEffect(() => {
     if (vehicle && billingType === null) {
-      // EU origin → TVA sur Marge, Non-EU → TVA Apparente
       setBillingType(vehicle.isEuOrigin ? 'margin' : 'vat')
     }
   }, [vehicle, billingType])
 
-  // Init ad description from vehicle notes
   useEffect(() => {
     if (vehicle?.notes && !adDescription) {
       setAdDescription(vehicle.notes)
     }
   }, [vehicle?.id])
 
-  // Load clients when admin tab is activated
   useEffect(() => {
     if (activeTab === 'admin' && !clientsLoaded) {
       loadClients()
     }
   }, [activeTab, clientsLoaded])
 
-  // Load reprise when admin tab is activated
   useEffect(() => {
     if (activeTab === 'admin' && !repriseLoaded && vehicle) {
       loadReprise()
@@ -134,7 +128,6 @@ function VehicleCockpit() {
     try {
       const data = await fetchRepriseByVehicle(id)
       if (data) {
-        // Enrich with trade-in vehicle info for display
         const tradeinVehicle = getVehicle(data.tradein_vehicle_id)
         if (tradeinVehicle) {
           data.tradein_brand = tradeinVehicle.brand || tradeinVehicle.make
@@ -150,7 +143,6 @@ function VehicleCockpit() {
     }
   }
 
-  // CERFA PDF generation
   const handleDownloadCerfa = async (cerfaType, direction = 'sale') => {
     if (!selectedClient) {
       toast.error('Veuillez sélectionner un client')
@@ -237,7 +229,6 @@ function VehicleCockpit() {
     }
   }
 
-  // Trade-in submit
   const handleTradeInSubmit = async (form) => {
     if (!selectedClient) {
       toast.error('Veuillez sélectionner un client')
@@ -249,7 +240,6 @@ function VehicleCockpit() {
     try {
       const tradeinValue = parseFloat(form.tradeinValue) || 0
 
-      // Create the trade-in vehicle in stock
       let newVehicle
       if (isDemoMode()) {
         const stored = localStorage.getItem('flowmotor_vehicles')
@@ -292,7 +282,6 @@ function VehicleCockpit() {
         })
       }
 
-      // Create the reprise record
       const repriseData = await createReprise({
         sale_vehicle_id: vehicle.id,
         tradein_vehicle_id: newVehicle.id,
@@ -301,7 +290,6 @@ function VehicleCockpit() {
         notes: form.notes || null
       })
 
-      // Enrich reprise with display info
       repriseData.tradein_brand = form.brand
       repriseData.tradein_model = form.model
       repriseData.tradein_vin = form.vin
@@ -369,7 +357,6 @@ function VehicleCockpit() {
     }
   }
 
-  // PDF generation with persistent invoice number
   const handleDownloadPdf = async (type) => {
     if (!selectedClient) {
       toast.error('Veuillez sélectionner un client')
@@ -379,13 +366,9 @@ function VehicleCockpit() {
     setGeneratingPdf(type)
 
     try {
-      // Determine prefix: BC for order, FM for margin invoice, FV for VAT invoice
       const docPrefix = type === 'order' ? 'BC' : billingType === 'margin' ? 'FM' : 'FV'
-
-      // Get next sequential invoice number
       const { invoiceNumber, prefix: pfx, year, sequence } = await getNextInvoiceNumber(docPrefix)
 
-      // Calculate total
       const frais = 350
       const prix = vehicle.sellingPrice || 0
       let totalAmount = prix + frais
@@ -395,7 +378,6 @@ function VehicleCockpit() {
         totalAmount = prixHT + frais + tvaVehicule
       }
 
-      // Create invoice record BEFORE PDF generation
       await createInvoice({
         invoice_number: invoiceNumber,
         prefix: pfx,
@@ -427,14 +409,12 @@ function VehicleCockpit() {
         status: 'finalized'
       })
 
-      // Build reprise info for invoice if exists
       const repriseInfo = reprise ? {
         tradein_value: reprise.tradein_value,
         tradein_brand: reprise.tradein_brand || '',
         tradein_model: reprise.tradein_model || ''
       } : null
 
-      // Render PDF with the persistent invoice number
       let PdfComponent
       if (type === 'order') {
         PdfComponent = <OrderForm vehicle={vehicle} client={selectedClient} invoiceNumber={invoiceNumber} company={companyInfo} />
@@ -468,7 +448,6 @@ function VehicleCockpit() {
     }
   }
 
-  // Filtered clients for search
   const filteredClients = clients.filter((c) => {
     if (!clientSearch) return true
     const q = clientSearch.toLowerCase()
@@ -497,7 +476,6 @@ function VehicleCockpit() {
       />
 
       <div className="p-6 space-y-6">
-        {/* Header Actions */}
         <div className="flex items-center justify-between">
           <Link
             to="/admin/stock"
@@ -525,7 +503,6 @@ function VehicleCockpit() {
           </div>
         </div>
 
-        {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <AdminCard>
             <p className="text-xs text-white/40 uppercase tracking-wider">Statut</p>
@@ -555,7 +532,6 @@ function VehicleCockpit() {
           </AdminCard>
         </div>
 
-        {/* Workflow Stepper */}
         <AdminCard>
           <h3 className="text-sm font-medium text-white mb-4">Workflow</h3>
           <WorkflowStepper
@@ -566,7 +542,6 @@ function VehicleCockpit() {
           />
         </AdminCard>
 
-        {/* Tabs */}
         <div className="flex gap-1 border-b border-white/10 overflow-x-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon
@@ -587,7 +562,6 @@ function VehicleCockpit() {
           })}
         </div>
 
-        {/* Tab Content */}
         <div>
           {/* === INFO TAB === */}
           {activeTab === 'info' && (
@@ -757,6 +731,16 @@ function VehicleCockpit() {
                 />
               </AdminCard>
 
+              {/* DDP Import Calculator */}
+              {vehicle.importCountry && vehicle.importCountry !== 'FR' && (
+                <DDPCalculator
+                  vehicle={vehicle}
+                  onApplyCost={async (cost) => {
+                    await updateVehicle(id, { costPrice: cost })
+                  }}
+                />
+              )}
+
               {/* Costs table */}
               <AdminCard>
                 <div className="flex items-center justify-between mb-4">
@@ -853,7 +837,6 @@ function VehicleCockpit() {
                   Sélectionner un client
                 </h3>
 
-                {/* Search */}
                 <div className="relative mb-4">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
                   <Input
@@ -865,7 +848,6 @@ function VehicleCockpit() {
                   />
                 </div>
 
-                {/* Client list */}
                 <div className="max-h-48 overflow-y-auto space-y-1 rounded-lg border border-white/5">
                   {filteredClients.length > 0 ? (
                     filteredClients.map((client) => (
@@ -912,7 +894,6 @@ function VehicleCockpit() {
                 </div>
               </AdminCard>
 
-              {/* Billing Type Selector */}
               {selectedClient && (
                 <AdminCard>
                   <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
@@ -924,7 +905,6 @@ function VehicleCockpit() {
                   </p>
 
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {/* TVA sur Marge */}
                     <button
                       onClick={() => setBillingType('margin')}
                       className={`p-4 rounded-lg border text-left transition-all ${
@@ -945,7 +925,6 @@ function VehicleCockpit() {
                       </p>
                     </button>
 
-                    {/* TVA Apparente */}
                     <button
                       onClick={() => setBillingType('vat')}
                       className={`p-4 rounded-lg border text-left transition-all ${
@@ -969,7 +948,6 @@ function VehicleCockpit() {
                 </AdminCard>
               )}
 
-              {/* PDF Generation */}
               {selectedClient && (
                 <AdminCard>
                   <h3 className="text-sm font-medium text-white mb-2">
@@ -984,7 +962,6 @@ function VehicleCockpit() {
                   </p>
 
                   <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Bon de Commande */}
                     <Button
                       onClick={() => handleDownloadPdf('order')}
                       disabled={generatingPdf !== null}
@@ -1001,7 +978,6 @@ function VehicleCockpit() {
                       </div>
                     </Button>
 
-                    {/* Facture Pro-forma */}
                     <Button
                       onClick={() => handleDownloadPdf('invoice')}
                       disabled={generatingPdf !== null}
@@ -1152,18 +1128,19 @@ function VehicleCockpit() {
         </div>
       </div>
 
-      {/* Market Sniper Modal */}
       {showMarketSniper && (
         <MarketSniperModal
           vehicle={vehicle}
           onClose={() => setShowMarketSniper(false)}
+          onApplyPrice={async (price) => {
+            await updateVehicle(id, { sellingPrice: price })
+          }}
         />
       )}
     </div>
   )
 }
 
-// Helper component
 function InfoRow({ label, value }) {
   return (
     <div className="flex justify-between">

@@ -16,29 +16,21 @@ const MONTH_LABELS = {
   '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
 }
 
-/**
- * Dashboard - Command Center
- * Bento grid layout with gold-accented KPI cards and monospace numbers
- */
 function Dashboard() {
   const { vehicles, stats, vehiclesByStatus } = useVehicles()
 
-  // Recent vehicles
   const recentVehicles = [...(vehicles || [])]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5)
 
-  // Recent sales
   const recentSales = [...(vehiclesByStatus['SOLD'] || [])]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
     .slice(0, 5)
 
-  // KPI counts
   const sourcingCount = vehiclesByStatus['SOURCING']?.length || 0
   const inStockCount = vehiclesByStatus['STOCK']?.length || 0
   const soldCount = vehiclesByStatus['SOLD']?.length || 0
 
-  // Monthly trend
   const maxMonthlyRevenue = Math.max(...(stats.monthlySales || []).map(m => m.revenue), 1)
 
   return (
@@ -55,7 +47,6 @@ function Dashboard() {
           className="grid grid-cols-2 lg:grid-cols-4 gap-4"
           style={{ animation: 'admin-fade-up 0.5s ease-out' }}
         >
-          {/* In Stock */}
           <AdminCard variant="kpi" className="relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div>
@@ -67,11 +58,9 @@ function Dashboard() {
                 <Car className="text-emerald-400" size={20} />
               </div>
             </div>
-            {/* subtle bottom accent */}
             <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(52,211,153,0.3), transparent)' }} />
           </AdminCard>
 
-          {/* Sourcing */}
           <AdminCard variant="kpi" className="relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div>
@@ -86,7 +75,6 @@ function Dashboard() {
             <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(250,204,21,0.3), transparent)' }} />
           </AdminCard>
 
-          {/* Sold */}
           <AdminCard variant="kpi" className="relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div>
@@ -101,7 +89,6 @@ function Dashboard() {
             <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent)' }} />
           </AdminCard>
 
-          {/* Average Margin */}
           <AdminCard variant="kpi" className="relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div>
@@ -124,7 +111,6 @@ function Dashboard() {
           className="grid grid-cols-2 lg:grid-cols-4 gap-4"
           style={{ animation: 'admin-fade-up 0.6s ease-out' }}
         >
-          {/* Total Revenue */}
           <AdminCard variant="kpi">
             <div className="flex items-start justify-between">
               <div>
@@ -140,7 +126,6 @@ function Dashboard() {
             </div>
           </AdminCard>
 
-          {/* Monthly Revenue */}
           <AdminCard variant="kpi">
             <div className="flex items-start justify-between">
               <div>
@@ -156,7 +141,6 @@ function Dashboard() {
             </div>
           </AdminCard>
 
-          {/* Stock Value */}
           <AdminCard variant="kpi">
             <div className="flex items-start justify-between">
               <div>
@@ -172,7 +156,6 @@ function Dashboard() {
             </div>
           </AdminCard>
 
-          {/* Total Profit */}
           <AdminCard variant="kpi">
             <div className="flex items-start justify-between">
               <div>
@@ -196,10 +179,7 @@ function Dashboard() {
           className="grid lg:grid-cols-3 gap-6"
           style={{ animation: 'admin-fade-up 0.7s ease-out' }}
         >
-          {/* Left Column — spans 2 */}
           <div className="lg:col-span-2 space-y-6">
-
-            {/* Monthly Trend Chart */}
             {stats.monthlySales && stats.monthlySales.length > 0 && (
               <AdminCard>
                 <div className="flex items-center gap-2 mb-5">
@@ -242,7 +222,6 @@ function Dashboard() {
               </AdminCard>
             )}
 
-            {/* Recent Vehicles */}
             <AdminCard padding={false}>
               <div className="p-5 border-b border-white/[0.06] flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -270,7 +249,6 @@ function Dashboard() {
                       className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#D4AF37]/[0.03] transition-all duration-200 group"
                       style={{ animation: `admin-fade-up ${0.3 + index * 0.05}s ease-out` }}
                     >
-                      {/* Thumbnail */}
                       <div className="w-14 h-10 rounded-lg overflow-hidden bg-white/[0.04] flex-shrink-0 border border-white/[0.06] group-hover:border-[#D4AF37]/20 transition-colors">
                         {vehicle.images?.[0]?.url ? (
                           <img
@@ -285,7 +263,6 @@ function Dashboard() {
                         )}
                       </div>
 
-                      {/* Name & Date */}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-white truncate group-hover:text-[#D4AF37] transition-colors duration-200">
                           {vehicle.brand || vehicle.make} {vehicle.model}
@@ -295,10 +272,8 @@ function Dashboard() {
                         </p>
                       </div>
 
-                      {/* Status */}
                       <StatusBadge status={vehicle.status} size="small" />
 
-                      {/* Price & Margin */}
                       <div className="text-right flex-shrink-0">
                         <p className="text-sm font-mono font-semibold text-white tabular-nums">
                           {formatPrice(vehicle.sellingPrice)}
@@ -321,10 +296,7 @@ function Dashboard() {
             </AdminCard>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-6">
-
-            {/* Quick Actions */}
             <AdminCard>
               <h3 className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-4">Actions rapides</h3>
               <div className="space-y-2">
@@ -356,7 +328,6 @@ function Dashboard() {
               </div>
             </AdminCard>
 
-            {/* Recent Sales */}
             {recentSales.length > 0 && (
               <AdminCard>
                 <div className="flex items-center gap-2 mb-4">
@@ -400,7 +371,6 @@ function Dashboard() {
               </AdminCard>
             )}
 
-            {/* Status Breakdown */}
             <AdminCard>
               <h3 className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-4">Repartition par statut</h3>
               <div className="space-y-3">
@@ -413,7 +383,6 @@ function Dashboard() {
               </div>
             </AdminCard>
 
-            {/* Top Brands */}
             <AdminCard>
               <h3 className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-4">Top marques</h3>
               <div className="space-y-2.5">

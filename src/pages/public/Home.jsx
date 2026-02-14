@@ -7,6 +7,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import SEO from '../../components/SEO'
+import heroImage from '../../assets/images/hero-main.jpg'
 
 /* ═══════════════════════════════════════════════
    HELPERS
@@ -167,7 +168,7 @@ function WizardModal({ isOpen, onClose }) {
         style={{ animation: 'soft-rise 0.4s ease-out' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484] mb-1">
               Étape {step} sur {totalSteps}
@@ -187,7 +188,7 @@ function WizardModal({ isOpen, onClose }) {
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="p-4">
           <div className={`grid gap-3 ${
             current.items.length <= 4
               ? 'grid-cols-2 sm:grid-cols-4'
@@ -219,7 +220,7 @@ function WizardModal({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-white/10">
+        <div className="flex items-center justify-between p-4 border-t border-white/10">
           {/* Progress dots */}
           <div className="flex items-center gap-2">
             {Array.from({ length: totalSteps }, (_, i) => (
@@ -325,7 +326,7 @@ function VehicleCardV2({ vehicle }) {
       </div>
 
       {/* Body */}
-      <div className="p-5 flex flex-col flex-1">
+      <div className="p-4 flex flex-col flex-1">
         <h3 className="text-lg font-display font-semibold text-[#F4E8D8] group-hover:text-[#C4A484] transition-colors line-clamp-1">
           {vehicle.brand} {vehicle.model}
         </h3>
@@ -498,12 +499,12 @@ function Home() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=1920&q=80"
-            alt="Véhicule de luxe"
+            src={heroImage}
+            alt="Véhicule sportif Flow Motor"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
         </div>
 
         {/* Ambient glow */}
@@ -511,13 +512,13 @@ function Home() {
         <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-[#5C3A2E]/20 blur-[100px] pointer-events-none" />
 
         {/* Content */}
-        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="relative w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div
             className="text-center max-w-4xl mx-auto"
             style={{ animation: 'soft-rise 0.8s ease-out' }}
           >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C4A484]/15 border border-[#C4A484]/30 mb-8">
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C4A484]/15 border border-[#C4A484]/30 mb-5">
               <Sparkles size={14} className="text-[#C4A484]" />
               <span className="text-xs uppercase tracking-[0.3em] font-medium text-[#C4A484]">
                 Import Suisse & Japon
@@ -537,7 +538,7 @@ function Home() {
             </p>
 
             {/* ─── SEARCH MODULE ─── */}
-            <div className="mt-12 glass-panel p-5 md:p-8 max-w-4xl mx-auto">
+            <div className="mt-8 glass-panel p-4 md:p-5 max-w-4xl mx-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Brand */}
                 <div className="text-left">
@@ -660,7 +661,7 @@ function Home() {
       {/* ══════════════════════════════════════
           DERNIERS ARRIVAGES
           ══════════════════════════════════════ */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative py-8 md:py-10 overflow-hidden">
         {/* Watermark */}
         <img
           src="/assets/gears.svg"
@@ -670,9 +671,9 @@ function Home() {
           style={{ filter: 'brightness(0)' }}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Section header */}
-          <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484] mb-2">
                 Notre sélection
@@ -695,7 +696,7 @@ function Home() {
 
           {/* Vehicle grid */}
           {isLoading ? (
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
@@ -716,7 +717,7 @@ function Home() {
               ))}
             </div>
           ) : featuredVehicles.length > 0 ? (
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {featuredVehicles.map((vehicle) => (
                 <VehicleCardV2 key={vehicle.id} vehicle={vehicle} />
               ))}
@@ -739,7 +740,7 @@ function Home() {
       {/* ══════════════════════════════════════
           REASSURANCE / FEATURES
           ══════════════════════════════════════ */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative py-8 md:py-10 overflow-hidden">
         {/* Watermark */}
         <img
           src="/assets/gear-motion.svg"
@@ -753,10 +754,10 @@ function Home() {
         <div className="absolute -left-10 top-10 h-56 w-56 rounded-full bg-[#5C3A2E]/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-[#C4A484]/5 blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid gap-5 lg:grid-cols-2 lg:items-center">
             {/* Left: Atelier CTA card */}
-            <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#5C3A2E] to-[#3D1E1E] p-8 md:p-10 border border-[#C4A484]/10">
+            <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#5C3A2E] to-[#3D1E1E] p-5 md:p-8 border border-[#C4A484]/10">
               <span className="text-xs uppercase tracking-[0.3em] text-[#C4A484]/70">
                 Atelier FLOW MOTOR
               </span>
@@ -767,7 +768,7 @@ function Home() {
                 Diagnostic complet, detailing premium et optimisation mécanique.
                 Votre véhicule est prêt, impeccablement.
               </p>
-              <div className="mt-8">
+              <div className="mt-5">
                 <Link
                   to="/atelier"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#C4A484] text-[#1A0F0F] font-semibold text-sm hover:bg-[#D4B494] transition-colors"
@@ -779,7 +780,7 @@ function Home() {
             </div>
 
             {/* Right: Feature cards */}
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {[
                 {
                   icon: Shield,
@@ -825,10 +826,10 @@ function Home() {
       {/* ══════════════════════════════════════
           SOURCING CTA BANNER
           ══════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 md:pb-10">
         <Link
           to="/contact"
-          className="block relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5C3A2E] to-[#3D1E1E] p-8 md:p-10 group border border-[#C4A484]/10 hover:border-[#C4A484]/30 transition-colors duration-500"
+          className="block relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5C3A2E] to-[#3D1E1E] p-5 md:p-8 group border border-[#C4A484]/10 hover:border-[#C4A484]/30 transition-colors duration-500"
         >
           {/* Glow */}
           <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-[#C4A484]/10 blur-2xl group-hover:bg-[#C4A484]/20 transition-colors duration-500" />

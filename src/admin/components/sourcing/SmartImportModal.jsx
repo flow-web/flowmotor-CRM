@@ -7,7 +7,7 @@ import {
 import { useVehicles } from '../../context/VehiclesContext'
 import { useUI } from '../../context/UIContext'
 import { uploadImage, deleteImage } from '../../../lib/supabase/client'
-import { analyzeVehicleText, isGeminiConfigured } from '../../../lib/gemini'
+import { analyzeVehicleText, isGeminiConfigured } from '../../../services/ai/gemini'
 import { CAR_MAKES } from '../../utils/constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

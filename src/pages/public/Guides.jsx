@@ -75,9 +75,9 @@ function GuideCard({ guide, index }) {
       <div className={`absolute inset-0 bg-gradient-to-br ${guide.gradient} pointer-events-none`} />
 
       {/* Content */}
-      <div className={`relative ${isFeatured ? 'p-8 sm:p-10' : 'p-6 sm:p-8'}`}>
+      <div className={`relative ${isFeatured ? 'p-6 sm:p-8' : 'p-4 sm:p-6'}`}>
         {/* Top row: Tag + Read time */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C4A484]/10 text-[#C4A484] text-[10px] font-sans font-semibold uppercase tracking-wider">
             <BookOpen size={10} />
             {guide.tag}
@@ -91,7 +91,7 @@ function GuideCard({ guide, index }) {
         {/* Icon */}
         <div className={`
           flex items-center justify-center rounded-xl bg-[#C4A484]/10
-          group-hover:bg-[#C4A484]/15 transition-colors duration-300 mb-6
+          group-hover:bg-[#C4A484]/15 transition-colors duration-300 mb-4
           ${isFeatured ? 'w-14 h-14' : 'w-12 h-12'}
         `}>
           <Icon size={isFeatured ? 24 : 20} className="text-[#C4A484]" />
@@ -165,7 +165,7 @@ export default function Guides() {
       {/* ══════════════════════════════════════
           HERO SECTION
          ══════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-20 sm:py-28">
+      <section className="relative overflow-hidden py-10 sm:py-12">
         {/* Ambient orbs */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
           <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#C4A484]/[0.04] blur-[120px]" />
@@ -182,11 +182,11 @@ export default function Guides() {
         />
 
         <div
-          className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+          className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-center"
           style={{ animation: 'fadeSlideUp 0.6s ease-out' }}
         >
           {/* Breadcrumb */}
-          <nav className="flex items-center justify-center gap-2 text-xs text-white/30 font-sans mb-8" aria-label="Fil d'Ariane">
+          <nav className="flex items-center justify-center gap-2 text-xs text-white/30 font-sans mb-6" aria-label="Fil d'Ariane">
             <Link to="/" className="hover:text-[#C4A484] transition-colors duration-300">
               Accueil
             </Link>
@@ -212,7 +212,7 @@ export default function Guides() {
           HIGHLIGHTS BAR
          ══════════════════════════════════════ */}
       <section className="border-t border-b border-white/[0.04]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div
             className="grid grid-cols-2 md:grid-cols-4 gap-6"
             style={{ animation: 'fadeSlideUp 0.5s ease-out 0.15s both' }}
@@ -235,8 +235,8 @@ export default function Guides() {
       {/* ══════════════════════════════════════
           BENTO GRID — Article Cards
          ══════════════════════════════════════ */}
-      <section className="py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-8 sm:py-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {GUIDES.map((guide, i) => (
               <GuideCard key={guide.slug} guide={guide} index={i} />
@@ -248,10 +248,10 @@ export default function Guides() {
       {/* ══════════════════════════════════════
           CTA SECTION
          ══════════════════════════════════════ */}
-      <section className="border-t border-white/[0.04] py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="border-t border-white/[0.04] py-8 sm:py-10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className="relative overflow-hidden rounded-2xl border border-[#C4A484]/20 bg-gradient-to-br from-[#C4A484]/[0.08] to-transparent p-8 sm:p-12"
+            className="relative overflow-hidden rounded-2xl border border-[#C4A484]/20 bg-gradient-to-br from-[#C4A484]/[0.08] to-transparent p-5 sm:p-8"
             style={{ animation: 'fadeSlideUp 0.5s ease-out 0.3s both' }}
           >
             {/* Ambient glow */}
@@ -264,7 +264,7 @@ export default function Guides() {
               <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white mb-4">
                 Vous ne trouvez pas la reponse ?
               </h2>
-              <p className="text-white/50 font-sans leading-relaxed mb-8 max-w-lg">
+              <p className="text-white/50 font-sans leading-relaxed mb-5 max-w-lg">
                 Notre equipe est a votre disposition pour repondre a toutes vos questions
                 sur l'import, les garanties ou le processus d'achat.
               </p>

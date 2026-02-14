@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { name: 'Stock', path: '/showroom' },
   { name: 'Financement', path: '/services' },
   { name: 'Reprise', path: '/atelier' },
-  { name: 'Guides', path: '/guides' },
+  { name: 'Journal', path: '/journal' },
   { name: 'Contact', path: '/contact' },
 ]
 
@@ -131,7 +131,7 @@ function Navbar() {
         ref={navRef}
         className="fixed top-0 left-0 w-full h-20 bg-[#1A0F0F]/95 backdrop-blur-xl z-50 border-b border-white/5"
       >
-        <div className="flex justify-between items-center h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* ========== LEFT: Logo ========== */}
           <Link to="/" className="flex items-center group">

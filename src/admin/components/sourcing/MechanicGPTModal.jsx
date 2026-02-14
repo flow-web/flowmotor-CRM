@@ -4,7 +4,7 @@ import {
   CheckCircle2, Wrench, ShieldAlert, ShieldCheck, Shield,
   CircleDollarSign, Plus, FileImage, Trash2,
 } from 'lucide-react'
-import { analyzeTechnicalReport, isGeminiConfigured } from '../../../lib/gemini'
+import { analyzeTechnicalReport, isGeminiConfigured } from '../../../services/ai/gemini'
 import { useUI } from '../../context/UIContext'
 import { Button } from '@/components/ui/button'
 

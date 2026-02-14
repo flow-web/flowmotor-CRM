@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import SEO from '../../components/SEO'
 import { createLead } from '../../lib/supabase/leads'
-import { getVehicleByPlate, validatePlate, estimateMileageRange } from '../../lib/api/siv'
+import { getVehicleByPlate, validatePlate, estimateMileageRange } from '../../services/api/siv'
 
 /* ─────────────────────────────────────────────
    CONSTANTS
@@ -560,7 +560,7 @@ export default function Atelier() {
       {/* ═══════════════════════════════════════
           SECTION 1 — HERO + ESTIMATION FLASH
           ═══════════════════════════════════════ */}
-      <section className="relative overflow-hidden pb-16 pt-24 sm:pt-32">
+      <section className="relative overflow-hidden pb-10 pt-24 sm:pt-28">
         {/* Ambient orbs */}
         <div
           className="pointer-events-none absolute left-1/4 top-1/4 h-[400px] w-[400px] rounded-full opacity-[0.07]"
@@ -577,7 +577,7 @@ export default function Atelier() {
           }}
         />
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
           {/* Hero text */}
           <div className="text-center" style={{ animation: 'fadeSlideUp 0.6s ease-out' }}>
             <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484]">
@@ -595,7 +595,7 @@ export default function Atelier() {
 
           {/* ─── Estimation Card ─── */}
           <div
-            className="mx-auto mt-12 max-w-2xl rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl sm:p-8 lg:p-10"
+            className="mx-auto mt-8 max-w-2xl rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl sm:p-6 lg:p-8"
             style={{ animation: 'fadeSlideUp 0.7s ease-out 0.1s both' }}
           >
             {status === 'success' ? renderSuccess()
@@ -728,7 +728,7 @@ export default function Atelier() {
               /* OPTION B — Wizard */
               <div>
                 {/* Step indicator */}
-                <div className="mb-8">
+                <div className="mb-5">
                   <StepIndicator current={wizardStep} total={3} />
                 </div>
 
@@ -738,7 +738,7 @@ export default function Atelier() {
                 {wizardStep === 2 && renderStep3()}
 
                 {/* Navigation */}
-                <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-6">
+                <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
                   <button
                     onClick={() => {
                       if (wizardStep === 0) { setShowWizard(false) }
@@ -788,7 +788,7 @@ export default function Atelier() {
       {/* ═══════════════════════════════════════
           SECTION 2 — NOS FORMULES
           ═══════════════════════════════════════ */}
-      <section className="relative py-16 sm:py-24">
+      <section className="relative py-8 sm:py-10">
         {/* Subtle watermark */}
         <img
           src="/assets/gears.svg"
@@ -798,7 +798,7 @@ export default function Atelier() {
           style={{ filter: 'brightness(0) invert(1)' }}
         />
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484]">Nos formules</p>
             <h2 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">
@@ -809,9 +809,9 @@ export default function Atelier() {
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
             {/* Card 1 — Reprise Cash */}
-            <div className="group rounded-2xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-black/20">
+            <div className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-black/20">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C4A484]/10">
                   <Banknote size={22} className="text-[#C4A484]" />
@@ -839,7 +839,7 @@ export default function Atelier() {
               <a
                 href="#top"
                 onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/70 transition-all duration-300 hover:border-[#C4A484]/30 hover:text-[#C4A484]"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/70 transition-all duration-300 hover:border-[#C4A484]/30 hover:text-[#C4A484]"
               >
                 Demander une evaluation
                 <ArrowRight size={14} />
@@ -847,7 +847,7 @@ export default function Atelier() {
             </div>
 
             {/* Card 2 — Depot-Vente Premium (Recommande) */}
-            <div className="group relative rounded-2xl border border-[#C4A484]/30 bg-white/[0.03] p-8 shadow-lg shadow-[#C4A484]/[0.05] ring-1 ring-[#C4A484]/20 backdrop-blur-xl transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-[#C4A484]/10">
+            <div className="group relative rounded-2xl border border-[#C4A484]/30 bg-white/[0.03] p-5 shadow-lg shadow-[#C4A484]/[0.05] ring-1 ring-[#C4A484]/20 backdrop-blur-xl transition-all duration-300 hover:border-[#C4A484]/40 hover:shadow-[#C4A484]/10">
               {/* Recommended badge */}
               <div className="absolute -top-3 right-6">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C4A484] px-3 py-1 text-xs font-semibold text-[#1A0F0F]">
@@ -883,7 +883,7 @@ export default function Atelier() {
               <a
                 href="#top"
                 onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-[#C4A484] px-6 py-3 text-sm font-semibold text-[#1A0F0F] transition-all duration-300 hover:bg-[#D4BC9A] hover:shadow-lg hover:shadow-[#C4A484]/20"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#C4A484] px-6 py-3 text-sm font-semibold text-[#1A0F0F] transition-all duration-300 hover:bg-[#D4BC9A] hover:shadow-lg hover:shadow-[#C4A484]/20"
               >
                 Lancer un depot-vente
                 <ArrowRight size={14} />
@@ -896,9 +896,9 @@ export default function Atelier() {
       {/* ═══════════════════════════════════════
           SECTION 3 — REASSURANCE
           ═══════════════════════════════════════ */}
-      <section className="border-t border-white/5 py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-12">
+      <section className="border-t border-white/5 py-8 sm:py-10">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8">
             {[
               { number: '150+', label: 'Vehicules repris' },
               { number: '48h', label: 'Delai moyen de paiement' },

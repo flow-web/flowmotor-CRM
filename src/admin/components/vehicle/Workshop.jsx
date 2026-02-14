@@ -4,6 +4,7 @@ import { useVehicles } from '../../context/VehiclesContext'
 import { useUI } from '../../context/UIContext'
 import { formatPrice } from '../../utils/formatters'
 import { COST_CATEGORY_COLORS } from '../../utils/constants'
+import CTAnalyzer from './CTAnalyzer'
 
 // Types atelier — sous-ensemble de COST_TYPES qui impactent le PRU via vehicle_costs
 const WORKSHOP_TYPES = [
@@ -97,6 +98,20 @@ export default function Workshop({ vehicleId, purchasePrice }) {
           <p className="text-green-400/60 text-xs uppercase mb-1">PRU (avec atelier)</p>
           <p className="text-2xl font-serif text-green-400">{formatPrice(totalCost)}</p>
         </div>
+      </div>
+
+      {/* Mechanic GPT — CT Analyzer */}
+      <div className="bg-[#1A0F0F] border border-white/10 rounded-xl p-5">
+        <CTAnalyzer
+          vehicleId={vehicleId}
+          onAddCost={async (costData) => {
+            await addCost(vehicleId, {
+              ...costData,
+              date: new Date().toISOString()
+            })
+            toast.success('Frais CT ajouté')
+          }}
+        />
       </div>
 
       {/* Formulaire */}

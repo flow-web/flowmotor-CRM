@@ -56,19 +56,17 @@ function Sourcing() {
   const [showMarketSniper, setShowMarketSniper] = useState(false)
   const [showMechanicGPT, setShowMechanicGPT] = useState(false)
 
-  // === ÉTAT DU CALCULATEUR ===
   const [calc, setCalc] = useState({
-    purchasePrice: '', // Prix d'achat en devise étrangère
+    purchasePrice: '',
     currency: 'EUR',
     exchangeRate: 1,
     originCountry: 'CH',
     transportCost: 800,
-    customsRate: DEFAULT_CUSTOMS_RATE, // 10% si hors UE
-    vatRate: DEFAULT_VAT_RATE, // 20% TVA
-    targetSellingPrice: '', // Prix de vente cible
+    customsRate: DEFAULT_CUSTOMS_RATE,
+    vatRate: DEFAULT_VAT_RATE,
+    targetSellingPrice: '',
   })
 
-  // === ÉTAT DU FORMULAIRE VÉHICULE ===
   const [vehicle, setVehicle] = useState({
     brand: '',
     model: '',
@@ -82,7 +80,6 @@ function Sourcing() {
     notes: '',
   })
 
-  // === CALCULS EN TEMPS RÉEL ===
   const calculations = useMemo(() => {
     const purchasePrice = parseFloat(calc.purchasePrice) || 0
     const exchangeRate = parseFloat(calc.exchangeRate) || 1
@@ -91,34 +88,18 @@ function Sourcing() {
     const vatRate = parseFloat(calc.vatRate) || 0
     const targetSellingPrice = parseFloat(calc.targetSellingPrice) || 0
 
-    // Déterminer si pays UE
     const country = ORIGIN_COUNTRIES.find((c) => c.code === calc.originCountry)
     const isEU = country?.isEU ?? true
 
-    // Prix d'achat en EUR
     const purchasePriceEUR = purchasePrice * exchangeRate
-
-    // Frais de douane (10% si hors UE, 0 si UE)
     const customsFee = isEU ? 0 : purchasePriceEUR * (customsRate / 100)
-
-    // Base pour TVA (prix + transport + douane)
     const baseForVAT = purchasePriceEUR + transportCost + customsFee
-
-    // TVA sur marge : on ne taxe que la marge, pas le prix total
-    // Pour simplifier, on calcule la TVA sur la valeur ajoutée
     const vatAmount = baseForVAT * (vatRate / 100)
-
-    // Total des frais
     const feesTotal = transportCost + customsFee + vatAmount
-
-    // PRU (Prix de Revient Unitaire)
     const costPrice = purchasePriceEUR + feesTotal
 
-    // Marge si prix de vente cible défini
     const margin = targetSellingPrice > 0 ? targetSellingPrice - costPrice : 0
     const marginPercent = targetSellingPrice > 0 ? (margin / targetSellingPrice) * 100 : 0
-
-    // Prix de vente minimum pour 15% de marge
     const minSellingPrice = costPrice / (1 - 0.15)
 
     return {
@@ -134,17 +115,14 @@ function Sourcing() {
     }
   }, [calc])
 
-  // === HANDLERS ===
   const handleCalcChange = (field, value) => {
     setCalc((prev) => {
       const newCalc = { ...prev, [field]: value }
 
-      // Mise à jour automatique du taux de change
       if (field === 'currency') {
         newCalc.exchangeRate = CURRENCIES[value]?.rate || 1
       }
 
-      // Mise à jour automatique des frais de douane selon le pays
       if (field === 'originCountry') {
         const country = ORIGIN_COUNTRIES.find((c) => c.code === value)
         newCalc.customsRate = country?.isEU ? 0 : DEFAULT_CUSTOMS_RATE
@@ -158,9 +136,7 @@ function Sourcing() {
     setVehicle((prev) => ({ ...prev, [field]: value }))
   }
 
-  // === SOUMISSION VERS SUPABASE ===
   const handleAddToStock = async () => {
-    // Validation
     if (!vehicle.brand || !vehicle.model) {
       toast.error('Veuillez renseigner la marque et le modèle')
       return
@@ -174,9 +150,7 @@ function Sourcing() {
     setIsSubmitting(true)
 
     try {
-      // Payload propre : camelCase → transformVehicleToDB fera le mapping snake_case
       const payload = {
-        // Infos véhicule
         brand: vehicle.brand,
         model: vehicle.model,
         trim: vehicle.trim,
@@ -188,29 +162,24 @@ function Sourcing() {
         sellerName: vehicle.sellerName,
         notes: vehicle.notes,
 
-        // Prix d'achat
         purchasePrice: parseFloat(calc.purchasePrice) || 0,
         currency: calc.currency,
         exchangeRate: parseFloat(calc.exchangeRate) || 1,
         originCountry: calc.originCountry,
 
-        // Frais calculés
         transportCost: parseFloat(calc.transportCost) || 0,
         customsFee: calculations.customsFee,
         vatAmount: calculations.vatAmount,
         feesTotal: calculations.feesTotal,
 
-        // Prix & Marge
         costPrice: calculations.costPrice,
         sellingPrice: parseFloat(calc.targetSellingPrice) || calculations.minSellingPrice,
         margin: calculations.margin,
         marginPercent: calculations.marginPercent,
 
-        // Import
         vatRate: parseFloat(calc.vatRate) || DEFAULT_VAT_RATE,
         isEuOrigin: calculations.isEU,
 
-        // Statut initial
         status: 'SOURCING',
       }
 
@@ -218,7 +187,6 @@ function Sourcing() {
 
       toast.success('Véhicule ajouté au stock !')
 
-      // Reset du formulaire
       setVehicle({
         brand: '',
         model: '',
@@ -241,7 +209,6 @@ function Sourcing() {
     }
   }
 
-  // === FORMAT HELPERS ===
   const formatPrice = (value) => {
     if (!value && value !== 0) return '-'
     return new Intl.NumberFormat('fr-FR', {
@@ -256,7 +223,6 @@ function Sourcing() {
       <TopHeader title="Sourcing" subtitle="Calculateur d'import & création véhicule" />
 
       <div className="p-6">
-        {/* Action buttons */}
         <div className="mb-6 flex items-center gap-3">
           <Button
             onClick={() => setShowSmartImport(true)}
@@ -268,7 +234,6 @@ function Sourcing() {
 
           <Button
             onClick={() => {
-              // Check if we have enough data for market analysis
               if (!vehicle.brand || !vehicle.model || !vehicle.year) {
                 toast.error('Renseignez au moins la marque, le modèle et l\'année pour analyser le marché')
                 return
@@ -713,8 +678,8 @@ function Sourcing() {
             trim: vehicle.trim,
             year: vehicle.year,
             mileage: vehicle.mileage || 0,
-            fuel: '', // Not available in current form state
-            gearbox: '', // Not available in current form state
+            fuel: '',
+            gearbox: '',
             color: vehicle.color,
             purchasePrice: parseFloat(calc.purchasePrice) || 0,
             costPrice: calculations.costPrice,
@@ -727,7 +692,6 @@ function Sourcing() {
         <MechanicGPTModal
           onClose={() => setShowMechanicGPT(false)}
           onAddToExpenses={(expense) => {
-            // Add CT repair cost to transport/fees for margin calculation
             handleCalcChange('transportCost', (parseFloat(calc.transportCost) || 0) + expense.amount)
             toast.success(`${expense.amount}€ ajoutés au calcul de frais`)
           }}

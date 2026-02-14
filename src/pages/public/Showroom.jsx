@@ -364,7 +364,7 @@ export default function Showroom() {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-5 space-y-7">
+      <div className="flex-1 overflow-y-auto p-4 space-y-5">
 
         {/* ── Brand Autocomplete ── */}
         <div>
@@ -603,12 +603,12 @@ export default function Showroom() {
       />
 
       {/* ═══════ Hero Section ═══════ */}
-      <section className="relative overflow-hidden py-12 md:py-20">
+      <section className="relative overflow-hidden py-8 md:py-10">
         {/* Ambient gradient circles */}
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#C4A484]/[0.04] blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-[#5C3A2E]/[0.12] blur-[80px] pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-[11px] uppercase tracking-[0.45em] text-[#C4A484]/70 mb-4 font-medium">
             Collection d'exception
           </p>
@@ -624,8 +624,8 @@ export default function Showroom() {
       </section>
 
       {/* ═══════ Main Content: Sidebar + Grid ═══════ */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="flex gap-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="flex gap-5">
 
           {/* ─── Desktop Sidebar ─── */}
           <aside className="hidden lg:block w-72 flex-shrink-0">
@@ -638,7 +638,7 @@ export default function Showroom() {
           <div className="flex-1 min-w-0">
 
             {/* ── Toolbar ── */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               {/* Left: Filter button (mobile) + Count */}
               <div className="flex items-center gap-3">
                 {/* Mobile filter trigger */}
@@ -728,7 +728,7 @@ export default function Showroom() {
 
             {/* ── Active Filters Pills (desktop summary) ── */}
             {hasActiveFilters && (
-              <div className="flex flex-wrap items-center gap-2 mb-6">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
                 {selectedBrand && (
                   <FilterPill label={selectedBrand} onRemove={clearBrand} />
                 )}
@@ -795,7 +795,7 @@ export default function Showroom() {
 
                 {/* Load more */}
                 {hasMore && (
-                  <div className="mt-12 text-center">
+                  <div className="mt-8 text-center">
                     <button
                       onClick={() => setVisibleCount(prev => prev + ITEMS_PER_PAGE)}
                       className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#C4A484]/25 text-[#C4A484] rounded-xl hover:bg-[#C4A484]/10 hover:border-[#C4A484]/40 transition-all duration-300 text-sm font-medium"
@@ -811,14 +811,14 @@ export default function Showroom() {
               </>
             ) : (
               /* ═══════ Empty State: Chasseur Auto ═══════ */
-              <div className="glass-panel p-12 sm:p-16 text-center max-w-lg mx-auto">
-                <div className="mx-auto mb-6 flex items-center justify-center w-20 h-20 rounded-2xl bg-[#C4A484]/[0.06] border border-[#C4A484]/10">
+              <div className="glass-panel p-8 sm:p-10 text-center max-w-lg mx-auto">
+                <div className="mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-2xl bg-[#C4A484]/[0.06] border border-[#C4A484]/10">
                   <Search size={32} className="text-[#C4A484]/40" />
                 </div>
                 <h3 className="font-display text-xl sm:text-2xl text-[#F4E8D8] mb-2">
                   Aucun vehicule ne correspond
                 </h3>
-                <p className="text-sm text-[#F4E8D8]/40 mb-8 leading-relaxed max-w-sm mx-auto">
+                <p className="text-sm text-[#F4E8D8]/40 mb-5 leading-relaxed max-w-sm mx-auto">
                   Notre service <span className="text-[#C4A484]">Chasseur Auto</span> peut trouver votre perle rare partout en Europe.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -843,10 +843,10 @@ export default function Showroom() {
         </div>
 
         {/* ── Sourcing CTA Banner ── */}
-        <section className="mt-16">
+        <section className="mt-10">
           <Link
             to="/contact"
-            className="block relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#5C3A2E]/60 to-[#3D1E1E]/40 p-8 md:p-10 group border border-white/5 hover:border-[#C4A484]/20 transition-all duration-500"
+            className="block relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#5C3A2E]/60 to-[#3D1E1E]/40 p-5 md:p-8 group border border-white/5 hover:border-[#C4A484]/20 transition-all duration-500"
           >
             <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-[#C4A484]/[0.06] blur-[60px] group-hover:bg-[#C4A484]/[0.12] transition-all duration-700" />
             <div className="absolute -left-16 -bottom-16 w-48 h-48 rounded-full bg-[#5C3A2E]/20 blur-[50px]" />

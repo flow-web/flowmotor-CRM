@@ -19,7 +19,6 @@ import { supabase } from '../../lib/supabase/client'
 
 const VehiclesContext = createContext(null)
 
-// Mode de données: 'supabase' | 'localStorage' | 'demo'
 const DATA_MODE = {
   SUPABASE: 'supabase',
   LOCAL: 'localStorage',
@@ -34,19 +33,16 @@ export function VehiclesProvider({ children }) {
   const [connectionStatus, setConnectionStatus] = useState({ connected: false, mode: 'checking' })
   const hasLoadedOnce = useRef(false)
 
-  // Vérifie la connexion Supabase au démarrage
   useEffect(() => {
     checkConnection()
   }, [])
 
-  // Charge les véhicules après vérification de la connexion
   useEffect(() => {
     if (connectionStatus.mode !== 'checking') {
       loadVehicles()
     }
   }, [connectionStatus.mode])
 
-  // Sauvegarde automatique en mode localStorage uniquement
   useEffect(() => {
     if (!isLoading && vehicles.length > 0 && dataMode === DATA_MODE.LOCAL) {
       saveVehiclesToLocalStorage()
@@ -70,22 +66,18 @@ export function VehiclesProvider({ children }) {
         setDataMode(DATA_MODE.LOCAL)
       }
     } catch (err) {
-      // AbortError en Strict Mode — présumer Supabase OK
       if (err.name === 'AbortError' || err.message?.includes('aborted')) {
         setConnectionStatus({ connected: true, mode: 'supabase' })
         setDataMode(DATA_MODE.SUPABASE)
         return
       }
       console.error('[checkConnection] Erreur fatale:', err)
-      // Fallback garanti — ne jamais rester en 'checking'
       setConnectionStatus({ connected: false, mode: 'offline' })
       setDataMode(DATA_MODE.LOCAL)
     }
   }
 
-  // Chargement complet (premier appel = skeleton, ensuite silencieux)
   const loadVehicles = async () => {
-    // Premier appel : montre le skeleton. Appels suivants : silencieux
     if (!hasLoadedOnce.current) {
       setIsLoading(true)
     }
@@ -99,12 +91,10 @@ export function VehiclesProvider({ children }) {
         loadVehiclesFromLocalStorage()
       }
     } catch (err) {
-      // AbortError en Strict Mode — ignorer silencieusement
       if (err.name === 'AbortError' || err.message?.includes('aborted')) return
 
       console.error('[loadVehicles] Erreur:', err)
       setError('Erreur de chargement des données')
-      // Fallback sur localStorage en cas d'erreur Supabase
       if (dataMode === DATA_MODE.SUPABASE) {
         setDataMode(DATA_MODE.LOCAL)
         loadVehiclesFromLocalStorage()
@@ -137,7 +127,6 @@ export function VehiclesProvider({ children }) {
     }
   }
 
-  // CRUD Operations
   const getVehicle = useCallback((id) => {
     return vehicles.find(v => v.id === id) || null
   }, [vehicles])
@@ -156,7 +145,6 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     const timeline = WORKFLOW_ORDER.map((step, index) => ({
       step,
       status: index === 0 ? 'in_progress' : 'pending',
@@ -192,7 +180,6 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     setVehicles(prev => prev.map(v => {
       if (v.id !== id) return v
       return {
@@ -215,11 +202,9 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     setVehicles(prev => prev.filter(v => v.id !== id))
   }
 
-  // Status Management
   const updateStatus = async (id, newStatus, notes = '') => {
     if (dataMode === DATA_MODE.SUPABASE) {
       try {
@@ -232,7 +217,6 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     setVehicles(prev => prev.map(v => {
       if (v.id !== id) return v
 
@@ -258,7 +242,6 @@ export function VehiclesProvider({ children }) {
     }))
   }
 
-  // Costs Management
   const addCost = async (vehicleId, cost) => {
     console.log('[addCost] mode:', dataMode, '| vehicleId:', vehicleId, '| cost:', cost)
     if (dataMode === DATA_MODE.SUPABASE) {
@@ -278,7 +261,6 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     const newCost = {
       id: generateId(),
       ...cost,
@@ -313,7 +295,6 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
       return {
@@ -342,7 +323,6 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // Mode localStorage
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
       return {
@@ -353,7 +333,6 @@ export function VehiclesProvider({ children }) {
     }))
   }
 
-  // Documents Management
   const addDocument = (vehicleId, doc) => {
     const newDoc = {
       id: generateId(),
@@ -382,15 +361,9 @@ export function VehiclesProvider({ children }) {
     }))
   }
 
-  // ============================================
-  // IMAGES MANAGEMENT — Appels directs Supabase
-  // ============================================
-
   const addImages = async (vehicleId, newImagesList) => {
-    // Ajouter un ID unique à chaque image
     const stamped = newImagesList.map(img => ({ id: generateId(), ...img }))
 
-    // 1. State local immédiat — utilise prev pour éviter la stale closure
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
       return {
@@ -400,10 +373,8 @@ export function VehiclesProvider({ children }) {
       }
     }))
 
-    // 2. Persist Supabase — lire le DB actuel, merger, sauver (évite race condition)
     if (dataMode === DATA_MODE.SUPABASE && supabase) {
       try {
-        // Lire les images actuelles depuis la DB
         const { data, error: readError } = await supabase
           .from('vehicles')
           .select('images')
@@ -436,7 +407,6 @@ export function VehiclesProvider({ children }) {
     const vehicle = vehicles.find(v => v.id === vehicleId)
     if (!vehicle) return
 
-    // 1. Storage : Supprimer le fichier du bucket
     if (dataMode === DATA_MODE.SUPABASE && supabase && imagePath) {
       try {
         const { error: storageError } = await supabase.storage
@@ -450,16 +420,13 @@ export function VehiclesProvider({ children }) {
       }
     }
 
-    // 2. Database : Filtrer le tableau pour retirer cette image
     const newImages = (vehicle.images || []).filter(i => i.path !== imagePath)
 
-    // 3. State local immédiat (UI réactive)
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
       return { ...v, images: newImages, updatedAt: new Date().toISOString() }
     }))
 
-    // 4. Persist Supabase
     if (dataMode === DATA_MODE.SUPABASE && supabase) {
       try {
         const { error } = await supabase
@@ -483,17 +450,14 @@ export function VehiclesProvider({ children }) {
     const targetIndex = currentImages.findIndex(i => i.path === imagePath)
     if (targetIndex < 0) return
 
-    // Déplacer l'image choisie à l'index 0 = image principale
     const target = currentImages[targetIndex]
     const newImages = [target, ...currentImages.filter((_, idx) => idx !== targetIndex)]
 
-    // 1. State local immédiat (UI réactive)
     setVehicles(prev => prev.map(v => {
       if (v.id !== vehicleId) return v
       return { ...v, images: newImages, updatedAt: new Date().toISOString() }
     }))
 
-    // 2. Persist Supabase
     if (dataMode === DATA_MODE.SUPABASE && supabase) {
       try {
         const { error } = await supabase
@@ -509,7 +473,6 @@ export function VehiclesProvider({ children }) {
     }
   }
 
-  // Migration localStorage -> Supabase
   const migrateToSupabase = async () => {
     if (isDemoMode()) {
       throw new Error('Migration non disponible en mode démo')
@@ -527,7 +490,6 @@ export function VehiclesProvider({ children }) {
 
     const result = await migrateFromLocalStorage(localVehicles)
 
-    // Recharge les données depuis Supabase
     if (result.success > 0) {
       setDataMode(DATA_MODE.SUPABASE)
       await loadVehicles()
@@ -536,7 +498,6 @@ export function VehiclesProvider({ children }) {
     return result
   }
 
-  // Computed Values
   const stats = useMemo(() => calculateStockStats(vehicles), [vehicles])
 
   const vehiclesByStatus = useMemo(() => {
@@ -548,48 +509,31 @@ export function VehiclesProvider({ children }) {
   }, [vehicles])
 
   const value = {
-    // State
     vehicles,
     isLoading,
     error,
-
-    // Mode & Connection
     dataMode,
     connectionStatus,
     isSupabaseMode: dataMode === DATA_MODE.SUPABASE,
     isDemoMode: isDemoMode(),
-
-    // CRUD
     getVehicle,
     createVehicle,
     updateVehicle,
     deleteVehicle,
-
-    // Status
     updateStatus,
-
-    // Costs
     addCost,
     updateCost,
     deleteCost,
-
-    // Documents
     addDocument,
     deleteDocument,
-
-    // Images
     addImages,
     deleteImage,
     setPrimaryImage,
-
-    // Computed
     stats,
     vehiclesByStatus,
-
-    // Utils
     refresh: loadVehicles,
     checkConnection,
-    migrateToSupabase
+    migrateToSupabase,
   }
 
   return (

@@ -113,7 +113,7 @@ export default function ArticleLayout({
       `}</style>
 
       {/* ── Breadcrumb ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-3">
         <nav className="flex items-center gap-2 text-xs text-white/30 font-sans" aria-label="Fil d'Ariane">
           <Link to="/" className="hover:text-[#C4A484] transition-colors duration-300">
             Accueil
@@ -129,7 +129,7 @@ export default function ArticleLayout({
 
       {/* ── Article Header ── */}
       <header
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10"
+        className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-8"
         style={{ animation: 'fadeSlideUp 0.6s ease-out' }}
       >
         <div className="max-w-3xl lg:ml-0">
@@ -166,7 +166,7 @@ export default function ArticleLayout({
       </header>
 
       {/* ── Article Body + Sidebar ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-14">
         <div className="lg:grid lg:grid-cols-[1fr_240px] lg:gap-12">
 
           {/* Main Content */}
@@ -196,7 +196,7 @@ export default function ArticleLayout({
       {/* ── Article Navigation (Prev/Next) ── */}
       {(prevArticle || nextArticle) && (
         <div className="border-t border-white/[0.06]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-4">
               {prevArticle ? (
                 <Link
@@ -240,7 +240,7 @@ export default function ArticleLayout({
 
       {/* ── CTA Box ── */}
       <div className="border-t border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="max-w-3xl">
             <div className="relative overflow-hidden rounded-2xl border border-[#C4A484]/20 bg-gradient-to-br from-[#C4A484]/[0.08] to-transparent p-8 sm:p-10">
               {/* Ambient glow */}

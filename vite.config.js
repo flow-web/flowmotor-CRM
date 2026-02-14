@@ -11,4 +11,23 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-pdf': ['@react-pdf/renderer'],
+          'vendor-ai': ['@google/generative-ai'],
+          'vendor-table': ['@tanstack/react-table'],
+          'vendor-radix': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-label',
+            '@radix-ui/react-slot',
+          ],
+        },
+      },
+    },
+  },
 })

@@ -1,0 +1,323 @@
+/**
+ * Quick Actions — Pre-built negotiation messages by language
+ * Used by the "Stream Deck" in NegotiationCompanion
+ */
+
+import {
+  FileText,
+  Percent,
+  Truck,
+  ClipboardCheck,
+  Camera,
+  HelpCircle,
+  CreditCard,
+  Calendar,
+  Shield,
+} from 'lucide-react';
+
+export const QUICK_MESSAGES = {
+  de: [
+    {
+      id: "vin",
+      label: "Demander VIN",
+      icon: FileText,
+      message: "K\u00f6nnten Sie mir bitte die Fahrzeug-Identifizierungsnummer (FIN) senden?",
+    },
+    {
+      id: "offer10",
+      label: "Offre -10%",
+      icon: Percent,
+      message: "Vielen Dank f\u00fcr Ihr Angebot. Mein letztes Angebot w\u00e4re [PRIX] EUR. Wir k\u00f6nnen innerhalb von 48h per \u00dcberweisung zahlen.",
+    },
+    {
+      id: "export",
+      label: "Info Export",
+      icon: Truck,
+      message: "Ich kaufe f\u00fcr Export nach Frankreich. K\u00f6nnen Sie den Verkauf netto (ohne MwSt.) abwickeln? Welche Dokumente stellen Sie bereit?",
+    },
+    {
+      id: "ct",
+      label: "Demander CT",
+      icon: ClipboardCheck,
+      message: "Haben Sie den aktuellen T\u00dcV-Bericht? K\u00f6nnten Sie mir diesen zusenden?",
+    },
+    {
+      id: "photos",
+      label: "Photos Supp.",
+      icon: Camera,
+      message: "K\u00f6nnten Sie weitere Fotos senden? Besonders vom Motorraum, Unterboden und eventuellen Besch\u00e4digungen.",
+    },
+    {
+      id: "dispo",
+      label: "Dispo ?",
+      icon: HelpCircle,
+      message: "Guten Tag, ist das Fahrzeug noch verf\u00fcgbar?",
+    },
+    {
+      id: "payment",
+      label: "Paiement",
+      icon: CreditCard,
+      message: "Welche Zahlungsmethoden akzeptieren Sie? Ist eine \u00dcberweisung m\u00f6glich?",
+    },
+    {
+      id: "rdv",
+      label: "Rendez-vous",
+      icon: Calendar,
+      message: "Wann k\u00f6nnte ich das Fahrzeug besichtigen? Ich w\u00fcrde gerne n\u00e4chste Woche vorbeikommen.",
+    },
+    {
+      id: "garantie",
+      label: "Garantie",
+      icon: Shield,
+      message: "Bieten Sie eine Garantie auf das Fahrzeug an? Wie lange und was ist abgedeckt?",
+    },
+  ],
+  it: [
+    {
+      id: "vin",
+      label: "Demander VIN",
+      icon: FileText,
+      message: "Potrebbe inviarmi il numero di telaio (VIN) del veicolo?",
+    },
+    {
+      id: "offer10",
+      label: "Offre -10%",
+      icon: Percent,
+      message: "Grazie per l'offerta. La mia ultima proposta sarebbe [PRIX] EUR. Possiamo pagare entro 48 ore tramite bonifico.",
+    },
+    {
+      id: "export",
+      label: "Info Export",
+      icon: Truck,
+      message: "Acquisto per esportazione in Francia. Pu\u00f2 effettuare la vendita al netto dell'IVA? Quali documenti fornite?",
+    },
+    {
+      id: "ct",
+      label: "Demander CT",
+      icon: ClipboardCheck,
+      message: "Avete il rapporto della revisione attuale? Potrebbe inviarmelo?",
+    },
+    {
+      id: "photos",
+      label: "Photos Supp.",
+      icon: Camera,
+      message: "Potrebbe inviare ulteriori foto? In particolare del vano motore, del sottoscocca e di eventuali danni.",
+    },
+    {
+      id: "dispo",
+      label: "Dispo ?",
+      icon: HelpCircle,
+      message: "Buongiorno, il veicolo \u00e8 ancora disponibile?",
+    },
+    {
+      id: "payment",
+      label: "Paiement",
+      icon: CreditCard,
+      message: "Quali metodi di pagamento accettate? \u00c8 possibile un bonifico bancario?",
+    },
+    {
+      id: "rdv",
+      label: "Rendez-vous",
+      icon: Calendar,
+      message: "Quando potrei vedere il veicolo? Vorrei venire la prossima settimana.",
+    },
+    {
+      id: "garantie",
+      label: "Garantie",
+      icon: Shield,
+      message: "Offrite una garanzia sul veicolo? Per quanto tempo e cosa copre?",
+    },
+  ],
+  nl: [
+    {
+      id: "vin",
+      label: "Demander VIN",
+      icon: FileText,
+      message: "Kunt u mij het chassisnummer (VIN) van het voertuig sturen?",
+    },
+    {
+      id: "offer10",
+      label: "Offre -10%",
+      icon: Percent,
+      message: "Bedankt voor uw aanbod. Mijn laatste bod zou [PRIX] EUR zijn. We kunnen binnen 48 uur per overschrijving betalen.",
+    },
+    {
+      id: "export",
+      label: "Info Export",
+      icon: Truck,
+      message: "Ik koop voor export naar Frankrijk. Kunt u de verkoop netto (zonder BTW) afhandelen? Welke documenten levert u?",
+    },
+    {
+      id: "ct",
+      label: "Demander CT",
+      icon: ClipboardCheck,
+      message: "Heeft u het actuele APK-rapport? Kunt u dit naar mij sturen?",
+    },
+    {
+      id: "photos",
+      label: "Photos Supp.",
+      icon: Camera,
+      message: "Kunt u meer foto's sturen? Vooral van de motorruimte, onderkant en eventuele schade.",
+    },
+    {
+      id: "dispo",
+      label: "Dispo ?",
+      icon: HelpCircle,
+      message: "Goedendag, is het voertuig nog beschikbaar?",
+    },
+    {
+      id: "payment",
+      label: "Paiement",
+      icon: CreditCard,
+      message: "Welke betaalmethoden accepteert u? Is een overschrijving mogelijk?",
+    },
+    {
+      id: "rdv",
+      label: "Rendez-vous",
+      icon: Calendar,
+      message: "Wanneer kan ik het voertuig bekijken? Ik zou graag volgende week langskomen.",
+    },
+    {
+      id: "garantie",
+      label: "Garantie",
+      icon: Shield,
+      message: "Biedt u garantie op het voertuig? Hoe lang en wat is gedekt?",
+    },
+  ],
+  en: [
+    {
+      id: "vin",
+      label: "Demander VIN",
+      icon: FileText,
+      message: "Could you please send me the Vehicle Identification Number (VIN)?",
+    },
+    {
+      id: "offer10",
+      label: "Offre -10%",
+      icon: Percent,
+      message: "Thank you for your offer. My final offer would be [PRICE] EUR. We can pay within 48 hours by wire transfer.",
+    },
+    {
+      id: "export",
+      label: "Info Export",
+      icon: Truck,
+      message: "I am purchasing for export to France. Can you handle the sale net of VAT? Which documents will you provide?",
+    },
+    {
+      id: "ct",
+      label: "Demander CT",
+      icon: ClipboardCheck,
+      message: "Do you have the current inspection report? Could you send it to me?",
+    },
+    {
+      id: "photos",
+      label: "Photos Supp.",
+      icon: Camera,
+      message: "Could you send additional photos? Especially of the engine bay, underside, and any damage.",
+    },
+    {
+      id: "dispo",
+      label: "Dispo ?",
+      icon: HelpCircle,
+      message: "Hello, is the vehicle still available?",
+    },
+    {
+      id: "payment",
+      label: "Paiement",
+      icon: CreditCard,
+      message: "What payment methods do you accept? Is a bank transfer possible?",
+    },
+    {
+      id: "rdv",
+      label: "Rendez-vous",
+      icon: Calendar,
+      message: "When could I view the vehicle? I would like to come next week.",
+    },
+    {
+      id: "garantie",
+      label: "Garantie",
+      icon: Shield,
+      message: "Do you offer a warranty on the vehicle? How long and what does it cover?",
+    },
+  ],
+};
+
+export const CHEAT_SHEET = [
+  { fr: "Joint de culasse", de: "Zylinderkopfdichtung", it: "Guarnizione testata", nl: "Koppakking", en: "Head gasket" },
+  { fr: "Distribution", de: "Zahnriemen", it: "Cinghia distribuzione", nl: "Distributieriem", en: "Timing belt" },
+  { fr: "Embrayage", de: "Kupplung", it: "Frizione", nl: "Koppeling", en: "Clutch" },
+  { fr: "Boite de vitesses", de: "Getriebe", it: "Cambio", nl: "Versnellingsbak", en: "Gearbox" },
+  { fr: "Turbo", de: "Turbolader", it: "Turbocompressore", nl: "Turbolader", en: "Turbocharger" },
+  { fr: "Echappement", de: "Auspuff", it: "Scarico", nl: "Uitlaat", en: "Exhaust" },
+  { fr: "Freins", de: "Bremsen", it: "Freni", nl: "Remmen", en: "Brakes" },
+  { fr: "Disques de frein", de: "Bremsscheiben", it: "Dischi freno", nl: "Remschijven", en: "Brake discs" },
+  { fr: "Plaquettes", de: "Bremsbel\u00e4ge", it: "Pastiglie", nl: "Remblokken", en: "Brake pads" },
+  { fr: "Amortisseurs", de: "Sto\u00dfd\u00e4mpfer", it: "Ammortizzatori", nl: "Schokdempers", en: "Shock absorbers" },
+  { fr: "Radiateur", de: "K\u00fchler", it: "Radiatore", nl: "Radiateur", en: "Radiator" },
+  { fr: "Demarreur", de: "Anlasser", it: "Motorino avviamento", nl: "Startmotor", en: "Starter motor" },
+  { fr: "Alternateur", de: "Lichtmaschine", it: "Alternatore", nl: "Dynamo", en: "Alternator" },
+  { fr: "Carrosserie", de: "Karosserie", it: "Carrozzeria", nl: "Carrosserie", en: "Bodywork" },
+  { fr: "Pare-brise", de: "Windschutzscheibe", it: "Parabrezza", nl: "Voorruit", en: "Windshield" },
+  { fr: "Siege", de: "Sitz", it: "Sedile", nl: "Stoel", en: "Seat" },
+  { fr: "Tableau de bord", de: "Armaturenbrett", it: "Cruscotto", nl: "Dashboard", en: "Dashboard" },
+  { fr: "Controle technique", de: "T\u00dcV / HU", it: "Revisione", nl: "APK", en: "MOT / Inspection" },
+  { fr: "Carte grise", de: "Fahrzeugbrief (Zulassung)", it: "Libretto", nl: "Kentekenbewijs", en: "Registration doc" },
+  { fr: "Kilometrage", de: "Kilometerstand", it: "Chilometraggio", nl: "Kilometerstand", en: "Mileage" },
+  { fr: "Premiere main", de: "Erstbesitzer", it: "Prima mano", nl: "Eerste eigenaar", en: "First owner" },
+  { fr: "Accident", de: "Unfall", it: "Incidente", nl: "Ongeval", en: "Accident" },
+  { fr: "Rouille", de: "Rost", it: "Ruggine", nl: "Roest", en: "Rust" },
+  { fr: "Pneus", de: "Reifen", it: "Pneumatici", nl: "Banden", en: "Tires" },
+  { fr: "Vidange", de: "\u00d6lwechsel", it: "Cambio olio", nl: "Olieverversing", en: "Oil change" },
+  { fr: "Courroie accessoire", de: "Keilriemen", it: "Cinghia accessori", nl: "Snaar", en: "Drive belt" },
+  { fr: "Direction assistee", de: "Servolenkung", it: "Servosterzo", nl: "Stuurbekrachtiging", en: "Power steering" },
+  { fr: "Climatisation", de: "Klimaanlage", it: "Climatizzazione", nl: "Airconditioning", en: "Air conditioning" },
+  { fr: "Toit ouvrant", de: "Schiebedach", it: "Tetto apribile", nl: "Schuifdak", en: "Sunroof" },
+  { fr: "Echappement sport", de: "Sportauspuff", it: "Scarico sportivo", nl: "Sportuitlaat", en: "Sport exhaust" },
+];
+
+export const ALERT_KEYWORDS = {
+  de: [
+    { word: "Unfall", meaning: "Accident", severity: "danger" },
+    { word: "Netto", meaning: "Cash / Hors TVA", severity: "warning" },
+    { word: "keine Garantie", meaning: "Pas de garantie", severity: "danger" },
+    { word: "Bastler", meaning: "Pour bricoleur", severity: "danger" },
+    { word: "Export", meaning: "Export mentionne", severity: "info" },
+    { word: "Totalschaden", meaning: "Perte totale", severity: "danger" },
+    { word: "Rost", meaning: "Rouille", severity: "warning" },
+    { word: "nicht original", meaning: "Pas d'origine", severity: "warning" },
+    { word: "ohne TUV", meaning: "Sans controle technique", severity: "danger" },
+    { word: "Motorschaden", meaning: "Moteur casse", severity: "danger" },
+  ],
+  it: [
+    { word: "incidente", meaning: "Accident", severity: "danger" },
+    { word: "netto", meaning: "Cash / Hors TVA", severity: "warning" },
+    { word: "nessuna garanzia", meaning: "Pas de garantie", severity: "danger" },
+    { word: "da riparare", meaning: "A reparer", severity: "danger" },
+    { word: "export", meaning: "Export mentionne", severity: "info" },
+    { word: "sinistrato", meaning: "Accidente", severity: "danger" },
+  ],
+  nl: [
+    { word: "ongeval", meaning: "Accident", severity: "danger" },
+    { word: "netto", meaning: "Cash / Hors TVA", severity: "warning" },
+    { word: "geen garantie", meaning: "Pas de garantie", severity: "danger" },
+    { word: "voor de sloper", meaning: "Pour la casse", severity: "danger" },
+    { word: "export", meaning: "Export mentionne", severity: "info" },
+    { word: "roest", meaning: "Rouille", severity: "warning" },
+  ],
+  en: [
+    { word: "accident", meaning: "Accident", severity: "danger" },
+    { word: "cash only", meaning: "Cash uniquement", severity: "warning" },
+    { word: "no warranty", meaning: "Pas de garantie", severity: "danger" },
+    { word: "as is", meaning: "En l'etat", severity: "warning" },
+    { word: "project car", meaning: "Voiture projet", severity: "danger" },
+    { word: "salvage", meaning: "Epave", severity: "danger" },
+  ],
+};
+
+export const LANG_META = {
+  de: { flag: "\uD83C\uDDE9\uD83C\uDDEA", label: "Allemand", short: "DE" },
+  it: { flag: "\uD83C\uDDEE\uD83C\uDDF9", label: "Italien", short: "IT" },
+  nl: { flag: "\uD83C\uDDF3\uD83C\uDDF1", label: "Neerlandais", short: "NL" },
+  en: { flag: "\uD83C\uDDEC\uD83C\uDDE7", label: "Anglais", short: "EN" },
+  jp: { flag: "\uD83C\uDDEF\uD83C\uDDF5", label: "Japonais", short: "JP" },
+};

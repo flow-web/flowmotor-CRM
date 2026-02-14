@@ -3,11 +3,11 @@ import {
   X, Target, TrendingDown, TrendingUp, AlertTriangle, Loader2,
   CheckCircle2, XCircle, Zap, Activity, Info,
 } from 'lucide-react'
-import { analyzeMarketPrice, isGeminiConfigured } from '../../../lib/gemini'
+import { analyzeMarketPrice, isGeminiConfigured } from '../../../services/ai/gemini'
 import { useUI } from '../../context/UIContext'
 import { Button } from '@/components/ui/button'
 
-export default function MarketSniperModal({ vehicle, onClose }) {
+export default function MarketSniperModal({ vehicle, onClose, onApplyPrice }) {
   const { toast } = useUI()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysis, setAnalysis] = useState(null)
@@ -382,18 +382,34 @@ export default function MarketSniperModal({ vehicle, onClose }) {
                 </div>
               )}
 
-              {/* Re-analyze button */}
-              <Button
-                onClick={handleAnalyze}
-                disabled={isAnalyzing}
-                variant="outline"
-                className="w-full border-white/10 text-white/60 hover:text-white hover:bg-white/5 h-11"
-              >
-                <span className="flex items-center gap-2">
-                  <Target size={16} />
-                  Analyser à nouveau
-                </span>
-              </Button>
+              {/* Apply price + Re-analyze buttons */}
+              <div className="flex gap-3">
+                {onApplyPrice && (
+                  <Button
+                    onClick={() => {
+                      onApplyPrice(Math.round(analysis.averagePrice))
+                      onClose()
+                    }}
+                    className="flex-1 bg-[#C4A484] hover:bg-[#C4A484]/80 text-black font-semibold h-11"
+                  >
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 size={16} />
+                      Appliquer {formatPrice(analysis.averagePrice)}
+                    </span>
+                  </Button>
+                )}
+                <Button
+                  onClick={handleAnalyze}
+                  disabled={isAnalyzing}
+                  variant="outline"
+                  className={`${onApplyPrice ? '' : 'w-full '}flex-1 border-white/10 text-white/60 hover:text-white hover:bg-white/5 h-11`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Target size={16} />
+                    Ré-analyser
+                  </span>
+                </Button>
+              </div>
             </>
           )}
         </div>

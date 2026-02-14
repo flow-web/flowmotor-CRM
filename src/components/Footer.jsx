@@ -16,7 +16,7 @@ const NAV_LINKS = [
   { label: 'Stock', to: '/showroom' },
   { label: 'Financement', to: '/services' },
   { label: 'Reprise', to: '/atelier' },
-  { label: 'Guides', to: '/guides' },
+  { label: 'Journal', to: '/journal' },
   { label: 'Contact', to: '/contact' },
 ]
 
@@ -112,7 +112,7 @@ function Footer() {
 
       {/* ──── 1. Brand Marquee Banner ──── */}
       <div className="border-t border-[#C4A484]/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-center gap-0 overflow-hidden whitespace-nowrap">
             {BRAND_MARQUEE.map((brand, i) => (
               <span key={brand} className="flex items-center shrink-0">
@@ -132,11 +132,11 @@ function Footer() {
 
       {/* ──── 2. Main Section (4 columns) ──── */}
       <div className="border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid gap-12 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid gap-8 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 
             {/* Column 1 - Brand */}
-            <div className="space-y-6 sm:col-span-2 lg:col-span-1">
+            <div className="space-y-4 sm:col-span-2 lg:col-span-1">
               <Link to="/" className="inline-block group">
                 <img
                   src="/assets/logo-cream.svg"
@@ -171,7 +171,7 @@ function Footer() {
             </div>
 
             {/* Column 2 - Navigation */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               <h6 className="text-xs uppercase tracking-[0.2em] text-white/40 font-sans font-medium">
                 Navigation
               </h6>
@@ -189,7 +189,7 @@ function Footer() {
             </div>
 
             {/* Column 3 - Services */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               <h6 className="text-xs uppercase tracking-[0.2em] text-white/40 font-sans font-medium">
                 Services
               </h6>
@@ -207,7 +207,7 @@ function Footer() {
             </div>
 
             {/* Column 4 - Contact */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               <h6 className="text-xs uppercase tracking-[0.2em] text-white/40 font-sans font-medium">
                 Contact
               </h6>
@@ -270,8 +270,8 @@ function Footer() {
 
       {/* ──── 3. Google Reviews Banner ──── */}
       <div className="border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5">
             {/* Stars */}
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
@@ -314,8 +314,8 @@ function Footer() {
 
       {/* ──── 4. Bottom Bar ──── */}
       <div className="border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5
-                        flex flex-col sm:flex-row items-center justify-between gap-4
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3
+                        flex flex-col sm:flex-row items-center justify-between gap-3
                         text-xs text-white/30">
           <span>
             &copy; {currentYear} Flow Motor. Tous droits reserves.

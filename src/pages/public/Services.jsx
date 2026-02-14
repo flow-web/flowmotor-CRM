@@ -84,7 +84,7 @@ function FAQItem({ question, answer }) {
 function GuaranteeCard({ tier, badge, price, features, highlighted, recommended }) {
   return (
     <div
-      className={`relative rounded-2xl p-6 sm:p-8 transition-all duration-300 flex flex-col ${
+      className={`relative rounded-2xl p-4 sm:p-6 transition-all duration-300 flex flex-col ${
         recommended
           ? 'bg-[#C4A484]/[0.08] border-2 border-[#C4A484]/40 scale-[1.02] shadow-lg shadow-[#C4A484]/10'
           : highlighted
@@ -136,7 +136,7 @@ function GuaranteeCard({ tier, badge, price, features, highlighted, recommended 
 
       <Link
         to="/contact?subject=garantie"
-        className={`mt-8 flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C4A484]/50 ${
+        className={`mt-5 flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C4A484]/50 ${
           recommended
             ? 'bg-[#C4A484] text-[#1A0F0F] hover:bg-[#d4b494]'
             : 'border border-[#C4A484]/30 text-[#C4A484] hover:bg-[#C4A484] hover:text-[#1A0F0F]'
@@ -262,7 +262,7 @@ function Services() {
       {/* ══════════════════════════════════════
           HERO COMPACT
          ══════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-20 sm:py-24">
+      <section className="relative overflow-hidden py-10 sm:py-12">
         {/* Ambient orbs */}
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
           <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#C4A484]/[0.04] blur-[120px]" />
@@ -270,7 +270,7 @@ function Services() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#C4A484]/[0.02] blur-[180px]" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-[#C4A484] font-sans font-medium">
             Financement & Garantie
           </p>
@@ -281,7 +281,7 @@ function Services() {
             Des solutions sur-mesure pour votre projet automobile
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-sm text-white/60">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-sm text-white/60">
             <span className="flex items-center gap-2">
               <Shield size={16} className="text-[#C4A484]" />
               Garantie jusqu&apos;a 5 ans
@@ -301,7 +301,7 @@ function Services() {
       {/* ══════════════════════════════════════
           SIMULATEUR DE CREDIT
          ══════════════════════════════════════ */}
-      <section className="relative py-20">
+      <section className="relative py-10">
         {/* Watermark */}
         <img
           src="/assets/gears.svg"
@@ -311,8 +311,8 @@ function Services() {
           style={{ filter: 'brightness(0) invert(1)' }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C4A484]/10 text-[#C4A484] text-xs font-semibold tracking-wider uppercase mb-4">
               <Calculator size={14} />
               Simulateur
@@ -325,9 +325,9 @@ function Services() {
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] items-start">
+          <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr] items-start">
             {/* ── Left column: Sliders ── */}
-            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 space-y-10">
+            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 space-y-8">
 
               {/* Prix du vehicule */}
               <div>
@@ -420,7 +420,7 @@ function Services() {
             </div>
 
             {/* ── Right column: Result card ── */}
-            <div className="bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-between lg:sticky lg:top-28">
+            <div className="bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col justify-between lg:sticky lg:top-28">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-white/60 font-sans text-center">
                   Votre mensualite estimee
@@ -474,9 +474,9 @@ function Services() {
       {/* ══════════════════════════════════════
           FAQ FINANCEMENT
          ══════════════════════════════════════ */}
-      <section className="relative py-20">
+      <section className="relative py-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C4A484]/10 text-[#C4A484] text-xs font-semibold tracking-wider uppercase mb-4">
               <HelpCircle size={14} />
               FAQ
@@ -497,7 +497,7 @@ function Services() {
       {/* ══════════════════════════════════════
           TABLEAU COMPARATIF GARANTIES
          ══════════════════════════════════════ */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-10 overflow-hidden">
         {/* Watermark */}
         <img
           src="/assets/gear-motion.svg"
@@ -507,8 +507,8 @@ function Services() {
           style={{ filter: 'brightness(0) invert(1)' }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C4A484]/10 text-[#C4A484] text-xs font-semibold tracking-wider uppercase mb-4">
               <Shield size={14} />
               Protection
@@ -616,7 +616,7 @@ function Services() {
           </div>
 
           {/* ── Mobile/Tablet: stacked cards ── */}
-          <div className="lg:hidden grid gap-6 sm:grid-cols-2">
+          <div className="lg:hidden grid gap-4 sm:grid-cols-2">
             <GuaranteeCard
               tier="Essentielle"
               price="Incluse"

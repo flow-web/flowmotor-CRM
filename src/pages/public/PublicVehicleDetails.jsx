@@ -18,16 +18,11 @@ import {
   Send,
   CheckCircle,
   Loader2,
-  Zap,
-  Ruler,
-  Leaf,
-  Cog,
-  Fuel,
-  Clock,
   FileText,
   Heart
 } from 'lucide-react'
 import SEO from '../../components/SEO'
+import TechSpecsGrid from '../../components/vehicle/TechSpecsGrid'
 
 const formatPrice = (price) => {
   if (!price) return 'Prix sur demande'
@@ -148,45 +143,6 @@ function VehicleInquiryForm({ vehicle, vehicleName }) {
 }
 
 
-/* ─── Bento Spec Cell ─── */
-function BentoSpecCell({ icon: Icon, label, value, placeholder }) {
-  const hasValue = value !== null && value !== undefined && value !== ''
-
-  return (
-    <div
-      className={`group relative rounded-2xl border transition-all duration-300 overflow-hidden ${
-        hasValue
-          ? 'border-white/10 bg-white/[0.03] hover:border-[#C4A484]/30 hover:shadow-lg hover:shadow-[#C4A484]/5'
-          : 'border-white/[0.04] bg-white/[0.015]'
-      }`}
-    >
-      {/* Subtle gold gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#C4A484]/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      <div className="relative p-5 flex items-start gap-4">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-xl flex-shrink-0 transition-all duration-300 ${
-          hasValue
-            ? 'bg-[#C4A484]/10 group-hover:bg-[#C4A484]/15'
-            : 'bg-white/[0.03]'
-        }`}>
-          <Icon size={20} className={hasValue ? 'text-[#C4A484]' : 'text-white/15'} />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs uppercase tracking-[0.15em] text-white/35 font-sans font-medium mb-1">
-            {label}
-          </p>
-          <p className={`text-sm font-semibold font-sans ${
-            hasValue ? 'text-[#F4E8D8]' : 'text-white/15 italic font-normal'
-          }`}>
-            {hasValue ? value : (placeholder || 'Bientot disponible')}
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-
 /* ═══════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════ */
@@ -235,7 +191,7 @@ export default function PublicVehicleDetails() {
       try {
         const { data, error } = await supabase
           .from('vehicles')
-          .select('id, brand, model, trim, year, mileage, color, status, selling_price, images, import_country, is_eu_origin, notes, din_power, fiscal_power, co2, transmission, fuel, doors, seats, critair')
+          .select('*')
           .eq('id', id)
           .in('status', ['STOCK', 'SOURCING'])
           .single()
@@ -278,7 +234,7 @@ export default function PublicVehicleDetails() {
             100% { background-position: 200% 0; }
           }
         `}</style>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="h-4 w-40 rounded-lg mb-8" style={{
             background: 'linear-gradient(90deg, rgba(196,164,132,0.05) 25%, rgba(196,164,132,0.1) 50%, rgba(196,164,132,0.05) 75%)',
             backgroundSize: '200% 100%',
@@ -322,7 +278,7 @@ export default function PublicVehicleDetails() {
   if (error || !vehicle) {
     return (
       <main className="bg-[#1A0F0F] min-h-screen -mt-20 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="flex items-center justify-center mb-6">
             <div className="w-24 h-24 rounded-full bg-white/[0.03] flex items-center justify-center">
               <Car size={48} className="text-white/15" />
@@ -403,7 +359,7 @@ export default function PublicVehicleDetails() {
       {/* ══════════════════════════════════════
           BREADCRUMB
          ══════════════════════════════════════ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+      <section className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-3">
         <Link
           to="/showroom"
           className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-[#C4A484] transition-colors duration-300 font-sans"
@@ -416,7 +372,7 @@ export default function PublicVehicleDetails() {
       {/* ══════════════════════════════════════
           MAIN CONTENT — 2 col cockpit
          ══════════════════════════════════════ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <section className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-10">
         <div className="grid gap-8 lg:gap-12 lg:grid-cols-[1.35fr_1fr]" style={{ animation: 'fadeSlideUp 0.6s ease-out' }}>
 
           {/* === LEFT: Gallery === */}
@@ -596,9 +552,9 @@ export default function PublicVehicleDetails() {
       </section>
 
       {/* ══════════════════════════════════════
-          BENTO GRID — Technical Specs
+          TECHNICAL SPECS — Grouped Cards
          ══════════════════════════════════════ */}
-      <section className="relative z-10 border-t border-white/5 py-16 sm:py-20">
+      <section className="relative z-10 border-t border-white/5 py-12 sm:py-14">
         {/* Watermark */}
         <img
           src="/assets/gears.svg"
@@ -608,37 +564,18 @@ export default function PublicVehicleDetails() {
           style={{ filter: 'brightness(0) invert(1)' }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10" style={{ animation: 'fadeSlideUp 0.5s ease-out' }}>
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8" style={{ animation: 'fadeSlideUp 0.5s ease-out' }}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C4A484]/10 text-[#C4A484] text-xs font-semibold tracking-wider uppercase mb-4 font-sans">
               <FileText size={14} />
               Fiche technique
             </div>
             <h2 className="font-display text-3xl md:text-4xl text-white">
-              Specifications
+              Caracteristiques Techniques
             </h2>
           </div>
 
-          {/* Bento Grid — 4 columns on desktop, 2 on mobile */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ animation: 'fadeSlideUp 0.6s ease-out 0.1s both' }}>
-            {/* Row 1: Core specs (from DB) */}
-            <BentoSpecCell icon={Calendar} label="Annee" value={vehicle.year} />
-            <BentoSpecCell icon={Gauge} label="Kilometrage" value={formatKm(vehicle.mileage)} />
-            <BentoSpecCell icon={Palette} label="Couleur" value={vehicle.color} />
-            <BentoSpecCell icon={MapPin} label="Origine" value={vehicle.import_country} />
-
-            {/* Row 2: Engine & Performance */}
-            <BentoSpecCell icon={Zap} label="Puissance DIN" value={vehicle.din_power ? `${vehicle.din_power} ch` : null} placeholder="-- ch" />
-            <BentoSpecCell icon={Cog} label="Transmission" value={vehicle.transmission} placeholder="--" />
-            <BentoSpecCell icon={Fuel} label="Carburant" value={vehicle.fuel} placeholder="--" />
-            <BentoSpecCell icon={Shield} label="Puissance fiscale" value={vehicle.fiscal_power ? `${vehicle.fiscal_power} CV` : null} placeholder="-- CV" />
-
-            {/* Row 3: Economy & Body */}
-            <BentoSpecCell icon={Leaf} label="Crit'Air" value={vehicle.critair} placeholder="--" />
-            <BentoSpecCell icon={Leaf} label="CO2" value={vehicle.co2 ? `${vehicle.co2} g/km` : null} placeholder="-- g/km" />
-            <BentoSpecCell icon={Car} label="Portes" value={vehicle.doors} placeholder="--" />
-            <BentoSpecCell icon={Car} label="Places" value={vehicle.seats} placeholder="--" />
-          </div>
+          <TechSpecsGrid vehicle={vehicle} />
 
           {/* Data availability note */}
           <p className="text-center text-xs text-white/20 mt-6 font-sans">

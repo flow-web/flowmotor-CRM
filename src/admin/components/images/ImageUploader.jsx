@@ -4,7 +4,7 @@ import { Upload, X, Star, Loader2, AlertCircle, ImageIcon, Sparkles } from 'luci
 import { uploadImage as uploadToStorage } from '../../../lib/supabase/client'
 import { useVehicles } from '../../context/VehiclesContext'
 import { useUI } from '../../context/UIContext'
-import { applyVirtualStudio, isPhotoroomConfigured } from '../../../lib/api/photoroom'
+import { applyVirtualStudio, isPhotoroomConfigured } from '../../../services/api/photoroom'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_TYPES = { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] }
